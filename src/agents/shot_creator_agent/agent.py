@@ -6,7 +6,7 @@ from pydantic_ai import Agent
 from pydantic_ai.mcp import load_mcp_servers
 from pydantic_ai.run import AgentRunResult
 
-from src.libs.utils.prompt_loader import load_agent_prompt
+from src.libs.utils.prompt_loader import load_system_prompt
 from src.libs.utils.config_loader import load_mcp_config
 from src.libs.agent_memory.context_memory import save_context, load_context
 
@@ -19,7 +19,7 @@ class ShotCreator:
         self.session_id = session_id
 
         llm_model = f"openai:{os.getenv('LLM_MODEL')}"
-        system_prompt = load_agent_prompt(__file__)
+        system_prompt = load_system_prompt(__file__)
 
         servers = load_mcp_servers(load_mcp_config(__file__))
 
