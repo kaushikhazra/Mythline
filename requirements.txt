@@ -1,0 +1,5 @@
+pydantic-ai
+python-dotenv
+ddgs
+crawl4ai
+fastmcp
