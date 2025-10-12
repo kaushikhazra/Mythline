@@ -1,1 +1,7 @@
-{}
+{
+  "mcpServers": {
+    "filesystem": {
+      "url": "http://localhost:8002/mcp"
+    }
+  }
+}
