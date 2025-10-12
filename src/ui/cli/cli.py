@@ -1,10 +1,13 @@
 from src.agents.story_creator_agent.agent import StoryCreator
-from src.libs.utils.argument_parser import get_session
+from src.libs.utils.argument_parser import get_arguments
 
 
-session_id = get_session(StoryCreator.AGENT_ID)
-print(f"Session: {session_id}\n")
-story_creator = StoryCreator(session_id)
+args = get_arguments(
+    agent_id=StoryCreator.AGENT_ID,
+    description='Story Creator CLI'
+)
+print(f"Session: {args.session_id}\n")
+story_creator = StoryCreator(args.session_id)
 
 while True:
     prompt = input("🙍 User‍: ")
