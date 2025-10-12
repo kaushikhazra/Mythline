@@ -6,7 +6,7 @@ from pydantic_ai import Agent, RunContext
 from pydantic_ai.mcp import load_mcp_servers
 from pydantic_ai.run import AgentRunResult
 
-from src.libs.utils.prompt_loader import load_agent_prompt
+from src.libs.utils.prompt_loader import load_system_prompt, load_prompt
 from src.libs.utils.config_loader import load_mcp_config
 from src.libs.agent_memory.context_memory import save_context, load_context
 from src.libs.agent_memory.long_term_memory import save_long_term_memory, load_long_term_memory
@@ -24,7 +24,7 @@ class StoryCreator:
         self.session_id = session_id
 
         llm_model = f"openai:{os.getenv('LLM_MODEL')}"
-        system_prompt = load_agent_prompt(__file__)
+        system_prompt = load_system_prompt(__file__)
         system_prompt += self._load_preferences()
 
         # print(f"System Prompt:\n{system_prompt}\n")
@@ -47,12 +47,8 @@ class StoryCreator:
         async def create_dialog(ctx: RunContext, reference_text: str, actors: list[str]) -> str:
             print(f"""⚙ Calling Dialog Creator with \nActors: {actors} \nReference: {reference_text}""")
 
-            prompt = f"""
-            Create a dialog between these actors:
-            {actors}
-            from the following the following reference text:
-            "{reference_text}"
-            """
+            prompt_template = load_prompt(__file__, "create_dialog")
+            prompt = prompt_template.format(actors=actors, reference_text=reference_text)
             response = self._dialog_agent.run(prompt)
 
             print(f"""\n⚙ Got response:\n{response.output}""")
@@ -63,11 +59,8 @@ class StoryCreator:
         async def create_narration(ctx: RunContext, reference_text: str, word_count: int) -> str:
             print(f"""⚙ Calling Narrator with \nWord Count: {word_count} \nReference: {reference_text}""")
 
-            prompt = f"""
-            Create a {word_count} word narration from the given
-            reference text:
-            "{reference_text}"
-            """
+            prompt_template = load_prompt(__file__, "create_narration")
+            prompt = prompt_template.format(word_count=word_count, reference_text=reference_text)
             response = self._narrator_agent.run(prompt)
 
             print(f"""\n⚙ Got response:\n{response.output}""")
@@ -77,11 +70,9 @@ class StoryCreator:
         @self.agent.tool
         async def save_user_preference(ctx: RunContext, user_message: str):
             print(f"""⚙ Identifying user's preference""")
-            prompt = f"""Identify user is providing any preference or not
-            User's Message:
-            {user_message}
-            """
 
+            prompt_template = load_prompt(__file__, "save_user_preference")
+            prompt = prompt_template.format(user_message=user_message)
             response = self._user_preference_agent.run(prompt)
 
             print(f"""\n⚙ Got response:\n{response.output}""")

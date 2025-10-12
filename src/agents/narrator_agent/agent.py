@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 from pydantic_ai import Agent
 from pydantic_ai.run import AgentRunResult
 
-from src.libs.utils.prompt_loader import load_agent_prompt
+from src.libs.utils.prompt_loader import load_system_prompt
 from src.libs.agent_memory.context_memory import save_context, load_context
 
 load_dotenv()
@@ -17,7 +17,7 @@ class NarratorAgent:
         self.session_id = session_id
 
         llm_model = f"openai:{os.getenv('LLM_MODEL')}"
-        system_prompt = load_agent_prompt(__file__)
+        system_prompt = load_system_prompt(__file__)
 
         self.messages = load_context(self.AGENT_ID, session_id)
 

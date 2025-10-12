@@ -1,19 +1,17 @@
 import os
 
 
-def load_agent_prompt(caller_file, prompt_name="system_prompt.md"):
-    """
-    Load a prompt file from the agent's prompts directory.
-
-    Args:
-        caller_file: The __file__ variable from the calling agent script
-        prompt_name: Name of the prompt file (default: "system_prompt.md")
-
-    Returns:
-        str: Content of the prompt file
-    """
+def load_system_prompt(caller_file):
     agent_dir = os.path.dirname(os.path.abspath(caller_file))
-    prompt_path = os.path.join(agent_dir, "prompts", prompt_name)
+    prompt_path = os.path.join(agent_dir, "prompts", "system_prompt.md")
+
+    with open(prompt_path, "r") as file:
+        return file.read()
+
+
+def load_prompt(caller_file, prompt_name):
+    agent_dir = os.path.dirname(os.path.abspath(caller_file))
+    prompt_path = os.path.join(agent_dir, "prompts", f"{prompt_name}.md")
 
     with open(prompt_path, "r") as file:
         return file.read()

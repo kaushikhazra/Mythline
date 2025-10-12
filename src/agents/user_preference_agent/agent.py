@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 from pydantic_ai import Agent
 from pydantic_ai.run import AgentRunResult
 
-from src.libs.utils.prompt_loader import load_agent_prompt
+from src.libs.utils.prompt_loader import load_system_prompt
 
 load_dotenv()
 
@@ -14,7 +14,7 @@ class UserPreferenceAgent:
 
     def __init__(self):
         llm_model = f"openai:{os.getenv('LLM_MODEL')}"
-        system_prompt = load_agent_prompt(__file__)
+        system_prompt = load_system_prompt(__file__)
 
         self.agent = Agent(
             llm_model,

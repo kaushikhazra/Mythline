@@ -28,6 +28,7 @@ env.bak/
 venv.bak/
 
 .mythline/
+output/
 
 .vscode/
 .idea/
