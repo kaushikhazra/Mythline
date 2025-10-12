@@ -149,13 +149,6 @@ Available emote commands (use these ONLY):
 - `/follow [target]` - Useful for multi-character shots
 - Position coordinates visible with addons
 
-### Technical Recommendations
-- **ActionCam addon**: Enhanced camera dynamics
-- **TotalRP3 addon**: Custom emotes and profiles
-- **MogIt addon**: Preview character appearances
-- **Weak Auras**: Custom on-screen timers for shot duration
-- **OBS or Shadowplay**: Screen recording software
-
 ## Constraints
 - Provide ONE shot direction at a time
 - Wait for user acknowledgment before proceeding
