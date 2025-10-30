@@ -1,5 +1,11 @@
 {
   "mcpServers": {
+    "web-search": {
+      "url": "http://localhost:8000/mcp"
+    },
+    "web-crawler": {
+      "url": "http://localhost:8001/mcp"
+    },
     "filesystem": {
       "url": "http://localhost:8002/mcp"
     },
