@@ -18,14 +18,14 @@ class ShotCreator:
         llm_model = f"openai:{os.getenv('LLM_MODEL')}"
         system_prompt = load_system_prompt(__file__)
 
-        servers = load_mcp_servers(load_mcp_config(__file__))
+        # servers = load_mcp_servers(load_mcp_config(__file__))
 
         self.messages = []
 
         self.agent = Agent(
             llm_model,
-            system_prompt=system_prompt,
-            toolsets=servers
+            system_prompt=system_prompt
+            # toolsets=servers
         )
 
     def run(self, prompt: str) -> AgentRunResult:

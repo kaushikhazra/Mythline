@@ -3,3 +3,6 @@ python-dotenv
 ddgs
 crawl4ai
 fastmcp
+termcolor
+qdrant-client
+openai

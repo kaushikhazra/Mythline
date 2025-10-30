@@ -1,0 +1,42 @@
+## Base Folder Structure
+```bash
+/project_root
+    .env
+    .evn.example
+    mcp_config.json
+    system_prompt.md
+    /src
+        __init__.py
+        /ui
+            __init__.py
+            cli.py
+        /agent
+            __init__.py
+            /prompts
+                system_prompt.md
+                {any_user_prompts}.md
+            agent.py
+        /mcp_servers
+            __init__.py
+            /mcp_{server_name}
+                __init__.py
+                server.py
+        /libs
+            __init__.py
+            /xyx
+                __init__.py
+                xyz.py
+        /evals
+            __init__.py
+            /eval_{the_agent_name}
+                __init__.py
+                /prompts
+                    data_gen_for_{name}.md
+                    data_gen_for_{name}.md
+                    ...
+                    rubric_for_{rubric_name}.md
+                    rubric_for_{rubric_name}.md
+                    ...
+                eval_{name}.yml
+                eval_{name}.py
+```

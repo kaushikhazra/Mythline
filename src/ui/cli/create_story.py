@@ -13,8 +13,8 @@ while True:
     prompt = input("🙍 User‍: ")
 
     if prompt == "exit":
-        print(f"\n🤖 Agent: Good Bye!! \n\n")
+        print(f"\n✏️  Story Creator: Good Bye!! \n\n")
         break
 
     response = story_creator.run(prompt)
-    print(f"\n🤖 Agent: {response.output} \n\n")
+    print(f"\n✏️  Story Creator: {response.output} \n\n")

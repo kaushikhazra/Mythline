@@ -1,2 +1,2 @@
 @echo off
-python src/ui/cli/direct_shots.py %*
+python -m src.ui.cli.direct_shots %*

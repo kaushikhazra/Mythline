@@ -21,6 +21,6 @@ class UserPreferenceAgent:
             system_prompt=system_prompt
         )
 
-    def run(self, prompt: str) -> AgentRunResult:
-        agent_output = self.agent.run_sync(prompt)
+    async def run(self, prompt: str) -> AgentRunResult:
+        agent_output = await self.agent.run(prompt)
         return agent_output

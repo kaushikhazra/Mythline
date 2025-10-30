@@ -25,9 +25,8 @@ async def web_search(query: str) -> str:
     search_results = search(query)
     for result in search_results:
         page_content = await crawl_content(result['href'])
-        content += f"{result['href']} \n\n {page_content[:3000]} \n\n"
-
-    print(content[:300],"...")
+        content += f"{result['href']} \n\n {page_content} \n\n"
+        print(f"{result['href']} \n\n {page_content} \n\n","...")
 
     return content
 
