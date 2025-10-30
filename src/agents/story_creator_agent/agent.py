@@ -1,18 +1,34 @@
 import os
 
 from dotenv import load_dotenv
+from termcolor import colored
 
-from pydantic_ai import Agent, RunContext
 from pydantic_ai.mcp import load_mcp_servers
 from pydantic_ai.run import AgentRunResult
+from pydantic_ai import (
+    Agent, 
+    RunContext, 
+    ModelMessage, 
+    ToolCallPart,
+    AgentStreamEvent,
+    PartStartEvent,
+    PartDeltaEvent,
+    FunctionToolCallEvent,
+    FunctionToolResultEvent,
+    TextPartDelta,
+    ThinkingPartDelta,
+    ToolCallPartDelta,
+)
 
 from src.libs.utils.prompt_loader import load_system_prompt, load_prompt
 from src.libs.utils.config_loader import load_mcp_config
-from src.libs.agent_memory.context_memory import save_context, load_context
+from src.libs.agent_memory.context_memory import save_context, load_context, summarize_context
 from src.libs.agent_memory.long_term_memory import save_long_term_memory, load_long_term_memory
 from src.agents.narrator_agent import NarratorAgent
 from src.agents.dialog_creator_agent import DialogCreatorAgent
 from src.agents.user_preference_agent import UserPreferenceAgent
+
+
 
 load_dotenv()
 
@@ -36,7 +52,8 @@ class StoryCreator:
         self.agent = Agent(
             llm_model,
             system_prompt=system_prompt,
-            toolsets=servers
+            toolsets=servers,
+            history_processors=[summarize_context]
         )
 
         self._narrator_agent = NarratorAgent(session_id)
@@ -45,25 +62,30 @@ class StoryCreator:
 
         @self.agent.tool
         async def create_dialog(ctx: RunContext, reference_text: str, actors: list[str]) -> str:
-            print(f"""⚙ Calling Dialog Creator with \nActors: {actors} \nReference: {reference_text}""")
+            print(colored(f"""⚙ Calling Dialog Creator with 
+                          \nActors: {actors} 
+                          \nReference: {reference_text}""","grey"))
 
             prompt_template = load_prompt(__file__, "create_dialog")
             prompt = prompt_template.format(actors=actors, reference_text=reference_text)
-            response = self._dialog_agent.run(prompt)
+            response = await self._dialog_agent.run(prompt)
 
-            print(f"""\n⚙ Got response:\n{response.output}""")
+            print(colored(f"""\n⚙ Got response:\n{response.output}""", "grey"))
 
             return response.output
         
         @self.agent.tool
         async def create_narration(ctx: RunContext, reference_text: str, word_count: int) -> str:
-            print(f"""⚙ Calling Narrator with \nWord Count: {word_count} \nReference: {reference_text}""")
+            print(colored(f"""⚙ Calling Narrator with 
+                          \nWord Count: {word_count} 
+                          \nReference: {reference_text}""","grey"))
 
             prompt_template = load_prompt(__file__, "create_narration")
             prompt = prompt_template.format(word_count=word_count, reference_text=reference_text)
-            response = self._narrator_agent.run(prompt)
+            response = await self._narrator_agent.run(prompt)
 
-            print(f"""\n⚙ Got response:\n{response.output}""")
+            print(colored(f"""\n⚙ Got response:
+                          \n{response.output}""", "grey"))
 
             return response.output
         
@@ -73,7 +95,7 @@ class StoryCreator:
 
             prompt_template = load_prompt(__file__, "save_user_preference")
             prompt = prompt_template.format(user_message=user_message)
-            response = self._user_preference_agent.run(prompt)
+            response = await self._user_preference_agent.run(prompt)
 
             print(f"""\n⚙ Got response:\n{response.output}""")
 
@@ -94,7 +116,7 @@ class StoryCreator:
             preferences_text += f"- {pref['preference']}\n"
 
         return preferences_text
-
+    
     def run(self, prompt: str) -> AgentRunResult:
         agent_output = self.agent.run_sync(prompt, message_history=self.messages)
         self.messages = agent_output.all_messages()

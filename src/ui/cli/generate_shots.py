@@ -2,10 +2,18 @@ from tqdm import tqdm
 
 from src.agents.shot_creator_agent.agent import ShotCreator
 from src.libs.utils.markdown_parser import parse_markdown
-from src.libs.utils.argument_parser import get_io_files_with_verbose
+from src.libs.utils.argument_parser import get_arguments
 from src.libs.filesystem.file_operations import read_file, append_file
 
-input_file, output_file, verbose = get_io_files_with_verbose()
+args = get_arguments(
+    agent_id='shot_creator',
+    description='Shot Generator CLI',
+    require_input=True,
+    require_output=True
+)
+input_file = args.input_file
+output_file = args.output_file
+verbose = args.verbose
 
 story_md = read_file(input_file)
 

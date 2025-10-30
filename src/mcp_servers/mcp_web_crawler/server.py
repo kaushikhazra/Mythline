@@ -21,10 +21,11 @@ async def crawl(url: str) -> str:
     print(f"Crawling content from: {url}")
 
     content = await crawl_content(url)
+    content_trimmed = content[:3000]
 
     print(f"Crawled {len(content)} characters from {url}")
 
-    return content
+    return content_trimmed
 
 if __name__=='__main__':
     server.run(transport='streamable-http')

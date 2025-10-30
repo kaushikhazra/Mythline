@@ -26,8 +26,8 @@ class DialogCreatorAgent:
             system_prompt=system_prompt
         )
 
-    def run(self, prompt: str) -> AgentRunResult:
-        agent_output = self.agent.run_sync(prompt, message_history=self.messages)
+    async def run(self, prompt: str) -> AgentRunResult:
+        agent_output = await self.agent.run(prompt, message_history=self.messages)
         self.messages = agent_output.all_messages()
         save_context(self.AGENT_ID, self.session_id, self.messages)
         return agent_output
