@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "filesystem": {
+      "url": "http://localhost:8002/mcp"
+    },
+    "knowledge-base": {
+      "url": "http://localhost:8003/mcp"
+    }
+  }
+}

@@ -20,10 +20,16 @@ Mythline is a multi-agent system built with [Pydantic AI](https://ai.pydantic.de
 ### Agents
 
 **story_research_agent**
-- Main orchestrator for story research and creation
+- Research orchestrator for WoW lore gathering
 - Researches WoW lore using MCP web tools
-- Delegates narration and dialogue to sub-agents
+- Creates and maintains research notes
 - Tracks user preferences in long-term memory
+
+**story_creator_agent**
+- Story orchestrator for narrative generation
+- Transforms research notes into engaging stories
+- Delegates narration and dialogue to sub-agents
+- Structures stories with proper sections
 
 **narrator_agent**
 - Creates third-person narrations
@@ -140,6 +146,18 @@ Or manually:
 python -m src.ui.cli.research_story
 ```
 
+### Run Story Creator Agent
+
+Start the interactive CLI:
+```bash
+start_story_creator.bat
+```
+
+Or manually:
+```bash
+python -m src.ui.cli.create_story
+```
+
 ### CLI Arguments
 
 **Create new session:**
@@ -177,6 +195,7 @@ Mythline/
 ├── src/
 │   ├── agents/
 │   │   ├── story_research_agent/
+│   │   ├── story_creator_agent/
 │   │   ├── narrator_agent/
 │   │   ├── dialog_creator_agent/
 │   │   ├── user_preference_agent/

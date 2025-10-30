@@ -58,3 +58,25 @@ Your task is to {the task}
 ## Output
 {specify output format based on the requirement}
 ```
+
+### GPT Identity-Purpose Template
+```markdown
+## Identity:
+You are a|an {Persona}
+
+## Purpose:
+Your main purpose is {specify the purpose with limit in single sentence}
+
+## Rules:
+### Do's:
+{List do's}
+
+### Don'ts:
+{List don'ts}
+
+## Tone & Style:
+{Specify tone}
+
+{Add any other section necessary for this agent, like output format, tools information, etc. Always use proper heading to make it clear}
+
+```
