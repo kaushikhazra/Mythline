@@ -32,8 +32,8 @@ from src.agents.user_preference_agent import UserPreferenceAgent
 
 load_dotenv()
 
-class StoryCreator:
-    AGENT_ID = "story_creator"
+class StoryResearcher:
+    AGENT_ID = "story_researcher"
 
     
     def __init__(self, session_id: str):

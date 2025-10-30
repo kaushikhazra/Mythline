@@ -33,7 +33,7 @@ agent_name/
 ### Agent Types
 
 **Orchestrator Agents (with MCP tools)**
-- story_creator_agent
+- story_research_agent
 - shot_creator_agent
 - Load MCP servers for external tools
 - Have both context and long-term memory
@@ -257,7 +257,7 @@ Create `start_new_server.bat` for easy startup.
 ### Testing Agents Locally
 
 ```bash
-python src/ui/cli/cli.py
+python -m src.ui.cli.research_story
 ```
 
 ### Checking Memory
@@ -312,7 +312,7 @@ async def use_sub_agent(ctx: RunContext, input: str) -> str:
 ## Reference Files
 
 - `PDs/pydantic_ai_coding_guide.md` - Detailed coding patterns
-- `src/agents/story_creator_agent/agent.py` - Complex agent example
+- `src/agents/story_research_agent/agent.py` - Complex agent example
 - `src/agents/shot_creator_agent/agent.py` - Simple agent example
 - `src/agents/narrator_agent/agent.py` - Stateful sub-agent example
 - `src/agents/user_preference_agent/agent.py` - Stateless sub-agent example
