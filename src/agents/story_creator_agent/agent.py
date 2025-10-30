@@ -1,4 +1,6 @@
 import os
+import json
+from datetime import datetime
 
 from dotenv import load_dotenv
 from termcolor import colored
@@ -11,9 +13,8 @@ from src.libs.utils.prompt_loader import load_system_prompt
 from src.libs.utils.config_loader import load_mcp_config
 from src.libs.agent_memory.context_memory import save_context, load_context, summarize_context
 from src.libs.agent_memory.long_term_memory import save_long_term_memory, load_long_term_memory
-from src.agents.narrator_agent import NarratorAgent
-from src.agents.dialog_creator_agent import DialogCreatorAgent
 from src.agents.user_preference_agent import UserPreferenceAgent
+from src.agents.story_creator_agent.models import Story
 
 
 load_dotenv()
@@ -29,57 +30,70 @@ class StoryCreatorAgent:
         system_prompt = load_system_prompt(__file__)
         system_prompt += self._load_preferences()
 
-        servers = load_mcp_servers(load_mcp_config(__file__))
+        self.servers = load_mcp_servers(load_mcp_config(__file__))
 
         self.messages = load_context(self.AGENT_ID, session_id)
 
         self.agent = Agent(
             llm_model,
+            output_type=Story,
             system_prompt=system_prompt,
-            toolsets=servers,
+            toolsets=self.servers,
             history_processors=[summarize_context]
         )
 
-        self._narrator_agent = NarratorAgent(session_id)
-        self._dialog_agent = DialogCreatorAgent(session_id)
         self._user_preference_agent = UserPreferenceAgent()
 
         @self.agent.tool
-        async def create_dialog(ctx: RunContext, reference_text: str, actors: list[str]) -> str:
-            print(colored(f"""⚙ Calling Dialog Creator with
-                          \nActors: {actors}
-                          \nReference: {reference_text}""","grey"))
+        async def read_research_notes(ctx: RunContext, subject: str) -> str:
+            print(colored(f"⚙ Reading research notes for: {subject}", "grey"))
 
-            response = await self._dialog_agent.run(f"Create dialogue for actors: {', '.join(actors)}\n\nReference:\n{reference_text}")
+            path = f"output/{subject}/research.md"
 
-            print(colored(f"""\n⚙ Got response:\n{response.output}""", "grey"))
-
-            return response.output
+            try:
+                result = await self.servers["filesystem"].call_tool("read", {"path": path})
+                print(colored(f"✓ Research notes loaded from {path}", "green"))
+                return result
+            except Exception as e:
+                error_msg = f"No research notes found at {path}. Error: {str(e)}\nYou may need to perform web research to fill in the gaps."
+                print(colored(error_msg, "yellow"))
+                return error_msg
 
         @self.agent.tool
-        async def create_narration(ctx: RunContext, reference_text: str, word_count: int) -> str:
-            print(colored(f"""⚙ Calling Narrator with
-                          \nWord Count: {word_count}
-                          \nReference: {reference_text}""","grey"))
+        async def save_story_json(ctx: RunContext, subject: str, story: Story) -> str:
+            print(colored(f"⚙ Saving story for: {subject}", "grey"))
 
-            response = await self._narrator_agent.run(f"Create narration of approximately {word_count} words\n\nReference:\n{reference_text}")
+            dir_path = f"output/{subject}"
+            file_path = f"{dir_path}/story.json"
 
-            print(colored(f"""\n⚙ Got response:
-                          \n{response.output}""", "grey"))
+            try:
+                await self.servers["filesystem"].call_tool("create_dir", {"path": dir_path})
+            except:
+                pass
 
-            return response.output
+            story_json = story.model_dump_json(indent=2)
+
+            try:
+                await self.servers["filesystem"].call_tool("write", {"path": file_path, "content": story_json})
+                success_msg = f"Story saved successfully to {file_path}"
+                print(colored(success_msg, "green"))
+                return success_msg
+            except Exception as e:
+                error_msg = f"Failed to save story: {str(e)}"
+                print(colored(error_msg, "red"))
+                return error_msg
 
         @self.agent.tool
         async def save_user_preference(ctx: RunContext, user_message: str):
-            print(colored(f"""⚙ Identifying user's preference""", "grey"))
+            print(colored(f"⚙ Identifying user's preference", "grey"))
 
             response = await self._user_preference_agent.run(f"Extract story preferences from this message:\n{user_message}")
 
-            print(colored(f"""\n⚙ Got response:\n{response.output}""", "grey"))
+            print(colored(f"\n⚙ Got response:\n{response.output}", "grey"))
 
             if response.output.lower().strip() != "none":
                 save_long_term_memory(self.AGENT_ID, response.output)
-                print(colored(f"""✓ Preference saved to long-term memory""", "green"))
+                print(colored(f"✓ Preference saved to long-term memory", "green"))
 
             return response.output
 
@@ -95,7 +109,7 @@ class StoryCreatorAgent:
 
         return preferences_text
 
-    def run(self, prompt: str) -> AgentRunResult:
+    def run(self, prompt: str) -> AgentRunResult[Story]:
         agent_output = self.agent.run_sync(prompt, message_history=self.messages)
         self.messages = agent_output.all_messages()
         save_context(self.AGENT_ID, self.session_id, self.messages)

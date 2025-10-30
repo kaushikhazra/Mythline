@@ -7,6 +7,7 @@ from pydantic_ai.run import AgentRunResult
 
 from src.libs.utils.prompt_loader import load_system_prompt
 from src.libs.agent_memory.context_memory import save_context, load_context
+from src.agents.story_creator_agent.models import DialogueLines
 
 load_dotenv()
 
@@ -23,10 +24,11 @@ class DialogCreatorAgent:
 
         self.agent = Agent(
             llm_model,
+            output_type=DialogueLines,
             system_prompt=system_prompt
         )
 
-    async def run(self, prompt: str) -> AgentRunResult:
+    async def run(self, prompt: str) -> AgentRunResult[DialogueLines]:
         agent_output = await self.agent.run(prompt, message_history=self.messages)
         self.messages = agent_output.all_messages()
         save_context(self.AGENT_ID, self.session_id, self.messages)
