@@ -30,7 +30,6 @@ class Quest(BaseModel):
 class Story(BaseModel):
     title: str
     subject: str
-    date: str
     introduction: Narration
     quests: list[Quest]
     conclusion: Narration

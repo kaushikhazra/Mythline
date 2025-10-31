@@ -57,7 +57,6 @@ class Quest(BaseModel):
 class Story(BaseModel):
     title: str  # Story title
     subject: str  # Research subject (e.g., "shadowglen")
-    date: str  # YYYY-MM-DD format
     introduction: Narration  # Story opening, sets the scene
     quests: list[Quest]  # One or more quest narratives
     conclusion: Narration  # Story ending, wraps up the narrative
@@ -95,7 +94,6 @@ class Story(BaseModel):
 {
   "title": "The Awakening of Shadowglen",
   "subject": "shadowglen",
-  "date": "2025-01-15",
   "introduction": {
     "text": "The ancient trees of Shadowglen whispered secrets...",
     "word_count": 150
@@ -139,5 +137,4 @@ class Story(BaseModel):
 - All Narration.word_count must accurately reflect the actual word count of Narration.text
 - All DialogueLines must have at least one DialogueLine
 - All quests must have all four sections: introduction, dialogue, execution, completion
-- The date field should use today's date in YYYY-MM-DD format
 - Work autonomously - do not ask for user confirmation on outline or sections
