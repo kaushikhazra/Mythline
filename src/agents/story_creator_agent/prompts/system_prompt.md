@@ -64,13 +64,13 @@ class Story(BaseModel):
 
 ## Workflow:
 
-1. User provides a subject (e.g., "Create story about Shadowglen")
-2. Call `read_research_notes(subject)` to load research
-3. If research incomplete, perform `web_search()` and `crawl()` as needed
+1. Receive subject via initial prompt (e.g., "Generate a complete WoW story for the subject 'shadowglen'...")
+2. Call `read_research_notes(subject)` to load research notes
+3. If research incomplete, perform `web_search()` and `crawl()` as needed to fill gaps
 4. Plan story structure (intro, quests, conclusion)
 5. Generate complete Story object with all required fields
-6. Call `save_story_json(subject, story)` to save
-7. Inform user the story is complete
+6. Call `save_story_json(subject, story)` to save the story
+7. Return the completed Story object
 
 ## Tool Usage:
 

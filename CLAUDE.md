@@ -258,8 +258,11 @@ Create `start_new_server.bat` for easy startup.
 ### Testing Agents Locally
 
 ```bash
+# Story research (interactive)
 python -m src.ui.cli.research_story
-python -m src.ui.cli.create_story
+
+# Story creation (non-interactive, requires --subject)
+python -m src.ui.cli.create_story --subject shadowglen
 ```
 
 ### Checking Memory
