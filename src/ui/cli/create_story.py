@@ -7,6 +7,7 @@ from src.agents.story_creator_agent.agent import StoryCreatorAgent
 
 parser = argparse.ArgumentParser(description='Story Creator CLI - Non-Interactive Story Generation')
 parser.add_argument('--subject', '-s', type=str, required=True, help='Story subject (e.g., "shadowglen")')
+parser.add_argument('--player', '-p', type=str, required=True, help='Player character name (e.g., "Sarephine")')
 
 args = parser.parse_args()
 
@@ -22,11 +23,12 @@ if not os.path.exists(research_path):
 
 session_id = args.subject
 
-story_creator = StoryCreatorAgent(session_id=session_id)
+story_creator = StoryCreatorAgent(session_id=session_id, player_name=args.player)
 
-prompt = f"Generate a complete WoW story for the subject '{args.subject}'. Read research notes from {research_path}, and save the final story to output/{args.subject}/story.json."
+prompt = f"Generate a complete WoW story for the subject '{args.subject}' with player character '{args.player}'. Read research notes from {research_path}, and save the final story to output/{args.subject}/story.json."
 
 print(f"Starting story generation for: {args.subject}")
+print(f"Player character: {args.player}")
 print(f"Session ID: {session_id}")
 print(f"Research file: {research_path}")
 print("-" * 50)
