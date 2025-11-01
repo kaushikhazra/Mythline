@@ -15,7 +15,7 @@ from src.libs.agent_memory.context_memory import save_context, load_context, sum
 from src.libs.agent_memory.long_term_memory import save_long_term_memory, load_long_term_memory
 from src.agents.user_preference_agent import UserPreferenceAgent
 from src.agents.story_creator_agent.models import Story, init_validators
-from src.agents.story_reviewer_agent import StoryReviewerAgent
+from src.agents.reviewer_agent import ReviewerAgent
 from src.libs.filesystem.file_operations import read_file, write_file
 from src.libs.filesystem.directory_operations import create_directory
 
@@ -39,14 +39,8 @@ class StoryCreatorAgent:
 
         self.messages = load_context(self.AGENT_ID, session_id)
 
-        try:
-            self._reviewer_agent = StoryReviewerAgent(session_id=session_id)
-            init_validators(self._reviewer_agent, player_name, session_id)
-            print(colored("[+] Story validation enabled", "green"))
-        except Exception as e:
-            print(colored(f"[!] Could not initialize reviewer agent: {str(e)}", "yellow"))
-            print(colored("[!] Story validation disabled - MCP servers may not be running", "yellow"))
-            init_validators(None, player_name, session_id)
+        reviewer_agent = ReviewerAgent(session_id=session_id)
+        init_validators(reviewer_agent, player_name, session_id)
 
         self.agent = Agent(
             llm_model,

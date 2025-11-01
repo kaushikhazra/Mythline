@@ -1,3 +1,4 @@
+from abc import ABC, abstractmethod
 from pydantic import BaseModel, model_validator
 from termcolor import colored
 
@@ -14,29 +15,50 @@ def init_validators(reviewer_agent, player_name: str, subject: str):
     _subject = subject
 
 
-class Narration(BaseModel):
-    text: str
-    word_count: int
+class ReviewEnabled(BaseModel, ABC):
+    @abstractmethod
+    def review(self) -> str:
+        pass
 
     @model_validator(mode='after')
-    def validate_third_person_perspective(self):
-        if _reviewer_agent is None or _player_name is None:
+    def validate_content(self):
+        if _reviewer_agent is None:
             return self
 
         try:
-            print(colored("[*] Validating third-person perspective in narration", "grey"))
+            prompt = self.review()
+            print(colored(f"[*] Validating: {self.__class__.__name__}", "grey"))
 
-            result = _reviewer_agent.review_narration_perspective(self.text, _player_name)
+            result = _reviewer_agent.run(prompt)
 
             if not result.valid:
                 print(colored(f"[!] Validation failed: {result.error}", "red"))
                 raise ValueError(f"{result.error}\nSuggestion: {result.suggestion}")
 
-            print(colored("[+] Third-person perspective validation passed", "green"))
+            print(colored(f"[+] Validation passed: {self.__class__.__name__}", "green"))
         except Exception as e:
             print(colored(f"[!] Validation error (skipping): {str(e)[:100]}", "yellow"))
 
         return self
+
+
+class Narration(ReviewEnabled):
+    text: str
+    word_count: int
+
+    def review(self) -> str:
+        return f"""Review narration for proper third-person perspective.
+
+Player character name: {_player_name}
+Narration text: "{self.text}"
+
+Check:
+1. Must use third-person perspective (not "you/your")
+2. Should use player name "{_player_name}" when referring to player
+3. "She/her/he/him" pronouns are acceptable for flow and immersion
+4. Identify any second-person usage that needs correction
+
+Return validation result."""
 
 
 class DialogueLine(BaseModel):
@@ -44,33 +66,29 @@ class DialogueLine(BaseModel):
     line: str
 
 
-class DialogueLines(BaseModel):
+class DialogueLines(ReviewEnabled):
     lines: list[DialogueLine]
 
-    @model_validator(mode='after')
-    def validate_npc_location_conflict(self):
-        if _reviewer_agent is None:
-            return self
-
+    def review(self) -> str:
         actors = [line.actor for line in self.lines]
 
         if len(actors) <= 1:
-            return self
+            return f"""Single actor dialogue - no location validation needed.
+Actor: {actors[0] if actors else 'none'}
 
-        try:
-            print(colored(f"[*] Validating NPC location compatibility for: {', '.join(actors)}", "grey"))
+Return valid result."""
 
-            result = _reviewer_agent.review_npc_locations(actors)
+        return f"""Review NPC location compatibility for dialogue scene.
 
-            if not result.valid:
-                print(colored(f"[!] Validation failed: {result.error}", "red"))
-                raise ValueError(f"{result.error}\nSuggestion: {result.suggestion}")
+NPCs in dialogue: {', '.join(actors)}
 
-            print(colored("[+] NPC location validation passed", "green"))
-        except Exception as e:
-            print(colored(f"[!] Validation error (skipping): {str(e)[:100]}", "yellow"))
+Check:
+1. Can these NPCs physically be in the same location in World of Warcraft?
+2. Use web_search to verify NPC locations from warcraft.wiki.gg
+3. Determine if they can have a conversation together
+4. Consider the recording/cinematic constraints (impossible scenes can't be recorded)
 
-        return self
+Return validation result."""
 
 
 class QuestSection(BaseModel):
@@ -80,29 +98,31 @@ class QuestSection(BaseModel):
     completion: DialogueLines
 
 
-class Quest(BaseModel):
+class Quest(ReviewEnabled):
     title: str
     sections: QuestSection
 
-    @model_validator(mode='after')
-    def validate_quest_flow_mechanics(self):
-        if _reviewer_agent is None or _subject is None:
-            return self
+    def review(self) -> str:
+        dialogue_actors = ', '.join([line.actor for line in self.sections.dialogue.lines])
+        completion_actors = ', '.join([line.actor for line in self.sections.completion.lines])
 
-        try:
-            print(colored(f"[*] Validating quest flow mechanics for: {self.title}", "grey"))
+        return f"""Review quest flow for World of Warcraft game mechanics.
 
-            result = _reviewer_agent.review_quest_flow(self)
+Quest: {self.title}
+Subject: {_subject}
 
-            if not result.valid:
-                print(colored(f"[!] Validation failed: {result.error}", "red"))
-                raise ValueError(f"{result.error}\nSuggestion: {result.suggestion}")
+Quest structure:
+- Introduction: {self.sections.introduction.text[:100]}...
+- Dialogue actors: {dialogue_actors}
+- Completion actors: {completion_actors}
 
-            print(colored("[+] Quest flow mechanics validation passed", "green"))
-        except Exception as e:
-            print(colored(f"[!] Validation error (skipping): {str(e)[:100]}", "yellow"))
+Check:
+1. Does quest follow WoW mechanics (quest giver → objectives → turn-in)?
+2. Are quest giver and turn-in NPCs appropriate?
+3. Does quest flow make sense in WoW context?
+4. Use web_search or knowledge base to verify quest structure for {_subject}
 
-        return self
+Return validation result."""
 
 
 class Story(BaseModel):
