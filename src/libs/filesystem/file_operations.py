@@ -1,5 +1,8 @@
 import os
 
+def file_exists(path: str) -> bool:
+    return os.path.isfile(path)
+
 def read_file(path: str) -> str:
     try:
         with open(path, 'r', encoding='utf-8') as f:

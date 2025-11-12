@@ -6,3 +6,7 @@ fastmcp
 termcolor
 qdrant-client
 openai
+fastapi
+uvicorn[standard]
+websockets
+python-multipart

@@ -3,8 +3,6 @@
 /project_root
     .env
     .evn.example
-    mcp_config.json
-    system_prompt.md
     /src
         __init__.py
         /ui
@@ -12,10 +10,21 @@
             cli.py
         /agent
             __init__.py
-            /prompts
-                system_prompt.md
-                {any_user_prompts}.md
-            agent.py
+            /{some_agent_name}
+                __init__.py
+                /prompts
+                    system_prompt.md
+                    {any_user_prompts}.md
+                /models
+                    __init__.py
+                    {some_model_group}.py
+                agent.py
+        /graphs
+            __init__.py
+            /{some_graph_name}
+                __init__py
+                {some_node_group}.py
+                graph.py
         /mcp_servers
             __init__.py
             /mcp_{server_name}

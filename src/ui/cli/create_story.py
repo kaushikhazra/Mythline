@@ -1,6 +1,8 @@
 import os
 import sys
 import argparse
+import asyncio
+import traceback
 
 from src.agents.story_creator_agent.agent import StoryCreatorAgent
 
@@ -21,35 +23,36 @@ if not os.path.exists(research_path):
     print(f"  User: Research {args.subject}")
     sys.exit(1)
 
-session_id = args.subject
+async def main():
+    session_id = args.subject
 
-story_creator = StoryCreatorAgent(session_id=session_id, player_name=args.player)
+    story_creator = StoryCreatorAgent(session_id=session_id, player_name=args.player)
 
-prompt = f"Generate a complete WoW story for the subject '{args.subject}' with player character '{args.player}'. Read research notes from {research_path}, and save the final story to output/{args.subject}/story.json."
-
-print(f"Starting story generation for: {args.subject}")
-print(f"Player character: {args.player}")
-print(f"Session ID: {session_id}")
-print(f"Research file: {research_path}")
-print("-" * 50)
-print()
-
-try:
-    response = story_creator.run(prompt)
-
+    print(f"Starting story generation for: {args.subject}")
+    print(f"Player character: {args.player}")
+    print(f"Session ID: {session_id}")
+    print(f"Research file: {research_path}")
+    print("-" * 50)
     print()
-    print("=" * 50)
-    print("Story generation complete!")
-    print(f"Story title: {response.output.title}")
-    print(f"Quest count: {len(response.output.quests)}")
-    print(f"Output file: output/{args.subject}/story.json")
-    print("=" * 50)
-    sys.exit(0)
 
-except Exception as e:
-    print()
-    print("=" * 50)
-    print(f"Error during story generation: {str(e)}")
-    print(f"Session saved. You can resume by running the same command again.")
-    print("=" * 50)
-    sys.exit(1)
+    try:
+        await story_creator.run(subject=args.subject)
+
+        print()
+        print("=" * 50)
+        print("Story generation complete!")
+        print("=" * 50)
+        sys.exit(0)
+
+    except Exception as e:
+        print()
+        print("=" * 50)
+        print(f"Error during story generation:")
+        print("=" * 50)
+        traceback.print_exc()
+        print("=" * 50)
+        print(f"Session saved. You can resume by running the same command again.")
+        print("=" * 50)
+        sys.exit(1)
+
+asyncio.run(main())

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Story Creator - Mythline</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="chat-frame">
+        <div class="chat-main">
+            <h1>Story Creator</h1>
+
+            <div class="form-section">
+                <label class="form-label">Subject:</label>
+                <input type="text" class="form-input" placeholder="Enter subject (e.g., shadowglen)">
+
+                <label class="form-label">Player Name:</label>
+                <input type="text" class="form-input" placeholder="Enter player name">
+
+                <button class="submit-button">Create Story</button>
+            </div>
+
+            <div class="progress-section">
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 60%"></div>
+                    <div class="progress-text">7 / 12 TODOs Complete</div>
+                </div>
+            </div>
+
+            <div class="log-section">
+                <div class="log-message info">[INFO] Research loaded successfully</div>
+                <div class="log-message info">[INFO] Processing todo 7/12</div>
+                <div class="log-message success">[SUCCESS] Dialogue created for quest 2</div>
+                <div class="log-message info">[INFO] Creating narration for scene 3</div>
+            </div>
+        </div>
+    </div>
+    <div class="bottom-controls">
+        <button class="back-button" onclick="window.location.href='index.html'">Back</button>
+    </div>
+</body>
+</html>

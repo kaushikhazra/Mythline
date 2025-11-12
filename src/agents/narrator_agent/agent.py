@@ -7,7 +7,7 @@ from pydantic_ai.run import AgentRunResult
 
 from src.libs.utils.prompt_loader import load_system_prompt
 from src.libs.agent_memory.context_memory import save_context, load_context
-from src.agents.story_creator_agent.models import Narration
+from src.agents.story_creator_agent.models.story_models import Narration
 
 load_dotenv()
 

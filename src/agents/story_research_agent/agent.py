@@ -24,9 +24,9 @@ from src.libs.utils.prompt_loader import load_system_prompt, load_prompt
 from src.libs.utils.config_loader import load_mcp_config
 from src.libs.agent_memory.context_memory import save_context, load_context, summarize_context
 from src.libs.agent_memory.long_term_memory import save_long_term_memory, load_long_term_memory
-from src.agents.narrator_agent import NarratorAgent
-from src.agents.dialog_creator_agent import DialogCreatorAgent
-from src.agents.user_preference_agent import UserPreferenceAgent
+from src.agents.narrator_agent.agent import NarratorAgent
+from src.agents.dialog_creator_agent.agent import DialogCreatorAgent
+from src.agents.user_preference_agent.agent import UserPreferenceAgent
 
 
 
@@ -122,4 +122,18 @@ class StoryResearcher:
         self.messages = agent_output.all_messages()
         save_context(self.AGENT_ID, self.session_id, self.messages)
         return agent_output
+
+    async def run_async(self, prompt: str) -> AgentRunResult:
+        agent_output = await self.agent.run(prompt, message_history=self.messages)
+        self.messages = agent_output.all_messages()
+        save_context(self.AGENT_ID, self.session_id, self.messages)
+        return agent_output
+
+    async def run_stream(self, prompt: str):
+        async with self.agent.run_stream(prompt, message_history=self.messages) as result:
+            async for chunk in result.stream_text(delta=True):
+                yield chunk
+
+            self.messages = result.all_messages()
+            save_context(self.AGENT_ID, self.session_id, self.messages)
     
