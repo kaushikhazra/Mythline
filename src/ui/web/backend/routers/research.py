@@ -60,9 +60,20 @@ async def get_session(session_id: str):
 
     formatted_messages = []
     for msg in messages:
+        if hasattr(msg, 'role'):
+            role = msg.role
+        elif msg.__class__.__name__ == 'ModelRequest':
+            role = 'user'
+        elif msg.__class__.__name__ == 'ModelResponse':
+            role = 'assistant'
+        else:
+            role = 'system'
+
+        content = msg.parts[0].content if hasattr(msg, 'parts') and msg.parts else str(msg)
+
         formatted_messages.append({
-            "role": msg.role,
-            "content": msg.content
+            "role": role,
+            "content": content
         })
 
     return SessionHistory(
