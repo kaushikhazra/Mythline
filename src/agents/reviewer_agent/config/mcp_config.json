@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "web-search": {
+      "url": "http://localhost:8000/mcp"
+    },
+    "web-crawler": {
+      "url": "http://localhost:8001/mcp"
+    },
+    "knowledge-base": {
+      "url": "http://localhost:8003/mcp"
+    }
+  }
+}

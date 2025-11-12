@@ -19,11 +19,17 @@ Mythline is a multi-agent system built with [Pydantic AI](https://ai.pydantic.de
 
 ### Agents
 
-**story_creator_agent**
-- Main orchestrator for story creation
+**story_research_agent**
+- Research orchestrator for WoW lore gathering
 - Researches WoW lore using MCP web tools
-- Delegates narration and dialogue to sub-agents
+- Creates and maintains research notes
 - Tracks user preferences in long-term memory
+
+**story_creator_agent**
+- Story orchestrator for narrative generation
+- Transforms research notes into engaging stories
+- Delegates narration and dialogue to sub-agents
+- Structures stories with proper sections
 
 **narrator_agent**
 - Creates third-person narrations
@@ -128,46 +134,95 @@ python -m src.mcp_servers.mcp_web_crawler.server
 python -m src.mcp_servers.mcp_filesystem.server
 ```
 
-### Run Story Creator Agent
+### Run Story Research Agent
 
 Start the interactive CLI:
 ```bash
-start_story_creator_agent.bat
+start_story_researcher.bat
 ```
 
 Or manually:
 ```bash
-python src/ui/cli/cli.py
+python -m src.ui.cli.research_story
 ```
+
+### Run Story Creator Agent
+
+**Note:** Story creator requires research notes to exist first. Run story_research_agent before using this.
+
+Non-interactive story generation:
+```bash
+start_story_creator.bat --subject shadowglen
+```
+
+Or manually:
+```bash
+python -m src.ui.cli.create_story --subject shadowglen
+```
+
+The agent will:
+1. Validate research notes exist at `output/shadowglen/research.md`
+2. Autonomously generate complete story
+3. Save to `output/shadowglen/story.json`
+4. Use subject as session ID for resumable generation
 
 ### CLI Arguments
 
-**Create new session:**
+**Story Research Agent (Interactive):**
 ```bash
-python src/ui/cli/cli.py
+# Create new session
+python -m src.ui.cli.research_story
+
+# Resume last session
+python -m src.ui.cli.research_story --resume
+
+# Load specific session
+python -m src.ui.cli.research_story --session 20231015_143022
 ```
 
-**Resume last session:**
+**Story Creator Agent (Non-Interactive):**
 ```bash
-python src/ui/cli/cli.py --resume
+# Generate story for a subject
+python -m src.ui.cli.create_story --subject shadowglen
+
+# Short form
+python -m src.ui.cli.create_story -s shadowglen
 ```
 
-**Load specific session:**
-```bash
-python src/ui/cli/cli.py --session 20231015_143022
-```
+### Example Workflow
 
-### Example Interaction
-
+**Step 1: Research (Interactive)**
 ```
+start_story_researcher.bat
+
 Session: 20231015_143022
 
-🙍 User: Create a story about Velunasa starting her journey in Shadowglen
+🙍 User: Research Shadowglen starting zone for night elves
 
-🤖 Agent: I'll research Shadowglen and create an engaging introduction
-for Velunasa's journey...
+🤖 Agent: I'll research Shadowglen and gather lore information...
+[Agent creates output/shadowglen/research.md]
+```
 
-[Agent researches lore, delegates to sub-agents, and generates story]
+**Step 2: Story Creation (Non-Interactive)**
+```
+start_story_creator.bat --subject shadowglen
+
+Starting story generation for: shadowglen
+Session ID: shadowglen
+Research file: output/shadowglen/research.md
+--------------------------------------------------
+
+⚙ Reading research notes for: shadowglen
+✓ Research notes loaded from output/shadowglen/research.md
+⚙ Saving story for: shadowglen
+✓ Story saved successfully to output/shadowglen/story.json
+
+==================================================
+Story generation complete!
+Story title: The Awakening of Shadowglen
+Quest count: 3
+Output file: output/shadowglen/story.json
+==================================================
 ```
 
 ## Project Structure
@@ -176,6 +231,7 @@ for Velunasa's journey...
 Mythline/
 ├── src/
 │   ├── agents/
+│   │   ├── story_research_agent/
 │   │   ├── story_creator_agent/
 │   │   ├── narrator_agent/
 │   │   ├── dialog_creator_agent/

@@ -3,3 +3,10 @@ python-dotenv
 ddgs
 crawl4ai
 fastmcp
+termcolor
+qdrant-client
+openai
+fastapi
+uvicorn[standard]
+websockets
+python-multipart

@@ -38,3 +38,6 @@ output/
 .DS_Store
 output.md
 nul
+
+node_modules/
+package-lock.json
