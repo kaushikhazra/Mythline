@@ -60,21 +60,22 @@ async def get_session(session_id: str):
 
     formatted_messages = []
     for msg in messages:
-        if hasattr(msg, 'role'):
-            role = msg.role
-        elif msg.__class__.__name__ == 'ModelRequest':
-            role = 'user'
-        elif msg.__class__.__name__ == 'ModelResponse':
-            role = 'assistant'
-        else:
-            role = 'system'
+        if not hasattr(msg, 'parts') or not msg.parts:
+            continue
 
-        content = msg.parts[0].content if hasattr(msg, 'parts') and msg.parts else str(msg)
+        for part in msg.parts:
+            part_kind = getattr(part, 'part_kind', None)
 
-        formatted_messages.append({
-            "role": role,
-            "content": content
-        })
+            if part_kind == 'user-prompt':
+                formatted_messages.append({
+                    "role": "user",
+                    "content": getattr(part, 'content', str(part))
+                })
+            elif part_kind == 'text':
+                formatted_messages.append({
+                    "role": "assistant",
+                    "content": getattr(part, 'content', str(part))
+                })
 
     return SessionHistory(
         session_id=session_id,
