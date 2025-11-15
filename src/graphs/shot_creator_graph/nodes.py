@@ -273,6 +273,15 @@ class InitializeShotIndex(BaseNode[ShotCreatorSession]):
     async def run(self, ctx: GraphRunContext[ShotCreatorSession]) -> CheckHasMoreChunks:
         ctx.state.current_index = 0
         total_chunks = len(ctx.state.chunks)
+
+        subject = ctx.state.subject
+        chunks_file = f"output/{subject}/chunks.json"
+
+        chunks_data = [chunk.model_dump() for chunk in ctx.state.chunks]
+        chunks_json = json.dumps(chunks_data, indent=2)
+        write_file(chunks_file, chunks_json)
+
+        print(colored(f"[+] Saved {total_chunks} chunks to {chunks_file}", "green"))
         print(colored(f"\n[*] Starting shot creation phase ({total_chunks} chunks)...", "cyan"))
         return CheckHasMoreChunks()
 
