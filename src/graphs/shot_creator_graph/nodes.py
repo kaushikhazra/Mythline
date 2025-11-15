@@ -305,16 +305,16 @@ class CreateShot(BaseNode[ShotCreatorSession]):
 
         chunk = ctx.state.chunks[ctx.state.current_index]
 
-        prompt = f"""Create a shot for this chunk:
-Text: {chunk.text}
-Actor: {chunk.actor}
-Chunk Type: {chunk.chunk_type}
-Reference: {chunk.reference}"""
-
+        text = chunk.text
         if ctx.state.current_review_comments:
-            prompt += f"\n\nReview Feedback (address these issues):\n{ctx.state.current_review_comments}"
+            text += f"\n\n[REVIEW FEEDBACK - Address these issues]: {ctx.state.current_review_comments}"
 
-        result = await self.shot_creator_agent.run(prompt)
+        result = await self.shot_creator_agent.run(
+            text=text,
+            actor=chunk.actor,
+            chunk_type=chunk.chunk_type,
+            reference=chunk.reference
+        )
 
         return ReviewShot(shot=result.output)
 
