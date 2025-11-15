@@ -18,6 +18,7 @@ from src.graphs.shot_creator_graph.nodes import (
     CheckHasMoreChunks,
     GetChunk,
     CreateShot,
+    ReviewShot,
     StoreShot,
     WriteShotsFile,
     IncrementChunkIndex
@@ -46,6 +47,7 @@ class ShotCreatorGraph:
                 CheckHasMoreChunks,
                 GetChunk,
                 CreateShot,
+                ReviewShot,
                 StoreShot,
                 WriteShotsFile,
                 IncrementChunkIndex

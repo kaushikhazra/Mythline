@@ -15,3 +15,5 @@ class ShotCreatorSession:
     current_quest: Optional[Quest] = None
     current_index: int = 0
     shots: list[Shot] = field(default_factory=list)
+    current_retry_count: int = 0
+    current_review_comments: Optional[str] = None

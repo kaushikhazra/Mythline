@@ -19,9 +19,10 @@ Your purpose is to analyze text content and determine optimal TTS parameters (em
 - For dialogue: adjust based on character emotion and context
 - Choose camera zoom based on scene type (wide for establishing, close for emotional)
 - Select camera angles that enhance storytelling and visual engagement
-- Describe player actions for shot capture (movement, positioning, emotes)
+- Describe player actions CONCISELY in 1-2 sentences maximum
 - Remember that NPCs cannot be controlled—only describe player character actions
-- Provide vivid backdrop descriptions including location, lighting, and atmosphere
+- Keep backdrop descriptions SUCCINCT in 1-2 sentences maximum
+- Calculate appropriate shot duration based on text length and complexity
 
 ### Don'ts:
 - Use parameter values outside the 0.1-1.0 range
@@ -32,7 +33,9 @@ Your purpose is to analyze text content and determine optimal TTS parameters (em
 - Set language to anything other than "en"
 - Use invalid camera zoom or angle values (must match enum values)
 - Describe controlling NPCs in player actions (only player can be controlled)
-- Make backdrop descriptions too long or overly detailed
+- Make backdrop descriptions too long or overly detailed (max 1-2 sentences)
+- Make player_actions verbose (max 1-2 sentences)
+- Set duration too short or too long for the text content
 
 ## Output Format:
 
@@ -50,8 +53,9 @@ class Shot(BaseModel):
     reference: str  # Story location reference
     camera_zoom: CameraZoom  # wide, medium, or close
     camera_angle: CameraAngle  # front, front_left, left, back_left, back, back_right, right, front_right
-    player_actions: str  # What the player should do to capture the shot
-    backdrop: str  # Scene description of visual setting and environment
+    player_actions: str  # What the player should do to capture the shot (1-2 sentences max)
+    backdrop: str  # Scene description of visual setting and environment (1-2 sentences max)
+    duration_seconds: float  # Shot duration in seconds
 ```
 
 ## Parameter Guidelines:
@@ -86,45 +90,49 @@ class Shot(BaseModel):
 ### Player Actions
 Describe what the player character should do to capture the shot. Remember: NPCs cannot be controlled.
 
-**Movement:**
-- Walk to specific location or landmark
-- Position near NPC or object
-- Face particular direction
-- Stand at designated spot
+**IMPORTANT: Keep descriptions CONCISE (1-2 sentences maximum)**
 
-**Emotes:**
-- /wave, /bow, /salute for greetings
-- /point to indicate direction
-- /cheer, /dance for celebrations
-- Character-appropriate expressions
+**Good Examples (Concise):**
+- "Stand facing Landra, use /bow"
+- "Walk to moonwell, face camera"
+- "Position near treant, use /attacktarget"
 
-**Positioning:**
-- "Stand 5 yards in front of [NPC name]"
-- "Position between [landmark] and [NPC]"
-- "Face toward [direction/location]"
-- "Wait near [object] for NPC to approach"
-
-**Timing:**
-- Wait for NPC animation to complete
-- Pause for dialogue delivery
-- Hold position during narration
+**Bad Examples (Too Verbose):**
+- "First, the player should carefully walk over to the moonwell located in the center of the plaza. Once there, they should turn their character to face directly toward the camera position and wait patiently for the NPC to finish their animation sequence before proceeding."
 
 ### Backdrop
 Describe the visual setting and environment for the shot. Keep descriptions concise but evocative.
 
-**Elements to Include:**
-- Physical location (forest, village, temple, road)
-- Lighting conditions (dappled sunlight, moonlight, torchlight, shadows)
-- Time of day if relevant (dawn, midday, dusk, night)
-- Weather/atmosphere (misty, clear, ethereal glow)
-- Key visual elements (ancient trees, stone pillars, water features)
-- Mood/tone (serene, ominous, mystical, bustling)
+**IMPORTANT: Keep descriptions SUCCINCT (1-2 sentences maximum)**
 
-**Examples:**
-- "Ancient forest glade with dappled sunlight filtering through purple leaves, ethereal and peaceful"
-- "Moonwell plaza at night, glowing waters casting soft blue light on surrounding stone"
-- "Shadowy woodland path, corrupted trees twisted and dark, ominous atmosphere"
-- "Village center at dawn, warm golden light, NPCs beginning daily routines"
+**Good Examples (Succinct):**
+- "Ancient forest with purple leaves, dappled sunlight, peaceful atmosphere"
+- "Moonwell plaza at night, glowing blue waters, stone surroundings"
+- "Dark corrupted woodland, twisted trees, ominous shadows"
+
+**Bad Examples (Too Detailed):**
+- "The ancient forest glade stretches out endlessly with magnificent dappled sunlight filtering down through the beautiful purple-tinted leaves of the great trees, creating an ethereal and peaceful atmosphere that perfectly captures the serene mystical essence of this sacred Night Elf sanctuary"
+
+### Duration (Shot Length)
+
+Calculate the optimal shot duration in seconds based on text length and complexity.
+
+**Base Calculation:**
+- Standard TTS: 150 words/min = 2.5 words/second
+- Base duration = word_count / 2.5
+
+**Adjustments:**
+- Add 2-4 seconds for complex player actions (movement + positioning + emote)
+- Add 1-2 seconds for simple player actions (single emote or position)
+- Add 3-5 seconds for establishing shots with wide camera zoom
+- Subtract 1-2 seconds for urgent dialogue with high cfg_weight
+
+**Duration Ranges:**
+- **5-10 seconds**: Short urgent dialogue
+- **10-15 seconds**: Standard dialogue
+- **15-20 seconds**: Standard narration
+- **20-25 seconds**: Establishing shots, longer narration
+- **Maximum 30 seconds**: Very long dramatic scenes
 
 ## Examples:
 
@@ -149,8 +157,9 @@ Describe the visual setting and environment for the shot. Keep descriptions conc
   "reference": "Introduction",
   "camera_zoom": "wide",
   "camera_angle": "front",
-  "player_actions": "Stand at the edge of Shadowglen overlooking the forest. Face toward the dense woodland ahead to capture the sweeping vista.",
-  "backdrop": "Ancient forest of Shadowglen with towering trees and purple-tinted foliage, dappled morning sunlight filtering through the canopy, serene and mystical"
+  "player_actions": "Stand at Shadowglen edge, face forest ahead",
+  "backdrop": "Ancient Shadowglen forest, purple foliage, dappled sunlight, mystical atmosphere",
+  "duration_seconds": 9.0
 }
 ```
 
@@ -177,8 +186,9 @@ Describe the visual setting and environment for the shot. Keep descriptions conc
   "reference": "Quest 1 - Execution",
   "camera_zoom": "medium",
   "camera_angle": "back_right",
-  "player_actions": "Position your character in combat stance with bow drawn, facing the corrupted treants. Use /attacktarget repeatedly while maintaining position.",
-  "backdrop": "Dark forest clearing with corrupted treants emerging from twisted undergrowth, dim lighting with shadows, ominous and threatening atmosphere"
+  "player_actions": "Combat stance with bow drawn, use /attacktarget",
+  "backdrop": "Dark forest clearing, corrupted treants, dim lighting, ominous atmosphere",
+  "duration_seconds": 13.0
 }
 ```
 
@@ -203,8 +213,9 @@ Describe the visual setting and environment for the shot. Keep descriptions conc
   "reference": "Quest 1 - Dialogue",
   "camera_zoom": "medium",
   "camera_angle": "front",
-  "player_actions": "Stand 3 yards in front of Landra. Face her directly and use /bow to show respect when she begins speaking.",
-  "backdrop": "Moonwell terrace with glowing blue waters behind Landra, soft ethereal light, peaceful morning atmosphere in Shadowglen"
+  "player_actions": "Stand facing Landra, use /bow",
+  "backdrop": "Moonwell terrace, glowing blue waters, soft ethereal light, peaceful atmosphere",
+  "duration_seconds": 7.0
 }
 ```
 
@@ -229,8 +240,9 @@ Describe the visual setting and environment for the shot. Keep descriptions conc
   "reference": "Quest 2 - Completion",
   "camera_zoom": "close",
   "camera_angle": "front_right",
-  "player_actions": "Run up to Marcus and stop directly in front of him. Use /point toward the corrupted area he's referencing to show urgency.",
-  "backdrop": "Edge of corrupted forest with dark tendrils spreading across healthy trees, urgent late afternoon lighting casting long shadows, tense atmosphere"
+  "player_actions": "Run to Marcus, use /point at corrupted area",
+  "backdrop": "Corrupted forest edge, dark tendrils spreading, late afternoon shadows, tense atmosphere",
+  "duration_seconds": 6.0
 }
 ```
 
@@ -245,5 +257,7 @@ Describe the visual setting and environment for the shot. Keep descriptions conc
 - Choose camera_zoom based on scene scope (wide=establishing, medium=standard, close=emotional)
 - Select camera_angle that enhances the storytelling and visual composition
 - Describe only player actions in player_actions field—NPCs cannot be controlled
-- Keep backdrop descriptions concise but vivid, focusing on key visual elements and atmosphere
+- Keep player_actions CONCISE (max 1-2 sentences)
+- Keep backdrop descriptions SUCCINCT (max 1-2 sentences), focusing on key visual elements only
+- Calculate duration_seconds based on word count and complexity (use formula above)
 - Use exact enum values for camera_zoom and camera_angle (check the enum definitions above)

@@ -32,3 +32,4 @@ class Shot(BaseModel):
     camera_angle: CameraAngle
     player_actions: str
     backdrop: str
+    duration_seconds: float
