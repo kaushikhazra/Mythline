@@ -13,7 +13,7 @@ class UserPreferenceAgent:
     AGENT_ID = "user_preference"
 
     def __init__(self):
-        llm_model = f"openai:{os.getenv('LLM_MODEL')}"
+        llm_model = f"openrouter:{os.getenv('LLM_MODEL')}"
         system_prompt = load_system_prompt(__file__)
 
         self.agent = Agent(

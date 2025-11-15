@@ -1,6 +1,8 @@
+import os
 import asyncio
 from pathlib import Path
 
+from dotenv import load_dotenv
 from pydantic import BaseModel
 
 from pydantic_evals import Dataset
@@ -10,6 +12,8 @@ from pydantic_evals.generation import generate_dataset
 from src.agents.llm_tester_agent.agent import LLMTester
 from src.libs.utils.prompt_loader import load_prompt
 from src.libs.filesystem.file_operations import write_file
+
+load_dotenv()
 
 llm_tester = LLMTester(session_id="eval_session")
 
@@ -67,9 +71,11 @@ async def execute_agent(input: ResearchInput) -> ResearchOutput:
     return output
 
 async def main():
+    llm_model = f"openrouter:{os.getenv('LLM_MODEL')}"
+
     if not eval_file.exists():
         dataset = await generate_dataset(
-            model='openai:gpt-5-mini',
+            model=llm_model,
             dataset_type=Dataset[ResearchInput, ResearchOutput, ResearchMetadata],
             n_examples=5,
             extra_instructions=data_gen_research,
@@ -83,28 +89,28 @@ async def main():
     datasets.add_evaluator(LLMJudge(
         include_input=True,
         score=OutputConfig(evaluation_name="relevance", include_reason=True),
-        model='openai:gpt-5-mini',
+        model=llm_model,
         rubric=rubric_relevance
     ))
 
     datasets.add_evaluator(LLMJudge(
         include_input=True,
         score=OutputConfig(evaluation_name="formatting", include_reason=True),
-        model='openai:gpt-5-mini',
+        model=llm_model,
         rubric=rubric_formatting
     ))
 
     datasets.add_evaluator(LLMJudge(
         include_input=True,
         score=OutputConfig(evaluation_name="sources", include_reason=True),
-        model='openai:gpt-5-mini',
+        model=llm_model,
         rubric=rubric_sources
     ))
 
     datasets.add_evaluator(LLMJudge(
         include_input=True,
         score=OutputConfig(evaluation_name="structure", include_reason=True),
-        model='openai:gpt-5-mini',
+        model=llm_model,
         rubric=rubric_structure
     ))
 

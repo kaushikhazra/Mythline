@@ -1,7 +1,13 @@
 {
   "permissions": {
     "allow": [
-      "Bash(mkdir:*)"
+      "Bash(mkdir:*)",
+      "WebFetch(domain:github.com)",
+      "WebSearch",
+      "WebFetch(domain:datastud.dev)",
+      "Bash(cat:*)",
+      "Bash(find:*)",
+      "Bash(dir \"C:\\Projects\\ai-agents\\chatterbox_audio_agent\" /s)"
     ],
     "deny": [],
     "ask": []

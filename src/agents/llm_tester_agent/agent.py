@@ -18,7 +18,7 @@ class LLMTester:
     def __init__(self, session_id: str):
         self.session_id = session_id
 
-        llm_model = f"openai:{os.getenv('LLM_MODEL')}"
+        llm_model = f"openrouter:{os.getenv('LLM_MODEL')}"
         system_prompt = load_system_prompt(__file__)
 
         servers = load_mcp_servers(load_mcp_config(__file__))

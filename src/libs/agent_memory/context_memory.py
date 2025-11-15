@@ -1,3 +1,4 @@
+import os
 import json
 
 from dotenv import load_dotenv
@@ -7,9 +8,9 @@ from termcolor import colored
 from pydantic_core import to_jsonable_python
 
 from pydantic_ai import (
-    Agent, 
-    RunContext, 
-    ModelMessage, 
+    Agent,
+    RunContext,
+    ModelMessage,
     ModelMessagesTypeAdapter
 )
 
@@ -18,7 +19,7 @@ load_dotenv()
 CONTEXT_DIR = ".mythline"
 
 SUMMARIZER_AGENT = Agent(
-    'openai:gpt-4o-mini'
+    f"openrouter:{os.getenv('LLM_MODEL')}"
 )
 
 
