@@ -299,7 +299,7 @@ class CreateShot(BaseNode[ShotCreatorSession]):
     def __post_init__(self):
         self.shot_creator_agent = None
 
-    async def run(self, ctx: GraphRunContext[ShotCreatorSession]):
+    async def run(self, ctx: GraphRunContext[ShotCreatorSession]) -> ReviewShot:
         if self.shot_creator_agent is None:
             self.shot_creator_agent = ShotCreatorAgent()
 
@@ -326,7 +326,7 @@ class ReviewShot(BaseNode[ShotCreatorSession]):
     def __post_init__(self):
         self.shot_reviewer_agent = None
 
-    async def run(self, ctx: GraphRunContext[ShotCreatorSession]):
+    async def run(self, ctx: GraphRunContext[ShotCreatorSession]) -> CreateShot | StoreShot:
         if self.shot_reviewer_agent is None:
             self.shot_reviewer_agent = ShotReviewerAgent(session_id=ctx.state.subject)
 
