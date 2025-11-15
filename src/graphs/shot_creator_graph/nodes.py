@@ -271,18 +271,37 @@ class ProcessConclusion(BaseNode[ShotCreatorSession]):
 @dataclass
 class InitializeShotIndex(BaseNode[ShotCreatorSession]):
     async def run(self, ctx: GraphRunContext[ShotCreatorSession]) -> CheckHasMoreChunks:
-        ctx.state.current_index = 0
         total_chunks = len(ctx.state.chunks)
-
         subject = ctx.state.subject
+
         chunks_file = f"output/{subject}/chunks.json"
+        shots_file = f"output/{subject}/shots.json"
 
         chunks_data = [chunk.model_dump() for chunk in ctx.state.chunks]
         chunks_json = json.dumps(chunks_data, indent=2)
         write_file(chunks_file, chunks_json)
 
         print(colored(f"[+] Saved {total_chunks} chunks to {chunks_file}", "green"))
-        print(colored(f"\n[*] Starting shot creation phase ({total_chunks} chunks)...", "cyan"))
+
+        if file_exists(shots_file):
+            existing_shots_content = read_file(shots_file)
+            try:
+                existing_shots_data = json.loads(existing_shots_content)
+                if existing_shots_data:
+                    from src.agents.shot_creator_agent.models.output_models import Shot
+                    ctx.state.shots = [Shot.model_validate(shot) for shot in existing_shots_data]
+                    ctx.state.current_index = len(ctx.state.shots)
+                    print(colored(f"[*] Resuming from shot {ctx.state.current_index + 1} ({len(ctx.state.shots)} shots already created)", "yellow"))
+                else:
+                    ctx.state.current_index = 0
+            except (json.JSONDecodeError, ValueError):
+                ctx.state.current_index = 0
+                print(colored(f"[!] Invalid shots.json, starting from beginning", "yellow"))
+        else:
+            ctx.state.current_index = 0
+
+        remaining_chunks = total_chunks - ctx.state.current_index
+        print(colored(f"\n[*] Starting shot creation phase ({remaining_chunks} chunks remaining)...", "cyan"))
         return CheckHasMoreChunks()
 
 
