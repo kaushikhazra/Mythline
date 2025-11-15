@@ -2,7 +2,7 @@ import os
 from dotenv import load_dotenv
 from mcp.server.fastmcp import FastMCP
 
-from src.libs.knowledge_base.knowledge_vectordb import search_knowledge, list_all_chunks, get_all_knowledge_collections
+from src.libs.knowledge_base.knowledge_vectordb import search_knowledge, list_all_chunks, get_all_knowledge_collections, index_knowledge
 
 load_dotenv()
 
@@ -76,8 +76,36 @@ def list_indexed_content(knowledge_dir: str = "guides") -> str:
         output += f"    {chunk['text_preview']}\n\n"
 
     print(f"{output}")
-    
+
     return output
+
+
+@server.tool()
+def reindex_knowledge(knowledge_dir: str = "guides") -> str:
+    """Re-indexes all content in a specific knowledge base.
+
+    Args:
+        knowledge_dir (str): The knowledge directory to re-index (default: "guides")
+
+    Returns:
+        str: Success message with number of chunks indexed
+    """
+    print(f"Re-indexing knowledge base: {knowledge_dir}")
+
+    try:
+        result = index_knowledge(knowledge_dir, fresh=True)
+
+        output = f"Successfully re-indexed '{knowledge_dir}' knowledge base.\n"
+        output += f"Total chunks indexed: {result['total_chunks']}\n"
+        output += f"Files processed: {result['files_processed']}"
+
+        print(output)
+        return output
+
+    except Exception as e:
+        error_msg = f"Error re-indexing '{knowledge_dir}': {str(e)}"
+        print(error_msg)
+        return error_msg
 
 
 if __name__=='__main__':

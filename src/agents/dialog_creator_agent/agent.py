@@ -17,7 +17,7 @@ class DialogCreatorAgent:
     def __init__(self, session_id: str):
         self.session_id = session_id
 
-        llm_model = f"openai:{os.getenv('LLM_MODEL')}"
+        llm_model = f"openrouter:{os.getenv('LLM_MODEL')}"
         system_prompt = load_system_prompt(__file__)
 
         self.messages = load_context(self.AGENT_ID, session_id)

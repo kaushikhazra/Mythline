@@ -9,7 +9,6 @@ from src.graphs.shot_creator_graph.models.state_models import ShotCreatorSession
 from src.agents.story_creator_agent.models.story_models import Story
 from src.agents.chunker_agent import ChunkerAgent
 from src.agents.shot_creator_agent import ShotCreatorAgent
-from src.agents.shot_reviewer_agent import ShotReviewerAgent
 from src.libs.filesystem.file_operations import read_file, write_file, file_exists
 
 
@@ -342,86 +341,20 @@ class CreateShot(BaseNode[ShotCreatorSession]):
     def __post_init__(self):
         self.shot_creator_agent = None
 
-    async def run(self, ctx: GraphRunContext[ShotCreatorSession]) -> ReviewShot:
+    async def run(self, ctx: GraphRunContext[ShotCreatorSession]) -> StoreShot:
         if self.shot_creator_agent is None:
             self.shot_creator_agent = ShotCreatorAgent()
 
         chunk = ctx.state.chunks[ctx.state.current_index]
 
-        text = chunk.text
-        if ctx.state.current_review_comments:
-            text += f"\n\n[REVIEW FEEDBACK - Address these issues]: {ctx.state.current_review_comments}"
-
         result = await self.shot_creator_agent.run(
-            text=text,
+            text=chunk.text,
             actor=chunk.actor,
             chunk_type=chunk.chunk_type,
             reference=chunk.reference
         )
 
-        return ReviewShot(shot=result.output)
-
-
-@dataclass
-class ReviewShot(BaseNode[ShotCreatorSession]):
-    shot: object
-
-    def __post_init__(self):
-        self.shot_reviewer_agent = None
-
-    async def run(self, ctx: GraphRunContext[ShotCreatorSession]) -> CreateShot | StoreShot:
-        if self.shot_reviewer_agent is None:
-            self.shot_reviewer_agent = ShotReviewerAgent()
-
-        shot_number = ctx.state.current_index + 1
-
-        print(colored(f"\n[*] Reviewing shot {shot_number}...", "cyan"))
-
-        previous_shots_context = ""
-        if ctx.state.shots:
-            same_location_shots = [s for s in ctx.state.shots if s.reference == self.shot.reference]
-            if same_location_shots:
-                previous_shots_context = f"\n\nPrevious shots in same location ({self.shot.reference}): {len(same_location_shots)} shots"
-
-        review_prompt = f"""Review this WoW video shot for authenticity and feasibility.
-
-Shot Details:
-- Text: "{self.shot.text}"
-- Actor: {self.shot.actor}
-- Reference: {self.shot.reference}
-- Camera Zoom: {self.shot.camera_zoom}
-- Camera Angle: {self.shot.camera_angle}
-- Player Actions: "{self.shot.player_actions}"
-- Backdrop: "{self.shot.backdrop}"
-- Duration: {self.shot.duration_seconds} seconds{previous_shots_context}
-
-Check:
-1. Backdrop matches WoW location "{self.shot.reference}"
-2. Camera angle {self.shot.camera_angle} is achievable in WoW
-3. Player actions describe only player character (no NPC control)
-4. All emotes are valid WoW emotes
-5. Backdrop uses WoW-appropriate terminology
-6. Duration is reasonable for text length and actions
-7. Player actions are concise (1-2 sentences max)
-8. Backdrop description is succinct (1-2 sentences max)
-9. Consistency with previous shots in same location"""
-
-        review = await self.shot_reviewer_agent.run(review_prompt)
-
-        print(colored(f"[+] Review score: {review.score:.2f}/1.0", "green" if review.score >= 0.8 else "yellow"))
-
-        if review.need_improvement and ctx.state.current_retry_count < 3:
-            ctx.state.current_retry_count += 1
-            ctx.state.current_review_comments = review.review_comments
-            print(colored(f"[!] Retry {ctx.state.current_retry_count}/3: {review.review_comments}", "yellow"))
-            return CreateShot()
-        else:
-            if ctx.state.current_retry_count >= 3:
-                print(colored(f"[!] Max retries reached, proceeding with score {review.score:.2f}", "yellow"))
-
-            ctx.state.current_retry_count = 0
-            ctx.state.current_review_comments = None
-            return StoreShot(shot=self.shot)
+        return StoreShot(shot=result.output)
 
 
 @dataclass

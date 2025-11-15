@@ -39,7 +39,7 @@ class StoryResearcher:
     def __init__(self, session_id: str):
         self.session_id = session_id
 
-        llm_model = f"openai:{os.getenv('LLM_MODEL')}"
+        llm_model = f"openrouter:{os.getenv('LLM_MODEL')}"
         system_prompt = load_system_prompt(__file__)
         system_prompt += self._load_preferences()
 

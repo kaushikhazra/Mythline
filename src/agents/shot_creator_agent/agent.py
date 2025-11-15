@@ -14,7 +14,7 @@ class ShotCreatorAgent:
     AGENT_ID = "shot_creator"
 
     def __init__(self):
-        llm_model = f"openai:{os.getenv('LLM_MODEL')}"
+        llm_model = f"openrouter:{os.getenv('LLM_MODEL')}"
         system_prompt = load_system_prompt(__file__)
 
         self.agent = Agent(

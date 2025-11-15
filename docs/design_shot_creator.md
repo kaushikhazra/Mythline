@@ -78,7 +78,7 @@ Story
 ```
 
 ## The Agent Workflow
-The Shot Creator uses a three-phase approach: first chunking the entire story into processable chunks, then converting each chunk into a shot with AI-determined TTS and cinematography parameters, and finally reviewing each shot for WoW authenticity and quality.
+The Shot Creator uses a two-phase approach: first chunking the entire story into processable chunks, then converting each chunk into a shot with AI-determined TTS and cinematography parameters.
 
 ```mermaid
 flowchart TB
@@ -100,10 +100,7 @@ flowchart TB
     CheckHasMoreChunks --> |Yes| GetChunk
     CheckHasMoreChunks --> |No| End[Stop]
     GetChunk[Get Chunk at current_index] --> CreateShot
-    CreateShot[Call Shot Creator Agent] --> ReviewShot
-    ReviewShot[Call Shot Reviewer Agent] --> CheckReview{Score >= 0.8 OR Retries >= 3?}
-    CheckReview --> |No| CreateShot
-    CheckReview --> |Yes| StoreShot
+    CreateShot[Call Shot Creator Agent] --> StoreShot
     StoreShot[Add Shot to Session] --> WriteShotsFile
     WriteShotsFile[Overwrite shots.json] --> IncrementChunkIndex
     IncrementChunkIndex[Increment current_index] --> CheckHasMoreChunks
@@ -122,8 +119,6 @@ The workflow maintains state across nodes using a session object that tracks chu
     - `current_quest` (Quest | None): Current quest object being processed
     - `current_index` (int): Current chunk being processed during shot creation phase
     - `shots` (list[Shot]): All generated shots
-    - `current_retry_count` (int): Number of retries for current shot review (0-3)
-    - `current_review_comments` (str | None): Review feedback for shot improvement
 - This class is passed to each node as described in the guide
 
 ### Chunk
@@ -182,8 +177,12 @@ Shots are created based on TTS speech timing and player action complexity:
 ### InitializeChunking
 - Initializes `ShotCreatorSession.chunks` as empty list
 - Initializes `ShotCreatorSession.shots` as empty list
-- Clears `output/{subject}/shots.json` (delete if exists)
-- Transfer control to `ProcessIntroduction`
+- **Checks if `output/{subject}/chunks.json` exists**:
+    - If exists and valid: Load chunks from file, skip to `InitializeShotIndex` (bypass chunking phase)
+    - If exists but invalid JSON: Print warning, regenerate chunks
+    - If not exists: Continue to chunking phase
+- Clears `output/{subject}/shots.json` if it exists
+- Transfer control to `ProcessIntroduction` (if chunking needed) or `InitializeShotIndex` (if chunks loaded)
 
 ### ProcessIntroduction
 - Checks if `story.introduction` exists
@@ -286,9 +285,13 @@ Shots are created based on TTS speech timing and player action complexity:
 ### Phase 2: Shot Creation
 
 ### InitializeShotIndex
-- Sets `ShotCreatorSession.current_index = 0`
 - Saves all chunks to `output/{subject}/chunks.json` for faster re-generation
 - Prints confirmation message
+- **Checks if `output/{subject}/shots.json` exists**:
+    - If exists and valid: Load existing shots, set `current_index = len(shots)` (resume from where it left off)
+    - If exists but invalid JSON: Print warning, start from beginning with `current_index = 0`
+    - If not exists: Start from beginning with `current_index = 0`
+- Prints resume message if continuing from existing shots
 - Transfer control to `CheckHasMoreChunks`
 
 ### CheckHasMoreChunks
@@ -302,9 +305,8 @@ Shots are created based on TTS speech timing and player action complexity:
 
 ### CreateShot
 - Invokes the **Shot Creator Agent** with the chunk
-- If `current_review_comments` exists, appends review feedback to text
 - The agent receives:
-    - `text` from chunk (with optional review feedback appended)
+    - `text` from chunk
     - `actor` from chunk
     - `chunk_type` from chunk
     - `reference` from chunk
@@ -321,33 +323,7 @@ Shots are created based on TTS speech timing and player action complexity:
     - `player_actions` (AI-determined concise instructions, max 1-2 sentences)
     - `backdrop` (AI-determined succinct description, max 1-2 sentences)
     - `duration_seconds` (AI-calculated based on word count and complexity)
-- Transfer control to `ReviewShot`
-
-### ReviewShot
-- Invokes the **Shot Reviewer Agent** to validate shot authenticity and quality
-- Prints review progress in cyan: `[*] Reviewing shot {number}...`
-- The agent receives the complete shot and validates:
-    - WoW lore and location authenticity
-    - Camera angle feasibility in WoW
-    - Player actions feasibility (no NPC control)
-    - Valid WoW emotes
-    - WoW-appropriate terminology
-    - Reasonable duration for text length
-    - Player actions conciseness (1-2 sentences max)
-    - Backdrop conciseness (1-2 sentences max)
-    - Consistency with previous shots in same location
-- Returns Review object with `need_improvement` (bool), `score` (float), and `review_comments` (str)
-- Prints review score (green if >= 0.8, yellow otherwise): `[+] Review score: {score}/1.0`
-- **If score < 0.8 AND retry_count < 3**:
-    - Increments `current_retry_count`
-    - Sets `current_review_comments` with feedback
-    - Prints retry message in yellow: `[!] Retry {count}/3: {feedback}`
-    - Transfer control back to `CreateShot` (with feedback)
-- **If score >= 0.8 OR retry_count >= 3**:
-    - If max retries reached, prints warning: `[!] Max retries reached, proceeding with score {score}`
-    - Resets `current_retry_count` to 0
-    - Clears `current_review_comments`
-    - Transfer control to `StoreShot`
+- Transfer control to `StoreShot`
 
 ### StoreShot
 - Calculates shot_number as `len(shots) + 1`
@@ -406,40 +382,47 @@ Shots are created based on TTS speech timing and player action complexity:
 - The prompt emphasizes conciseness for player_actions and backdrop (max 1-2 sentences)
 - The prompt includes duration calculation formula and adjustment guidelines
 
-### Shot Reviewer Agent
-- AI agent that validates shot authenticity and quality for WoW video capture
-- Stateful agent with session_id for context memory
-- Uses MCP servers (web_search, web_crawler) for WoW lore verification
-- **Input**: Complete Shot object with all fields
-- **Output**: Review object (need_improvement, score, review_comments)
-- **Responsibilities**:
-    - Validate WoW lore and location authenticity (backdrop matches reference)
-    - Verify camera angle is achievable in WoW's camera system
-    - Ensure player actions only describe player character (no NPC control)
-    - Check all emotes are valid WoW emotes
-    - Verify WoW-appropriate terminology (no modern/sci-fi terms)
-    - Validate duration is reasonable for text length and actions
-    - Enforce conciseness: player_actions max 1-2 sentences
-    - Enforce conciseness: backdrop max 1-2 sentences
-    - Check consistency with previous shots in same location
-- **Scoring Guide**:
-    - 0.9-1.0: Excellent, all criteria met
-    - 0.7-0.8: Good with minor issues
-    - 0.5-0.6: Needs improvement
-    - < 0.5: Serious issues
-- The system prompt follows the "GPT Identity-Purpose Template"
-- The prompt includes specific validation criteria and examples
-- The prompt provides guidance on writing actionable review comments
-
 ## Graph Entry Point
 Graph entry point should be set up in two steps:
 1. Define the Graph object based on the section "## Invoking A Graph" of the Pydantic Graph blueprint
 2. Create a CLI or web interface entry point to invoke the graph
 3. The `subject` should be passed to the graph and set to the first node
 
+## Resumability
+
+The shot creator workflow is fully resumable at both the chunking and shot creation phases:
+
+### Chunking Phase Resumability
+- After chunking completes, all chunks are saved to `output/{subject}/chunks.json`
+- On next run, if `chunks.json` exists:
+    - System loads chunks from file
+    - Skips entire chunking phase (ProcessIntroduction → ProcessConclusion)
+    - Jumps directly to shot creation phase (InitializeShotIndex)
+- This significantly speeds up re-generation when only shot parameters need adjustment
+- To force re-chunking, delete `chunks.json` before running
+
+### Shot Creation Phase Resumability
+- After each shot is created and reviewed, `shots.json` is overwritten with all shots so far
+- On next run, if `shots.json` exists:
+    - System loads existing shots from file
+    - Sets `current_index = len(shots)` to resume from next shot
+    - Continues processing remaining chunks
+- This allows recovery from interruptions or errors without losing progress
+- Shot numbers are calculated from `current_index + 1` to ensure correct numbering when resuming
+
+### File Structure
+```
+output/{subject}/
+├── story.json         (input: generated by story creator)
+├── chunks.json        (saved after chunking, enables skip)
+└── shots.json         (saved after each shot, enables resume)
+```
+
 ## Error Handling
 - For any kind of error, right now keep it KISS. Later we will put some graceful system.
 - If story.json doesn't exist, end gracefully with error message
+- If chunks.json is invalid JSON, print warning and regenerate chunks
+- If shots.json is invalid JSON, print warning and start from beginning
 - If shots.json write fails, log error but continue (will retry on next write)
 
 
