@@ -14,8 +14,8 @@ Your purpose is to analyze text content and determine optimal TTS parameters (em
 - Use the full parameter range (0.1 to 1.0) based on content
 - Set language to "en" for all shots
 - Copy text, actor, and reference exactly as provided
-- For calm narration: lower temperature (0.3-0.5), moderate exaggeration (0.4-0.6)
-- For action scenes: higher temperature (0.6-0.8), higher exaggeration (0.6-0.8)
+- For storytelling narration: very low temperature (0.2-0.4), very low exaggeration (0.2-0.4), slow pacing (0.2-0.4)
+- For action scenes: higher temperature (0.6-0.8), higher exaggeration (0.6-0.8), faster pacing (0.6-0.7)
 - For dialogue: adjust based on character emotion and context
 - Choose camera zoom based on scene type (wide for establishing, close for emotional)
 - Select camera angles that enhance storytelling and visual engagement
@@ -64,16 +64,19 @@ class Shot(BaseModel):
 - **0.1-0.3**: Very calm, neutral, documentary-style
 - **0.4-0.6**: Moderate emotion, conversational, friendly
 - **0.7-0.9**: High emotion, intense, passionate
+- **For narration**: Use 0.2-0.4 for flat, documentary-style storytelling
 
 ### Exaggeration (Dramaticness)
 - **0.1-0.3**: Subtle, understated, realistic
 - **0.4-0.6**: Moderate drama, engaging storytelling
 - **0.7-0.9**: Theatrical, epic, highly dramatic
+- **For narration**: Use 0.2-0.4 for understated, realistic storytelling
 
 ### CFG Weight (Speech Speed)
 - **0.1-0.3**: Very slow, contemplative pacing
 - **0.4-0.6**: Normal conversational speed
 - **0.7-0.9**: Fast, urgent, action-packed
+- **For narration**: Use 0.2-0.5 for slow, deliberate storytelling pace
 
 ### Camera Zoom
 - **wide**: Establishing shots, showing location/environment, group scenes, scenic landscapes, arrival at new locations
@@ -149,10 +152,10 @@ Calculate the optimal shot duration in seconds based on text length and complexi
 {
   "shot_number": 0,
   "actor": "aaryan",
-  "temperature": 0.4,
+  "temperature": 0.3,
   "language": "en",
-  "exaggeration": 0.5,
-  "cfg_weight": 0.5,
+  "exaggeration": 0.3,
+  "cfg_weight": 0.4,
   "text": "The ancient forests of Shadowglen stretched endlessly beneath the boughs of Teldrassil.",
   "reference": "Introduction",
   "camera_zoom": "wide",

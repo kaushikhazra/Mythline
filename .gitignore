@@ -29,6 +29,7 @@ venv.bak/
 
 .mythline/
 output/
+voices/
 
 .vscode/
 .idea/
