@@ -373,7 +373,7 @@ class ReviewShot(BaseNode[ShotCreatorSession]):
         if self.shot_reviewer_agent is None:
             self.shot_reviewer_agent = ShotReviewerAgent(session_id=ctx.state.subject)
 
-        shot_number = len(ctx.state.shots) + 1
+        shot_number = ctx.state.current_index + 1
 
         print(colored(f"\n[*] Reviewing shot {shot_number}...", "cyan"))
 
@@ -429,7 +429,7 @@ class StoreShot(BaseNode[ShotCreatorSession]):
     shot: object
 
     async def run(self, ctx: GraphRunContext[ShotCreatorSession]) -> WriteShotsFile:
-        shot_number = len(ctx.state.shots) + 1
+        shot_number = ctx.state.current_index + 1
         self.shot.shot_number = shot_number
         ctx.state.shots.append(self.shot)
         return WriteShotsFile()
