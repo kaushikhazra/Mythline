@@ -44,12 +44,27 @@ class LoadStory(BaseNode[ShotCreatorSession]):
 
 @dataclass
 class InitializeChunking(BaseNode[ShotCreatorSession]):
-    async def run(self, ctx: GraphRunContext[ShotCreatorSession]) -> ProcessIntroduction:
+    async def run(self, ctx: GraphRunContext[ShotCreatorSession]) -> ProcessIntroduction | InitializeShotIndex:
         subject = ctx.state.subject
         shots_file = f"output/{subject}/shots.json"
+        chunks_file = f"output/{subject}/chunks.json"
 
         ctx.state.chunks = []
         ctx.state.shots = []
+
+        if file_exists(chunks_file):
+            print(colored(f"\n[*] Found existing chunks.json, loading chunks...", "yellow"))
+            chunks_content = read_file(chunks_file)
+            try:
+                chunks_data = json.loads(chunks_content)
+                if chunks_data:
+                    from src.agents.chunker_agent.models.output_models import Chunk
+                    ctx.state.chunks = [Chunk(**chunk) for chunk in chunks_data]
+                    print(colored(f"[+] Loaded {len(ctx.state.chunks)} chunks from {chunks_file}", "green"))
+                    print(colored("[*] Skipping chunking phase (using existing chunks)", "yellow"))
+                    return InitializeShotIndex()
+            except (json.JSONDecodeError, ValueError, TypeError) as e:
+                print(colored(f"[!] Invalid chunks.json ({str(e)}), regenerating chunks...", "yellow"))
 
         if file_exists(shots_file):
             write_file(shots_file, "[]")
