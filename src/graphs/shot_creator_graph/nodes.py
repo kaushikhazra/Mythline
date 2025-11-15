@@ -371,7 +371,7 @@ class ReviewShot(BaseNode[ShotCreatorSession]):
 
     async def run(self, ctx: GraphRunContext[ShotCreatorSession]) -> CreateShot | StoreShot:
         if self.shot_reviewer_agent is None:
-            self.shot_reviewer_agent = ShotReviewerAgent(session_id=ctx.state.subject)
+            self.shot_reviewer_agent = ShotReviewerAgent()
 
         shot_number = ctx.state.current_index + 1
 
