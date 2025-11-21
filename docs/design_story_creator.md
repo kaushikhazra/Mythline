@@ -157,11 +157,16 @@ First we will talk about state management. This is important, because the inform
 - AI agent that creates a dialogue
 - The agent already exists in `\src\agents\dialog_creator_agent`
 - We should re-use the same agent
+- **IMPORTANT**: DialogueLine.line field should contain ONLY the spoken dialogue text
+- DO NOT include speaker name prefixes (e.g., "Name: dialogue text") in the line field
+- The actor field already identifies who is speaking - redundant name prefixes cause TTS issues
+- Correct format: `{"actor": "Sarephine", "line": "I will protect the valley."}`
+- Incorrect format: `{"actor": "Sarephine", "line": "Sarephine: I will protect the valley."}`
 
-### Reviewer
-- AI agent that reviews the created content
-- This agent exists, however the prompt might need to be changed
-- The agent is located in `\src\agents\reviewer_agent`
+### Content Review
+- Content quality is assessed using the ContentReviewGraph
+- Uses QualityAssessorAgent for quality assessment
+- The graph is located in `\src\graphs\content_reviewer`
 
 ## Graph Entry Point
 Graph entry point should be set up in two steps

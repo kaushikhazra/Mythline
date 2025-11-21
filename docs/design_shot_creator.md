@@ -122,7 +122,7 @@ The workflow maintains state across nodes using a session object that tracks chu
 - This class is passed to each node as described in the guide
 
 ### Chunk
-- It is a dataclass
+- It is a Pydantic BaseModel
 - Has the following properties:
     - `text` (str): The text content for this chunk
     - `actor` (str): The narrator/actor name ("aaryan" for narrations, first name for dialogues)
@@ -326,7 +326,7 @@ Shots are created based on TTS speech timing and player action complexity:
 - Transfer control to `StoreShot`
 
 ### StoreShot
-- Calculates shot_number as `len(shots) + 1`
+- Calculates shot_number as `current_index + 1`
 - Sets the shot_number on the Shot object
 - Appends the generated Shot to `ShotCreatorSession.shots`
 - Transfer control to `WriteShotsFile`
@@ -345,28 +345,36 @@ Shots are created based on TTS speech timing and player action complexity:
 
 ### Chunker Agent
 - AI agent that breaks the Story into meaningful chunks
-- This agent does not exist, we have to create this agent
-- **Input**: Complete Story object
+- **Architecture**: Stateless agent (no session_id, no context memory)
+- **LLM Provider**: OpenRouter (configured via `LLM_MODEL` environment variable)
+- **Location**: `src/agents/chunker_agent/`
+- **Input**: Individual text sections with metadata (text, chunk_type, actor, reference)
 - **Output**: list[Chunk]
 - **Responsibilities**:
     - For narrations: Break text into 15-20 second meaningful segments that don't cut off abruptly
     - For dialogues: Create one chunk per DialogueLine
+    - **CRITICAL**: Remove speaker name prefixes from dialogue text (e.g., "Name:" or "Name at Location:")
     - Extract first names from actor names (remove titles like Magistrix, Ranger, Arch Mage, Huntress, Priestess)
     - Set appropriate chunk_type ("narration" or "dialogue")
     - Generate reference strings for traceability
-- The system prompt should follow the "GPT Identity-Purpose Template"
-- The prompt should explicitly mention chunk size targets (37-50 words, 15-20 seconds at 150 words/min)
-- The prompt should mention title removal rules and examples
+- The system prompt follows the "GPT Identity-Purpose Template"
+- The prompt explicitly mentions chunk size targets (37-50 words, 15-20 seconds at 150 words/min)
+- The prompt mentions title removal rules and examples
+- The prompt includes explicit instructions to strip speaker name prefixes from dialogue text
 
 ### Shot Creator Agent
 - AI agent that determines TTS parameters and cinematography settings for a chunk
+- **Architecture**: Stateless agent (no session_id, no context memory)
+- **LLM Provider**: OpenRouter (configured via `LLM_MODEL` environment variable)
+- **Location**: `src/agents/shot_creator_agent/`
 - **Input**:
-    - `text` (str): The chunk text (may include review feedback)
+    - `text` (str): The chunk text
     - `actor` (str): The narrator/actor name
     - `chunk_type` (str): "narration" or "dialogue"
     - `reference` (str): Story location reference
 - **Output**: Shot object
 - **Responsibilities**:
+    - **CRITICAL**: Strip any speaker name prefixes from text as defensive measure (last line of defense)
     - Analyze text emotional tone → determine `temperature` (0.1-1.0)
     - Analyze text dramaticness → determine `exaggeration` (0.1-1.0)
     - Analyze text pacing needs → determine `cfg_weight` (0.1-1.0)
@@ -381,6 +389,24 @@ Shots are created based on TTS speech timing and player action complexity:
 - The prompt differentiates handling between narration vs dialogue chunk types
 - The prompt emphasizes conciseness for player_actions and backdrop (max 1-2 sentences)
 - The prompt includes duration calculation formula and adjustment guidelines
+- The prompt includes TTS punctuation guidelines to avoid awkward audio splits
+- **Defensive Processing**: The prompt instructs the agent to strip speaker name prefixes as a safety measure to ensure clean TTS output even if prefixes slip through from earlier stages
+
+### TTS Text Quality Considerations
+
+**Speaker Name Prefix Removal (Multi-layered Defense):**
+- **Layer 1 (Source)**: DialogCreatorAgent instructed to NOT include speaker name prefixes in dialogue text
+- **Layer 2 (Processing)**: ChunkerAgent explicitly strips any speaker name prefixes from dialogue chunks
+- **Layer 3 (Defensive)**: ShotCreatorAgent strips prefixes as final safety measure before TTS processing
+- **Reason**: Actor field already identifies speaker; redundant prefixes cause poor TTS output ("Sarephine: I will..." is spoken as "Sarephine colon I will...")
+
+**TTS Punctuation Guidelines:**
+The Shot Creator Agent is guided to generate TTS-friendly text:
+- **Avoid semicolons** before proper nouns or capitalized words (causes TTS to split awkwardly)
+- **Avoid em dashes** and complex punctuation that confuses TTS
+- **Use semicolons sparingly** - only when absolutely necessary for clarity
+- **Prefer commas** for light pauses and periods for sentence boundaries
+- **cfg_weight guidance**: For dialogue, use 0.3-0.5 for more deliberate pacing that smooths over punctuation artifacts
 
 ## Graph Entry Point
 Graph entry point should be set up in two steps:
@@ -402,7 +428,7 @@ The shot creator workflow is fully resumable at both the chunking and shot creat
 - To force re-chunking, delete `chunks.json` before running
 
 ### Shot Creation Phase Resumability
-- After each shot is created and reviewed, `shots.json` is overwritten with all shots so far
+- After each shot is created, `shots.json` is overwritten with all shots so far
 - On next run, if `shots.json` exists:
     - System loads existing shots from file
     - Sets `current_index = len(shots)` to resume from next shot

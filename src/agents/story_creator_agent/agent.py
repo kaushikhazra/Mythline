@@ -9,12 +9,12 @@ class StoryCreatorAgent:
         self.session_id = session_id
         self.player_name = player_name
 
-    async def run(self, subject: str) -> Story | None:
+    async def run(self, subject: str, regenerate_plan: bool = False) -> Story | None:
         graph = StoryCreatorGraph(
             session_id=self.session_id,
             player_name=self.player_name
         )
 
-        story = await graph.run(subject=subject)
+        story = await graph.run(subject=subject, regenerate_plan=regenerate_plan)
 
         return story

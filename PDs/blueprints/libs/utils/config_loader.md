@@ -35,7 +35,7 @@ class StoryResearcher:
         mcp_config_path = load_mcp_config(__file__)
 
         self.agent = Agent(
-            model='openai:gpt-4o',
+            model=os.getenv('LLM_MODEL'),
             mcp_servers=mcp_config_path
         )
 ```

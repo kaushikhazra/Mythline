@@ -1,23 +1,24 @@
 import os
+import re
 import torch
 import torchaudio as ta
 from chatterbox.tts import ChatterboxTTS
 
 
 def preprocess_text(text: str) -> str:
-    """Preprocess text by removing or replacing special characters.
+    """Preprocess text by removing or replacing special characters for TTS compatibility.
 
     Args:
         text: Input text to preprocess.
 
     Returns:
-        Preprocessed text with special characters handled.
+        Preprocessed text with special characters handled and TTS-friendly punctuation.
     """
     if not text:
         return text
 
     replacements = {
-        "—": "; ",   # Em dash to semicolon
+        "—": ", ",   # Em dash to comma for lighter pause
         "'": "'",    # Curly single quote to straight quote
         "…": "...",  # Ellipsis to three dots
         "*": ""      # Remove asterisks
@@ -25,6 +26,8 @@ def preprocess_text(text: str) -> str:
 
     for old, new in replacements.items():
         text = text.replace(old, new)
+
+    text = re.sub(r';\s+([A-Z])', r', \1', text)
 
     return text.strip()
 

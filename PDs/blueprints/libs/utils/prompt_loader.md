@@ -50,7 +50,7 @@ class MyAgent:
     def __init__(self):
         system_prompt = load_system_prompt(__file__)
         self.agent = Agent(
-            model='openai:gpt-4o',
+            model=os.getenv('LLM_MODEL'),
             system_prompt=system_prompt
         )
 ```

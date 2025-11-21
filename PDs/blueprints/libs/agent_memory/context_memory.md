@@ -144,7 +144,7 @@ CONTEXT_DIR = ".mythline"
 ```python
 MAX_MESSAGES_BEFORE_SUMMARY = 50
 KEEP_RECENT_MESSAGES = 20
-SUMMARIZER_AGENT = Agent('openai:gpt-4o-mini')
+SUMMARIZER_AGENT = Agent(os.getenv('LLM_MODEL'))
 ```
 
 **Auto-created paths:**

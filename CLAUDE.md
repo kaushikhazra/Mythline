@@ -326,13 +326,18 @@ async def use_sub_agent(ctx: RunContext, input: str) -> str:
 ## Environment Variables
 
 ```
-OPENAI_API_KEY=required
-LLM_MODEL=gpt-4o
+OPENROUTER_API_KEY=required
+LLM_MODEL=openai/gpt-4o-mini (OpenRouter format: provider/model-name)
+EMBEDDING_MODEL=openai/text-embedding-3-small (OpenRouter format for knowledge base embeddings)
 MCP_WEB_SEARCH_PORT=8000
 MCP_WEB_CRAWLER_PORT=8001
 MCP_FILESYSTEM_PORT=8002
+MCP_KNOWLEDGE_BASE_PORT=8003
+QDRANT_PATH=.mythline/knowledge_base
 PYTHONDONTWRITEBYTECODE=1
 ```
+
+**Note:** All LLM and embedding operations use OpenRouter as the unified API provider.
 
 ## Quick Start for AI Agents
 

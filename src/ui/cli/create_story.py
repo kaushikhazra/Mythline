@@ -10,6 +10,7 @@ from src.agents.story_creator_agent.agent import StoryCreatorAgent
 parser = argparse.ArgumentParser(description='Story Creator CLI - Non-Interactive Story Generation')
 parser.add_argument('--subject', '-s', type=str, required=True, help='Story subject (e.g., "shadowglen")')
 parser.add_argument('--player', '-p', type=str, required=True, help='Player character name (e.g., "Sarephine")')
+parser.add_argument('--regenerate-plan', action='store_true', help='Force regenerate todo list instead of using cached version')
 
 args = parser.parse_args()
 
@@ -36,7 +37,7 @@ async def main():
     print()
 
     try:
-        await story_creator.run(subject=args.subject)
+        await story_creator.run(subject=args.subject, regenerate_plan=args.regenerate_plan)
 
         print()
         print("=" * 50)

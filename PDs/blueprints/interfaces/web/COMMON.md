@@ -162,8 +162,8 @@ API_HOST=0.0.0.0
 API_PORT=8080
 
 # Agent Configuration
-OPENAI_API_KEY=your_key_here
-LLM_MODEL=gpt-4o
+OPENROUTER_API_KEY=your_key_here
+LLM_MODEL=openai/gpt-4o
 
 # CORS
 CORS_ORIGINS=http://localhost:5173,http://localhost:3000

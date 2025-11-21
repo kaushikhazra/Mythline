@@ -178,16 +178,16 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Required
-OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
+OPENROUTER_API_KEY = os.getenv('OPENROUTER_API_KEY')
 
 # Optional with defaults
-EMBEDDING_MODEL = os.getenv('EMBEDDING_MODEL', 'text-embedding-3-small')
+EMBEDDING_MODEL = os.getenv('EMBEDDING_MODEL', 'openai/text-embedding-3-small')
 QDRANT_PATH = os.getenv('QDRANT_PATH', '.mythline/knowledge_base')
 ```
 
 **Common environment variables:**
-- `OPENAI_API_KEY` - OpenAI API key (required for embeddings, knowledge base)
-- `EMBEDDING_MODEL` - Embedding model name (default: text-embedding-3-small)
+- `OPENROUTER_API_KEY` - OpenRouter API key (required for embeddings, knowledge base)
+- `EMBEDDING_MODEL` - Embedding model name in OpenRouter format (default: openai/text-embedding-3-small)
 - `QDRANT_PATH` - Vector database location (default: .mythline/knowledge_base)
 
 ### Module-Level Constants
@@ -302,11 +302,16 @@ _openai_client: Optional[OpenAI] = None
 def get_openai_client() -> OpenAI:
     global _openai_client
     if _openai_client is None:
-        _openai_client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
+        _openai_client = OpenAI(
+            base_url="https://openrouter.ai/api/v1",
+            api_key=os.getenv('OPENROUTER_API_KEY')
+        )
     return _openai_client
 ```
 
 **Used by:** `openai_embeddings`
+
+**Note:** Uses OpenAI SDK with OpenRouter endpoint for unified API access.
 
 ### Context Manager Pattern
 

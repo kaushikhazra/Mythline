@@ -143,7 +143,7 @@ class StoryCreatorAgent:
             system_prompt = base_prompt
 
         self.agent = Agent(
-            model='openai:gpt-4o',
+            model=os.getenv('LLM_MODEL'),
             system_prompt=system_prompt
         )
 ```

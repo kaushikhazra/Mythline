@@ -6,7 +6,6 @@ from src.graphs.story_creator_graph.nodes import (
     CreateTODO,
     GetNextTODO,
     CreateStorySegment,
-    ReviewOutput,
     WriteToFile
 )
 
@@ -23,12 +22,11 @@ class StoryCreatorGraph:
                 CreateTODO,
                 GetNextTODO,
                 CreateStorySegment,
-                ReviewOutput,
                 WriteToFile
             ]
         )
 
-    async def run(self, subject: str) -> None:
+    async def run(self, subject: str, regenerate_plan: bool = False) -> None:
         state = StorySession(
             todo_list=[],
             subject=subject,
@@ -36,4 +34,4 @@ class StoryCreatorGraph:
             session_id=self.session_id
         )
 
-        await self.graph.run(GetStoryResearch(), state=state)
+        await self.graph.run(GetStoryResearch(regenerate_plan=regenerate_plan), state=state)

@@ -136,7 +136,7 @@ class ContentAgent:
     def __init__(self, session_id: str):
         self.session_id = session_id
 
-        llm_model = "openai:gpt-4o"
+        llm_model = os.getenv('LLM_MODEL')
         system_prompt = load_system_prompt(__file__)
 
         servers = load_mcp_servers(load_mcp_config(__file__))

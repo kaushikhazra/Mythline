@@ -365,8 +365,8 @@ import os
 async def run_agent(request: AgentRequest):
     agent = MyAgent(
         session_id=request.session_id,
-        api_key=os.getenv("OPENAI_API_KEY"),
-        model=os.getenv("LLM_MODEL", "gpt-4o")
+        api_key=os.getenv("OPENROUTER_API_KEY"),
+        model=os.getenv("LLM_MODEL", "openai/gpt-4o")
     )
 
     result = await agent.run_async(request.prompt)

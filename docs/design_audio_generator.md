@@ -206,32 +206,51 @@ sample_rate = model.sr  # Should be 24000
 
 ### Text Preprocessing
 
-**Implementation (use exactly as-is):**
+Text preprocessing is critical for avoiding TTS audio artifacts and awkward speech splits.
+
+**Implementation Location:** `src/libs/audio/chatterbox_utils.py`
+
+**Implementation:**
 ```python
+import re
+
 def preprocess_text(text: str) -> str:
-    """Preprocess text by removing or replacing special characters.
+    """Preprocess text by removing or replacing special characters for TTS compatibility.
 
     Args:
         text: Input text to preprocess.
 
     Returns:
-        Preprocessed text with special characters handled.
+        Preprocessed text with special characters handled and TTS-friendly punctuation.
     """
     if not text:
         return text
 
     replacements = {
-        u'—': '; ',  # Em dash to semicolon
-        u''': "'",   # Curly single quote to straight quote
-        u'…': '...', # Ellipsis to three dots
-        u'*': ''     # Remove asterisks
+        "—": ", ",   # Em dash to comma for lighter pause
+        "'": "'",    # Curly single quote to straight quote
+        "…": "...",  # Ellipsis to three dots
+        "*": ""      # Remove asterisks
     }
 
     for old, new in replacements.items():
         text = text.replace(old, new)
 
+    # Replace semicolons before capitalized words with commas
+    # This prevents unnatural TTS splits at proper nouns
+    text = re.sub(r';\s+([A-Z])', r', \1', text)
+
     return text.strip()
 ```
+
+**TTS Punctuation Rules:**
+- **Em dashes (—)**: Converted to commas for lighter pauses (not semicolons which cause hard breaks)
+- **Semicolons before capitals**: Replaced with commas to prevent awkward splits at proper nouns
+- **Example issue**: "Drive off the Defias Thugs; we cannot" would split awkwardly at "Defias" / "Thugs"
+- **Fix**: "Drive off the Defias Thugs, we cannot" flows naturally without split
+
+**Why This Matters:**
+Neural TTS engines interpret semicolons as significant prosodic boundaries with rising intonation. When followed by capitalized words (proper nouns), this creates unnatural speech splits. Converting to commas provides lighter pauses that don't break the semantic flow.
 
 **Usage in PreProcess Node:**
 - Call `preprocess_text(current_shot.text)`

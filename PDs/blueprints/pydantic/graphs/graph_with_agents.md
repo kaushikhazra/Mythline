@@ -284,21 +284,21 @@ class CreateStorySegment(BaseNode[StorySession]):
 @dataclass
 class ReviewOutput(BaseNode[StorySession]):
     def __post_init__(self):
-        self.reviewer_agent = None
+        self.quality_assessor = None
 
     async def run(self, ctx: GraphRunContext[StorySession]) -> CreateStorySegment | WriteToFile:
         current_todo = ctx.state.todo_list[ctx.state.current_todo_index]
 
-        if self.reviewer_agent is None:
-            self.reviewer_agent = ReviewerAgent(session_id=ctx.state.session_id)
+        if self.quality_assessor is None:
+            self.quality_assessor = QualityAssessorAgent(session_id=ctx.state.session_id)
 
         print(colored("[*] Reviewing content...", "cyan"))
 
         # Fresh review each time
-        self.reviewer_agent.messages = []
+        self.quality_assessor.messages = []
 
         # Agent returns structured review
-        review = await self.reviewer_agent.run(current_todo.output)
+        review = await self.quality_assessor.run(current_todo.output)
 
         # Check if improvement needed
         if review.need_improvement and review.score < 0.8:

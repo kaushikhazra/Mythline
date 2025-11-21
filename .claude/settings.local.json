@@ -7,7 +7,9 @@
       "WebFetch(domain:datastud.dev)",
       "Bash(cat:*)",
       "Bash(find:*)",
-      "Bash(dir \"C:\\Projects\\ai-agents\\chatterbox_audio_agent\" /s)"
+      "Bash(dir \"C:\\Projects\\ai-agents\\chatterbox_audio_agent\" /s)",
+      "Bash(git log:*)",
+      "WebFetch(domain:openrouter.ai)"
     ],
     "deny": [],
     "ask": []

@@ -1,16 +1,31 @@
 # Orchestrator Agent Blueprint
 
-This blueprint covers orchestrator agents that coordinate multiple tools, MCP servers, and sub-agents to accomplish complex tasks. These are the primary agents users interact with directly.
+**Purpose:** Executable specification for creating orchestrator agents that coordinate MCP servers, sub-agents, and both memory systems.
+
+**For:** AI assistants and developers building complex agent orchestrators.
+
+---
 
 ## Overview
 
 Orchestrator agents:
-- Load and use MCP servers for external tools
-- Maintain full conversation context and long-term memory
-- Delegate specialized tasks to sub-agents
-- Provide custom tools for complex operations
+- Load and use MCP servers for external tools (web search, filesystem, knowledge base)
+- Maintain full conversation context (short-term) and long-term memory (preferences)
+- Delegate specialized tasks to stateful/stateless sub-agents via custom tools
+- Provide custom tools for complex operations and workflows
 - Handle multi-turn conversations with users
-- Coordinate workflows and decision-making
+- Support multiple run modes: sync, async, streaming
+
+**When to use this pattern:**
+- Agent needs external tools (web, files, databases)
+- Agent coordinates multiple sub-agents
+- Agent is the primary user-facing interface
+- Agent needs both conversation history and user preferences
+
+**When NOT to use:**
+- Simple single-purpose tasks → Use stateless sub-agent
+- Only needs conversation memory → Use stateful sub-agent
+- No external tools needed → Use sub-agent pattern
 
 ## Agent Structure
 
@@ -25,11 +40,15 @@ src/agents/{agent_name}/
     └── mcp_config.json   # MCP server configuration
 ```
 
-## Implementation Pattern
+---
 
-### Complete Orchestrator Agent
+## Default Implementation Pattern
 
-**File:** `agent.py`
+### MUST Follow This Exact Structure
+
+This is the canonical pattern. Copy this template and fill in placeholders `{like_this}`.
+
+**File:** `src/agents/{agent_name}/agent.py`
 
 ```python
 import os
@@ -55,7 +74,7 @@ class {OrchestratorName}:
     def __init__(self, session_id: str):
         self.session_id = session_id
 
-        llm_model = f"openai:{os.getenv('LLM_MODEL')}"
+        llm_model = os.getenv('LLM_MODEL')
         system_prompt = load_system_prompt(__file__)
         system_prompt += self._load_preferences()
 
@@ -118,7 +137,7 @@ class {OrchestratorName}:
             save_context(self.AGENT_ID, self.session_id, self.messages)
 ```
 
-**File:** `config/mcp_config.json`
+**File:** `src/agents/{agent_name}/config/mcp_config.json`
 
 ```json
 {
@@ -135,6 +154,634 @@ class {OrchestratorName}:
   }
 }
 ```
+
+**File:** `src/agents/{agent_name}/__init__.py`
+
+```python
+from .agent import {AgentClassName}
+
+__all__ = ['{AgentClassName}']
+```
+
+**File:** `src/agents/{agent_name}/prompts/system_prompt.md`
+
+See [System Prompt Structure](#system-prompt-structure) section below.
+
+---
+
+## Implementation Rules (MUST Follow)
+
+### 1. Import Order
+
+✓ **REQUIRED order:**
+```python
+# 1. Standard library
+import os
+
+# 2. Third-party (dotenv, termcolor)
+from dotenv import load_dotenv
+from termcolor import colored
+
+# 3. Pydantic AI
+from pydantic_ai.mcp import load_mcp_servers
+from pydantic_ai.run import AgentRunResult
+from pydantic_ai import Agent, RunContext
+
+# 4. Local utilities
+from src.libs.utils.prompt_loader import load_system_prompt, load_prompt
+from src.libs.utils.config_loader import load_mcp_config
+from src.libs.agent_memory.context_memory import save_context, load_context
+from src.libs.agent_memory.long_term_memory import save_long_term_memory, load_long_term_memory
+
+# 5. Sub-agents
+from src.agents.{sub_agent}.agent import {SubAgent}
+
+# 6. Load environment AT MODULE LEVEL
+load_dotenv()
+```
+
+### 2. Class Structure
+
+✓ **REQUIRED:**
+- Class name: `PascalCase` ending in descriptive noun (e.g., `StoryResearcher`, `ShotCreator`)
+- `AGENT_ID`: lowercase_with_underscores, matches directory name
+- `__init__(session_id: str)`: Takes session_id parameter
+- `run(prompt: str) -> AgentRunResult`: Synchronous method for CLI
+- `run_async(prompt: str) -> AgentRunResult`: Async method for web/graphs
+- `run_stream(prompt: str)`: Generator for streaming responses
+- `_load_preferences() -> str`: Private method for long-term memory
+
+### 3. Environment Loading
+
+✓ **RIGHT - Load at module level:**
+```python
+load_dotenv()  # At top of file, AFTER imports
+
+class MyAgent:
+    def __init__(self, session_id: str):
+        llm_model = os.getenv('LLM_MODEL')  # Use directly
+```
+
+❌ **WRONG - Don't load in __init__:**
+```python
+class MyAgent:
+    def __init__(self, session_id: str):
+        load_dotenv()  # Don't do this!
+```
+
+### 4. Model Format
+
+✓ **RIGHT - Use directly (OpenRouter format):**
+```python
+llm_model = os.getenv('LLM_MODEL')
+# Model already includes provider: "openai/gpt-4o-mini"
+```
+
+❌ **WRONG - Don't add prefix:**
+```python
+llm_model = f"openai:{os.getenv('LLM_MODEL')}"  # Don't do this!
+```
+
+### 5. MCP Server Loading
+
+✓ **REQUIRED pattern:**
+```python
+def __init__(self, session_id: str):
+    # ... other setup ...
+
+    servers = load_mcp_servers(load_mcp_config(__file__))
+
+    self.agent = Agent(
+        llm_model,
+        system_prompt=system_prompt,
+        toolsets=servers  # ← MCP servers here
+    )
+```
+
+❌ **WRONG - Manual server loading:**
+```python
+# Don't manually configure MCP servers
+# Always use load_mcp_servers(load_mcp_config(__file__))
+```
+
+### 6. Context Memory Pattern
+
+✓ **REQUIRED - Load ONCE in __init__, save AFTER every run:**
+```python
+def __init__(self, session_id: str):
+    self.session_id = session_id
+    self.messages = load_context(self.AGENT_ID, session_id)  # Load once
+    # ... create agent ...
+
+def run(self, prompt: str) -> AgentRunResult:
+    agent_output = self.agent.run_sync(prompt, message_history=self.messages)
+    self.messages = agent_output.all_messages()  # Update
+    save_context(self.AGENT_ID, self.session_id, self.messages)  # Save
+    return agent_output
+```
+
+❌ **WRONG - Loading on every run:**
+```python
+def run(self, prompt: str):
+    messages = load_context(self.AGENT_ID, self.session_id)  # Slow! Don't do this!
+```
+
+### 7. Long-term Memory Pattern
+
+✓ **REQUIRED - Load in __init__, append to system prompt:**
+```python
+def __init__(self, session_id: str):
+    # ... setup ...
+    system_prompt = load_system_prompt(__file__)
+    system_prompt += self._load_preferences()  # Add preferences
+
+    self.agent = Agent(llm_model, system_prompt=system_prompt, ...)
+
+def _load_preferences(self) -> str:
+    preferences = load_long_term_memory(self.AGENT_ID)
+    if not preferences:
+        return ""
+
+    preferences_text = "\n\n##Memory:\n"
+    for pref in preferences:
+        preferences_text += f"- {pref['preference']}\n"
+
+    return preferences_text
+```
+
+### 8. Custom Tool Pattern
+
+✓ **REQUIRED - Decorator inside __init__, async, use RunContext:**
+```python
+def __init__(self, session_id: str):
+    # ... create agent first ...
+
+    self._sub_agent = SubAgent(session_id)  # Initialize sub-agent
+
+    @self.agent.tool
+    async def tool_name(ctx: RunContext, param: str) -> str:
+        """Clear description for LLM."""
+        print(colored(f"⚙ Tool action", "grey"))
+
+        result = await self._sub_agent.run(param)
+
+        print(colored(f"✓ Tool complete", "green"))
+        return result.output
+```
+
+❌ **WRONG - Tool outside __init__:**
+```python
+class MyAgent:
+    @self.agent.tool  # Can't access self here!
+    async def tool_name(...):
+        pass
+```
+
+### 9. Run Method Consistency
+
+✓ **REQUIRED - All three run methods must save context:**
+```python
+def run(self, prompt: str) -> AgentRunResult:
+    """Sync for CLI."""
+    agent_output = self.agent.run_sync(prompt, message_history=self.messages)
+    self.messages = agent_output.all_messages()
+    save_context(self.AGENT_ID, self.session_id, self.messages)
+    return agent_output
+
+async def run_async(self, prompt: str) -> AgentRunResult:
+    """Async for web/graphs."""
+    agent_output = await self.agent.run(prompt, message_history=self.messages)
+    self.messages = agent_output.all_messages()
+    save_context(self.AGENT_ID, self.session_id, self.messages)
+    return agent_output
+
+async def run_stream(self, prompt: str):
+    """Streaming for real-time UI."""
+    async with self.agent.run_stream(prompt, message_history=self.messages) as result:
+        async for chunk in result.stream_text(delta=True):
+            yield chunk
+
+        self.messages = result.all_messages()
+        save_context(self.AGENT_ID, self.session_id, self.messages)
+```
+
+### 10. Sub-Agent Initialization
+
+✓ **REQUIRED - Initialize in __init__, pass session_id:**
+```python
+def __init__(self, session_id: str):
+    # ... setup ...
+
+    # Stateful sub-agents need session_id
+    self._narrator = NarratorAgent(session_id)
+    self._dialog_creator = DialogCreatorAgent(session_id)
+
+    # Stateless sub-agents don't need session_id
+    self._preference_agent = UserPreferenceAgent()
+```
+
+---
+
+## Anti-Patterns (Common Mistakes)
+
+### Anti-Pattern 1: Loading Context Memory on Every Run
+
+❌ **WRONG:**
+```python
+def run(self, prompt: str):
+    messages = load_context(self.AGENT_ID, self.session_id)  # Slow!
+    agent_output = self.agent.run_sync(prompt, message_history=messages)
+    save_context(self.AGENT_ID, self.session_id, agent_output.all_messages())
+    return agent_output
+```
+
+✓ **RIGHT:**
+```python
+def __init__(self, session_id: str):
+    self.messages = load_context(self.AGENT_ID, session_id)  # Load once
+
+def run(self, prompt: str):
+    agent_output = self.agent.run_sync(prompt, message_history=self.messages)
+    self.messages = agent_output.all_messages()
+    save_context(self.AGENT_ID, self.session_id, self.messages)
+    return agent_output
+```
+
+**Why:** Loading context on every run is 10-100x slower. Load once in `__init__`.
+
+### Anti-Pattern 2: Forgetting to Save Context
+
+❌ **WRONG:**
+```python
+def run(self, prompt: str):
+    agent_output = self.agent.run_sync(prompt, message_history=self.messages)
+    return agent_output  # Forgot to save!
+```
+
+✓ **RIGHT:**
+```python
+def run(self, prompt: str):
+    agent_output = self.agent.run_sync(prompt, message_history=self.messages)
+    self.messages = agent_output.all_messages()
+    save_context(self.AGENT_ID, self.session_id, self.messages)  # Save!
+    return agent_output
+```
+
+**Why:** Context must be saved after every run or conversation history is lost.
+
+### Anti-Pattern 3: Wrong Model Format
+
+❌ **WRONG:**
+```python
+llm_model = f"openai:{os.getenv('LLM_MODEL')}"
+# Results in: "openai:openai/gpt-4o-mini" (double prefix!)
+```
+
+✓ **RIGHT:**
+```python
+llm_model = os.getenv('LLM_MODEL')
+# Results in: "openai/gpt-4o-mini" (correct OpenRouter format)
+```
+
+**Why:** OpenRouter models already include provider prefix.
+
+### Anti-Pattern 4: MCP Config Not Matching .env
+
+❌ **WRONG:**
+```json
+{
+  "mcpServers": {
+    "web-search": {
+      "url": "http://localhost:8000/mcp"
+    }
+  }
+}
+```
+
+```env
+# In .env file
+MCP_WEB_SEARCH_PORT=9000  # Different port!
+```
+
+✓ **RIGHT:**
+```json
+{
+  "mcpServers": {
+    "web-search": {
+      "url": "http://localhost:9000/mcp"
+    }
+  }
+}
+```
+
+```env
+MCP_WEB_SEARCH_PORT=9000  # Ports match!
+```
+
+**Why:** MCP config URLs must match the ports MCP servers are running on.
+
+### Anti-Pattern 5: Sync Tool with Async Sub-Agent
+
+❌ **WRONG:**
+```python
+@self.agent.tool
+def create_content(ctx: RunContext, topic: str) -> str:  # Not async!
+    result = await self._sub_agent.run(topic)  # Can't await in sync function!
+    return result.output
+```
+
+✓ **RIGHT:**
+```python
+@self.agent.tool
+async def create_content(ctx: RunContext, topic: str) -> str:  # Async!
+    result = await self._sub_agent.run(topic)
+    return result.output
+```
+
+**Why:** Sub-agent `run()` methods are async, so tools must be async too.
+
+### Anti-Pattern 6: Not Passing message_history
+
+❌ **WRONG:**
+```python
+def run(self, prompt: str):
+    agent_output = self.agent.run_sync(prompt)  # No message_history!
+    return agent_output
+```
+
+✓ **RIGHT:**
+```python
+def run(self, prompt: str):
+    agent_output = self.agent.run_sync(prompt, message_history=self.messages)
+    self.messages = agent_output.all_messages()
+    save_context(self.AGENT_ID, self.session_id, self.messages)
+    return agent_output
+```
+
+**Why:** Without message_history, agent has no conversation context.
+
+### Anti-Pattern 7: Poor Tool Descriptions
+
+❌ **WRONG:**
+```python
+@self.agent.tool
+async def create_stuff(ctx: RunContext, thing: str) -> str:
+    """Creates stuff."""  # Vague!
+    pass
+```
+
+✓ **RIGHT:**
+```python
+@self.agent.tool
+async def create_narration(ctx: RunContext, reference_text: str, word_count: int) -> str:
+    """Creates narrative text of specified word count based on reference material.
+
+    Args:
+        reference_text: Source material for narration
+        word_count: Target length in words (50-5000)
+
+    Returns:
+        Narrative text in established story tone
+    """
+    pass
+```
+
+**Why:** LLM needs clear descriptions to know when and how to use tools.
+
+### Anti-Pattern 8: Stateless Sub-Agent with session_id
+
+❌ **WRONG:**
+```python
+self._preference_agent = UserPreferenceAgent(session_id)  # Stateless agents don't take session_id!
+```
+
+✓ **RIGHT:**
+```python
+# Stateful sub-agents
+self._narrator = NarratorAgent(session_id)
+
+# Stateless sub-agents
+self._preference_agent = UserPreferenceAgent()
+```
+
+**Why:** Stateless agents have no `__init__(session_id)` parameter.
+
+### Anti-Pattern 9: Not Handling Tool Errors
+
+❌ **WRONG:**
+```python
+@self.agent.tool
+async def risky_tool(ctx: RunContext, param: str) -> str:
+    """Does risky operation."""
+    result = await external_api_call(param)  # May fail!
+    return result
+```
+
+✓ **RIGHT:**
+```python
+@self.agent.tool
+async def risky_tool(ctx: RunContext, param: str) -> str:
+    """Does risky operation with error handling."""
+    try:
+        result = await external_api_call(param)
+        return result
+    except Exception as e:
+        error_msg = f"Error in risky_tool: {str(e)}"
+        print(colored(error_msg, "red"))
+        return error_msg  # Return error as string so LLM can handle it
+```
+
+**Why:** Tool failures should return error messages, not crash the agent.
+
+### Anti-Pattern 10: Inconsistent Run Methods
+
+❌ **WRONG:**
+```python
+def run(self, prompt: str):
+    # ... saves context ...
+    return agent_output
+
+async def run_async(self, prompt: str):
+    # ... forgot to save context!
+    return agent_output
+```
+
+✓ **RIGHT:**
+```python
+def run(self, prompt: str):
+    agent_output = self.agent.run_sync(prompt, message_history=self.messages)
+    self.messages = agent_output.all_messages()
+    save_context(self.AGENT_ID, self.session_id, self.messages)
+    return agent_output
+
+async def run_async(self, prompt: str):
+    agent_output = await self.agent.run(prompt, message_history=self.messages)
+    self.messages = agent_output.all_messages()
+    save_context(self.AGENT_ID, self.session_id, self.messages)
+    return agent_output
+```
+
+**Why:** All run methods must have identical memory handling logic.
+
+---
+
+## Code Generation Guide (For AI Assistants)
+
+When generating an orchestrator agent, follow these steps exactly:
+
+### Step 1: Understand Requirements
+- Identify what MCP servers are needed (web, filesystem, knowledge base?)
+- Identify what sub-agents are needed (narrator, dialog creator, etc.?)
+- Identify what custom tools are needed (what specialized tasks?)
+- Determine if long-term memory is needed (user preferences?)
+
+### Step 2: Create Directory Structure
+```bash
+mkdir -p src/agents/{agent_name}/prompts
+mkdir -p src/agents/{agent_name}/config
+```
+
+### Step 3: Generate agent.py
+1. Copy the [Default Implementation Pattern](#default-implementation-pattern) exactly
+2. Replace all placeholders:
+   - `{OrchestratorName}` → `YourAgentClassName`
+   - `{orchestrator_id}` → `your_agent_id`
+   - `{SubAgent}` → Actual sub-agent class names
+   - `{sub_agent}` → Actual sub-agent module names
+3. Add custom tools inside `__init__` after agent creation
+4. Implement all three run methods: `run()`, `run_async()`, `run_stream()`
+
+### Step 4: Generate config/mcp_config.json
+1. Only include MCP servers the agent actually needs
+2. Use correct port numbers from .env
+3. Standard servers:
+   - `web-search`: port 8000
+   - `web-crawler`: port 8001
+   - `filesystem`: port 8002
+   - `knowledge-base`: port 8003
+
+### Step 5: Generate prompts/system_prompt.md
+Follow structure in [System Prompt Structure](#system-prompt-structure):
+1. Persona section
+2. Tools Available section (list all MCP and custom tools)
+3. Task section
+4. Instructions section
+5. Workflow section
+6. Constraints section
+7. Output Format section
+
+### Step 6: Generate __init__.py
+```python
+from .agent import {YourAgentClassName}
+
+__all__ = ['{YourAgentClassName}']
+```
+
+### Step 7: Validate Against Checklist
+Use the [Validation Checklist](#validation-checklist) below to verify correctness.
+
+---
+
+## Validation Checklist
+
+**IMPORTANT:** Before validating, ensure code follows [Core Coding Principles](../../INDEX.md#core-coding-principles):
+1. **Separation of Concerns** - Single responsibility per module/class
+2. **KISS Principle** - Simple, direct solutions (no over-engineering)
+3. **No Comments** - Self-documenting code (add comments only AFTER testing)
+
+Before completing orchestrator agent implementation, verify:
+
+### File Structure
+- [ ] Directory created: `src/agents/{agent_name}/`
+- [ ] `__init__.py` exists and exports agent class
+- [ ] `agent.py` exists with complete implementation
+- [ ] `prompts/system_prompt.md` exists
+- [ ] `config/mcp_config.json` exists (if using MCP servers)
+
+### Imports
+- [ ] Import order correct: stdlib → third-party → pydantic_ai → local → sub-agents
+- [ ] `load_dotenv()` at module level (not in class)
+- [ ] All required imports present
+- [ ] No unused imports
+
+### Class Structure
+- [ ] Class name is PascalCase
+- [ ] `AGENT_ID` constant defined
+- [ ] `AGENT_ID` matches directory name
+- [ ] `__init__(session_id: str)` signature correct
+
+### Model Configuration
+- [ ] `llm_model = os.getenv('LLM_MODEL')` used directly
+- [ ] NO f-string wrapping (no `f"openai:{model}"`)
+- [ ] Model format is OpenRouter-compatible
+
+### MCP Servers
+- [ ] `load_mcp_servers(load_mcp_config(__file__))` used
+- [ ] `config/mcp_config.json` exists
+- [ ] Port numbers in config match .env
+- [ ] `toolsets=servers` passed to Agent constructor
+- [ ] Only necessary servers included
+
+### Context Memory
+- [ ] `save_context` and `load_context` imported
+- [ ] Context loaded ONCE in `__init__`
+- [ ] Context saved AFTER every run method
+- [ ] `message_history=self.messages` passed to agent.run()
+- [ ] `self.messages` updated with `agent_output.all_messages()`
+- [ ] Context NOT loaded in run methods (anti-pattern)
+
+### Long-term Memory
+- [ ] `save_long_term_memory` and `load_long_term_memory` imported
+- [ ] `_load_preferences()` method implemented
+- [ ] Preferences appended to system prompt in `__init__`
+- [ ] Preferences formatted as markdown list
+- [ ] Empty check returns "" if no preferences
+
+### Custom Tools
+- [ ] Tools defined inside `__init__` with decorator
+- [ ] All tools are `async def`
+- [ ] All tools have `ctx: RunContext` first parameter
+- [ ] Tool docstrings are clear and descriptive
+- [ ] Tool logging uses `colored()` from termcolor
+- [ ] Sub-agents initialized before tool definitions
+- [ ] Error handling in tools (try/except)
+
+### Sub-Agents
+- [ ] Stateful sub-agents initialized with `session_id`
+- [ ] Stateless sub-agents initialized without `session_id`
+- [ ] Sub-agents initialized in `__init__`
+- [ ] Sub-agent calls use `await`
+
+### Run Methods
+- [ ] `run(prompt: str) -> AgentRunResult` implemented (sync)
+- [ ] `run_async(prompt: str) -> AgentRunResult` implemented
+- [ ] `run_stream(prompt: str)` implemented (generator)
+- [ ] All three methods save context identically
+- [ ] All three methods pass `message_history`
+- [ ] All three methods update `self.messages`
+
+### System Prompt
+- [ ] Loaded using `load_system_prompt(__file__)`
+- [ ] Preferences appended: `system_prompt += self._load_preferences()`
+- [ ] Includes Persona section
+- [ ] Lists all available tools (MCP and custom)
+- [ ] Includes clear task description
+- [ ] Includes workflow steps
+- [ ] Includes constraints
+
+### __init__.py
+- [ ] Imports agent class
+- [ ] Uses `__all__` list
+- [ ] Class name matches import
+
+### Code Quality
+- [ ] No inline imports
+- [ ] No unnecessary comments
+- [ ] Consistent indentation
+- [ ] No debug print statements (except tool logging)
+- [ ] Follows KISS principle
+
+---
 
 ## Key Components Explained
 
@@ -287,7 +934,7 @@ class StoryResearcher:
     def __init__(self, session_id: str):
         self.session_id = session_id
 
-        llm_model = f"openai:{os.getenv('LLM_MODEL')}"
+        llm_model = os.getenv('LLM_MODEL')
         system_prompt = load_system_prompt(__file__)
         system_prompt += self._load_preferences()
 

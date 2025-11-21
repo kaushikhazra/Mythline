@@ -509,9 +509,9 @@ PDs/blueprints/libs/
 Libraries may require these environment variables:
 
 ```env
-# OpenAI (for embeddings and knowledge base)
-OPENAI_API_KEY=required
-EMBEDDING_MODEL=text-embedding-3-small (optional)
+# OpenRouter (for embeddings and knowledge base)
+OPENROUTER_API_KEY=required
+EMBEDDING_MODEL=openai/text-embedding-3-small (optional)
 
 # Qdrant (for knowledge base)
 QDRANT_PATH=.mythline/knowledge_base (optional)

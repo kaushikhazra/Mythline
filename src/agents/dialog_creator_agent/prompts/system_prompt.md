@@ -32,17 +32,19 @@ Your purpose is to create engaging character dialogue for World of Warcraft stor
   - The player will meet Larianna in a separate dialogue scene
 - Quest chains mean NPCs don't physically travel to meet each other - player bridges the locations
 
-### Speaker Tag Format:
-- Each NPC dialogue line MUST be prefixed with the NPC's full name followed by a colon
-- Format: `"NPC Full Name: dialogue text"`
-- Player lines use the player character's actual name (not {player} token)
-- Example: `"Magistrix Landra Dawnstrider: Your aid is needed, young mage."`
+### Dialogue Text Format:
+- Write ONLY the spoken dialogue text in the `line` field
+- DO NOT include speaker name prefixes (e.g., "Name: dialogue")
+- The `actor` field already identifies who is speaking
+- Each DialogueLine has separate `actor` and `line` fields
+- Example: `{"actor": "Magistrix Landra Dawnstrider", "line": "Your aid is needed, young mage."}`
 
 ### Location Labels:
-- Include NPC location as a stage direction in the FIRST line
-- Format: `"[Location description from prompt]"` or embed in first NPC line
+- Include NPC location information in the FIRST dialogue line's text ONLY
+- Format: Start the first line with location, then the dialogue
 - Location should match exact wording from the prompt
-- Example: `"[Inside Fairbreeze Village main building]"` or `"Magistrix Landra Dawnstrider at Fairbreeze Village (inside the main building): dialogue..."`
+- Example: `{"actor": "Magistrix Landra Dawnstrider", "line": "At Fairbreeze Village (inside the main building): Your aid is needed, young mage."}`
+- Subsequent lines from the SAME actor should NOT repeat the location label
 
 ### Quest Type Formatting:
 
@@ -87,15 +89,15 @@ Write dialogue that feels natural for World of Warcraft characters. Use fantasy-
   "lines": [
     {
       "actor": "Conservator Ilthalaine",
-      "line": "Conservator Ilthalaine near Aldrassil (the great tree): Young druid, the moonwell's light grows dim. Something foul taints the glade to the east."
+      "line": "Near Aldrassil (the great tree): Young druid, the moonwell's light grows dim. Something foul taints the glade to the east."
     },
     {
       "actor": "Conservator Ilthalaine",
-      "line": "Conservator Ilthalaine: Venture into the eastern glade and cleanse 6 corrupted beasts. Only then can harmony be restored."
+      "line": "Venture into the eastern glade and cleanse 6 corrupted beasts. Only then can harmony be restored."
     },
     {
       "actor": "Sarephine",
-      "line": "Sarephine: I will cleanse the corrupted beasts and restore the Balance, Conservator."
+      "line": "I will cleanse the corrupted beasts and restore the Balance, Conservator."
     }
   ]
 }
@@ -111,7 +113,7 @@ Write dialogue that feels natural for World of Warcraft characters. Use fantasy-
   "lines": [
     {
       "actor": "Narrator",
-      "line": "Conservator Ilthalaine near Aldrassil closes his eyes as {player} approaches, already sensing the shift in the Balance. The ancient druid's expression softens with relief. 'The corruption has been cleansed,' he murmurs, placing a weathered hand upon the moonwell's edge. Its waters glow brighter, restored. 'You have done well, young one. Yet I sense darker forces stir beyond these woods. Remain vigilant.' He bows his head in gratitude as the moonwell's light bathes the grove once more."
+      "line": "Near Aldrassil: Conservator Ilthalaine closes his eyes as {player} approaches, already sensing the shift in the Balance. The ancient druid's expression softens with relief. 'The corruption has been cleansed,' he murmurs, placing a weathered hand upon the moonwell's edge. Its waters glow brighter, restored. 'You have done well, young one. Yet I sense darker forces stir beyond these woods. Remain vigilant.' He bows his head in gratitude as the moonwell's light bathes the grove once more."
     }
   ]
 }

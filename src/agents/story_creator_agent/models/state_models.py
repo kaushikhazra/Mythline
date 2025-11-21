@@ -15,9 +15,7 @@ class StorySegment(BaseModel):
 
 class Todo(BaseModel):
     item: StorySegment
-    review_comments: Optional[str] = None
     status: Literal['pending', 'in_progress', 'done'] = 'pending'
-    retry_count: int = 0
 
 
 class StorySession(BaseModel):
@@ -26,9 +24,3 @@ class StorySession(BaseModel):
     player: str
     session_id: str
     current_todo_index: int = 0
-
-
-class Review(BaseModel):
-    need_improvement: bool
-    score: float
-    review_comments: str
