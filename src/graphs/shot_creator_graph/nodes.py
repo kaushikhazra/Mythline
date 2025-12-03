@@ -9,12 +9,22 @@ from src.graphs.shot_creator_graph.models.state_models import ShotCreatorSession
 from src.agents.story_creator_agent.models.story_models import Story
 from src.agents.chunker_agent import ChunkerAgent
 from src.agents.shot_creator_agent import ShotCreatorAgent
+from src.agents.shot_reviewer_agent import ShotReviewerAgent
 from src.libs.filesystem.file_operations import read_file, write_file, file_exists
+
+MAX_REVIEW_RETRIES = 3
+QUALITY_THRESHOLD = 0.75
 
 
 def extract_first_name(full_name: str) -> str:
+    if full_name.lower() == "narrator":
+        return "aaryan"
+
     titles = ["Magistrix", "Ranger", "Arch", "Mage", "Huntress", "Priestess",
-              "Lord", "Lady", "Captain", "Commander", "High", "Elder"]
+              "Lord", "Lady", "Captain", "Commander", "High", "Elder", "Marshal",
+              "Deputy", "Brother", "Sister", "Father", "Mother", "Sergeant",
+              "Lieutenant", "General", "Admiral", "Warden", "Keeper", "Conservator",
+              "Apprentice", "Master", "Grand", "Chief", "Senior", "Junior"]
 
     parts = full_name.split()
     filtered = [part for part in parts if part not in titles]
@@ -304,8 +314,22 @@ class InitializeShotIndex(BaseNode[ShotCreatorSession]):
                 if existing_shots_data:
                     from src.agents.shot_creator_agent.models.output_models import Shot
                     ctx.state.shots = [Shot.model_validate(shot) for shot in existing_shots_data]
-                    ctx.state.current_index = len(ctx.state.shots)
-                    print(colored(f"[*] Resuming from shot {ctx.state.current_index + 1} ({len(ctx.state.shots)} shots already created)", "yellow"))
+
+                    existing_shot_numbers = {shot.shot_number for shot in ctx.state.shots}
+                    all_shot_numbers = set(range(1, total_chunks + 1))
+                    missing_shot_numbers = all_shot_numbers - existing_shot_numbers
+
+                    if missing_shot_numbers:
+                        ctx.state.missing_indices = [n - 1 for n in sorted(missing_shot_numbers)]
+                        ctx.state.processing_missing = True
+                        ctx.state.current_index = 0
+                        print(colored(f"[*] Found {len(ctx.state.missing_indices)} missing shot(s): {sorted(missing_shot_numbers)}", "yellow"))
+                    elif len(ctx.state.shots) < total_chunks:
+                        ctx.state.current_index = len(ctx.state.shots)
+                        print(colored(f"[*] Resuming from shot {ctx.state.current_index + 1} ({len(ctx.state.shots)} shots already created)", "yellow"))
+                    else:
+                        ctx.state.current_index = total_chunks
+                        print(colored(f"[+] All {total_chunks} shots already exist", "green"))
                 else:
                     ctx.state.current_index = 0
             except (json.JSONDecodeError, ValueError):
@@ -314,20 +338,31 @@ class InitializeShotIndex(BaseNode[ShotCreatorSession]):
         else:
             ctx.state.current_index = 0
 
-        remaining_chunks = total_chunks - ctx.state.current_index
-        print(colored(f"\n[*] Starting shot creation phase ({remaining_chunks} chunks remaining)...", "cyan"))
+        if ctx.state.processing_missing:
+            print(colored(f"\n[*] Starting shot regeneration phase ({len(ctx.state.missing_indices)} missing shots)...", "cyan"))
+        else:
+            remaining_chunks = total_chunks - ctx.state.current_index
+            print(colored(f"\n[*] Starting shot creation phase ({remaining_chunks} chunks remaining)...", "cyan"))
         return CheckHasMoreChunks()
 
 
 @dataclass
 class CheckHasMoreChunks(BaseNode[ShotCreatorSession]):
     async def run(self, ctx: GraphRunContext[ShotCreatorSession]) -> GetChunk | End[str]:
-        if ctx.state.current_index < len(ctx.state.chunks):
-            return GetChunk()
+        if ctx.state.processing_missing:
+            if ctx.state.current_index < len(ctx.state.missing_indices):
+                return GetChunk()
+            else:
+                total_shots = len(ctx.state.shots)
+                print(colored(f"\n[+] Shot regeneration complete! Total shots: {total_shots}", "green"))
+                return End(f"Regenerated missing shots, total: {total_shots}")
         else:
-            total_shots = len(ctx.state.shots)
-            print(colored(f"\n[+] Shot creation complete! Created {total_shots} shots", "green"))
-            return End(f"Created {total_shots} shots")
+            if ctx.state.current_index < len(ctx.state.chunks):
+                return GetChunk()
+            else:
+                total_shots = len(ctx.state.shots)
+                print(colored(f"\n[+] Shot creation complete! Created {total_shots} shots", "green"))
+                return End(f"Created {total_shots} shots")
 
 
 @dataclass
@@ -340,31 +375,84 @@ class GetChunk(BaseNode[ShotCreatorSession]):
 class CreateShot(BaseNode[ShotCreatorSession]):
     def __post_init__(self):
         self.shot_creator_agent = None
+        self.reviewer_agent = None
 
     async def run(self, ctx: GraphRunContext[ShotCreatorSession]) -> StoreShot:
         if self.shot_creator_agent is None:
             self.shot_creator_agent = ShotCreatorAgent()
 
-        chunk = ctx.state.chunks[ctx.state.current_index]
+        if ctx.state.processing_missing:
+            chunk_index = ctx.state.missing_indices[ctx.state.current_index]
+            shot_number = chunk_index + 1
+            print(colored(f"[*] Regenerating shot {shot_number}...", "cyan"))
+        else:
+            chunk_index = ctx.state.current_index
+            shot_number = chunk_index + 1
 
-        result = await self.shot_creator_agent.run(
-            text=chunk.text,
-            actor=chunk.actor,
+        chunk = ctx.state.chunks[chunk_index]
+
+        best_shot = None
+        best_score = 0.0
+
+        for attempt in range(1, MAX_REVIEW_RETRIES + 1):
+            result = await self.shot_creator_agent.run(
+                text=chunk.text,
+                actor=chunk.actor,
+                chunk_type=chunk.chunk_type,
+                reference=chunk.reference
+            )
+            shot = result.output
+            shot.shot_number = shot_number
+
+            review = await self._review_shot(shot, chunk)
+
+            if review.quality_score > best_score:
+                best_score = review.quality_score
+                best_shot = shot
+
+            if review.passed:
+                print(colored(f"[+] Shot review passed (score: {review.quality_score:.2f})", "green"))
+                return StoreShot(shot=shot, is_regenerated=ctx.state.processing_missing)
+
+            print(colored(f"[!] Shot review failed (attempt {attempt}/{MAX_REVIEW_RETRIES}, score: {review.quality_score:.2f})", "yellow"))
+            if review.suggestions:
+                print(colored(f"    Feedback: {review.suggestions[0]}", "yellow"))
+
+        print(colored(f"[!] Max retries reached for shot, using best attempt (score: {best_score:.2f})", "yellow"))
+        return StoreShot(shot=best_shot, is_regenerated=ctx.state.processing_missing)
+
+    async def _review_shot(self, shot, chunk):
+        if self.reviewer_agent is None:
+            self.reviewer_agent = ShotReviewerAgent()
+
+        print(colored(f"[*] Reviewing shot...", "cyan"))
+        result = await self.reviewer_agent.run(
+            shot=shot,
+            chunk_text=chunk.text,
+            chunk_actor=chunk.actor,
             chunk_type=chunk.chunk_type,
-            reference=chunk.reference
+            chunk_reference=chunk.reference
         )
-
-        return StoreShot(shot=result.output)
+        return result.output
 
 
 @dataclass
 class StoreShot(BaseNode[ShotCreatorSession]):
     shot: object
+    is_regenerated: bool = False
 
     async def run(self, ctx: GraphRunContext[ShotCreatorSession]) -> WriteShotsFile:
-        shot_number = ctx.state.current_index + 1
-        self.shot.shot_number = shot_number
-        ctx.state.shots.append(self.shot)
+        if self.is_regenerated:
+            insert_pos = 0
+            for i, existing_shot in enumerate(ctx.state.shots):
+                if existing_shot.shot_number > self.shot.shot_number:
+                    break
+                insert_pos = i + 1
+            ctx.state.shots.insert(insert_pos, self.shot)
+        else:
+            shot_number = ctx.state.current_index + 1
+            self.shot.shot_number = shot_number
+            ctx.state.shots.append(self.shot)
         return WriteShotsFile()
 
 
@@ -386,6 +474,9 @@ class IncrementChunkIndex(BaseNode[ShotCreatorSession]):
     async def run(self, ctx: GraphRunContext[ShotCreatorSession]) -> CheckHasMoreChunks:
         ctx.state.current_index += 1
 
-        print(colored(f"[*] Progress: {ctx.state.current_index}/{len(ctx.state.chunks)} shots created", "cyan"))
+        if ctx.state.processing_missing:
+            print(colored(f"[*] Progress: {ctx.state.current_index}/{len(ctx.state.missing_indices)} missing shots regenerated", "cyan"))
+        else:
+            print(colored(f"[*] Progress: {ctx.state.current_index}/{len(ctx.state.chunks)} shots created", "cyan"))
 
         return CheckHasMoreChunks()

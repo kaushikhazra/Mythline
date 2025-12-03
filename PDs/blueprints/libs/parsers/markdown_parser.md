@@ -78,3 +78,12 @@ chunks = chunk_markdown_by_headers(file_content)
 | **Headers** | H2+ | H2 only |
 | **Code blocks** | Handled | Not handled |
 | **Use for** | Knowledge indexing | Simple splitting |
+
+## Core Coding Principles
+
+**IMPORTANT:** Before implementing, ensure code follows [Core Coding Principles](../INDEX.md#core-coding-principles):
+1. **Separation of Concerns** - Single responsibility per module/class
+2. **KISS Principle** - Simple, direct solutions (no over-engineering)
+3. **No Comments** - Self-documenting code (add comments only AFTER testing)
+
+---

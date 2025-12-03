@@ -299,6 +299,15 @@ session_id = get_latest_session(AGENT_ID) or new_session_id()
 
 ---
 
+## Core Coding Principles
+
+**IMPORTANT:** Before implementing, ensure code follows [Core Coding Principles](../INDEX.md#core-coding-principles):
+1. **Separation of Concerns** - Single responsibility per module/class
+2. **KISS Principle** - Simple, direct solutions (no over-engineering)
+3. **No Comments** - Self-documenting code (add comments only AFTER testing)
+
+---
+
 ## Related Libraries
 
 - `long_term_memory` - Cross-session preferences

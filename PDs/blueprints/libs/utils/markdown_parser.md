@@ -36,5 +36,14 @@ for chunk in chunks:
 ## Note
 For new code with metadata needs, use `src.libs.parsers.chunk_markdown_by_headers` instead.
 
+## Core Coding Principles
+
+**IMPORTANT:** Before implementing, ensure code follows [Core Coding Principles](../INDEX.md#core-coding-principles):
+1. **Separation of Concerns** - Single responsibility per module/class
+2. **KISS Principle** - Simple, direct solutions (no over-engineering)
+3. **No Comments** - Self-documenting code (add comments only AFTER testing)
+
+---
+
 ## Examples in Codebase
 - generate_shots CLI (legacy usage)

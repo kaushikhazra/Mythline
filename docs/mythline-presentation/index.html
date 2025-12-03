@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mythline - AI Story-Writing Agent</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif;
+            background: #0d1117;
+            color: #c9d1d9;
+            overflow-x: hidden;
+        }
+
+        .presentation {
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .slide {
+            width: 100vw;
+            height: 100vh;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 4rem;
+            position: absolute;
+            top: 0;
+            left: 0;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+        }
+
+        .slide.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        .slide-content {
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            padding: 3rem;
+            max-width: 1200px;
+            width: 100%;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+            animation: slideIn 0.6s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(30px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1.5rem;
+            color: #58a6ff;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        h2 {
+            font-size: 2.5rem;
+            margin-bottom: 2rem;
+            color: #c9d1d9;
+            border-bottom: 1px solid #21262d;
+            padding-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        h3 {
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            color: #58a6ff;
+            font-weight: 600;
+        }
+
+        p, li {
+            font-size: 1.3rem;
+            line-height: 1.8;
+            margin-bottom: 1rem;
+            color: #8b949e;
+        }
+
+        ul {
+            margin-left: 2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .subtitle {
+            font-size: 1.5rem;
+            color: #8b949e;
+            text-align: center;
+            font-style: italic;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .diagram-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 2rem 0;
+        }
+
+        svg {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .controls {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 1rem;
+            z-index: 1000;
+        }
+
+        button {
+            background: #21262d;
+            border: 1px solid #30363d;
+            padding: 1rem 2rem;
+            border-radius: 6px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: 600;
+            color: #c9d1d9;
+        }
+
+        button:hover {
+            background: #30363d;
+            border-color: #8b949e;
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .slide-number {
+            position: fixed;
+            top: 2rem;
+            right: 2rem;
+            background: #21262d;
+            border: 1px solid #30363d;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-weight: 600;
+            color: #58a6ff;
+        }
+
+        .highlight {
+            color: #58a6ff;
+            font-weight: 700;
+        }
+
+        .box {
+            background: #0d1117;
+            border: 1px solid #30363d;
+            padding: 1.5rem;
+            border-radius: 6px;
+            border-left: 3px solid #58a6ff;
+        }
+
+        .tech-stack {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 2rem;
+        }
+
+        .tech-item {
+            background: #21262d;
+            border: 1px solid #30363d;
+            color: #58a6ff;
+            padding: 0.8rem 1.5rem;
+            border-radius: 6px;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="presentation">
+        <div class="slide-number">
+            <span id="current-slide">1</span> / <span id="total-slides">8</span>
+        </div>
+
+        <!-- Slide 1: Title -->
+        <div class="slide active">
+            <div class="slide-content">
+                <h1>Mythline</h1>
+                <p class="subtitle">An AI Story-Writing Agent</p>
+                <div class="diagram-container">
+                    <svg width="400" height="300" viewBox="0 0 400 300">
+                        <defs>
+                            <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" style="stop-color:#58a6ff;stop-opacity:1" />
+                                <stop offset="100%" style="stop-color:#1f6feb;stop-opacity:1" />
+                            </linearGradient>
+                        </defs>
+                        <!-- Book icon -->
+                        <rect x="100" y="80" width="200" height="140" rx="10" fill="url(#grad1)" opacity="0.2"/>
+                        <rect x="110" y="90" width="180" height="120" rx="5" fill="none" stroke="url(#grad1)" stroke-width="3"/>
+                        <line x1="200" y1="90" x2="200" y2="210" stroke="url(#grad1)" stroke-width="2"/>
+                        <!-- AI symbol -->
+                        <circle cx="200" cy="150" r="30" fill="url(#grad1)" opacity="0.8"/>
+                        <text x="200" y="160" font-size="24" fill="#0d1117" text-anchor="middle" font-weight="bold">AI</text>
+                        <!-- Decorative elements -->
+                        <circle cx="80" cy="100" r="5" fill="#58a6ff" opacity="0.6">
+                            <animate attributeName="opacity" values="0.6;1;0.6" dur="2s" repeatCount="indefinite"/>
+                        </circle>
+                        <circle cx="320" cy="120" r="5" fill="#1f6feb" opacity="0.6">
+                            <animate attributeName="opacity" values="0.6;1;0.6" dur="2.5s" repeatCount="indefinite"/>
+                        </circle>
+                        <circle cx="100" cy="220" r="5" fill="#58a6ff" opacity="0.6">
+                            <animate attributeName="opacity" values="0.6;1;0.6" dur="3s" repeatCount="indefinite"/>
+                        </circle>
+                        <circle cx="300" cy="200" r="5" fill="#1f6feb" opacity="0.6">
+                            <animate attributeName="opacity" values="0.6;1;0.6" dur="2.2s" repeatCount="indefinite"/>
+                        </circle>
+                    </svg>
+                </div>
+                <p style="text-align: center; margin-top: 2rem; font-size: 1.5rem;">Presented to <span class="highlight">Mindgate</span></p>
+            </div>
+        </div>
+
+        <!-- Slide 2: The Problem -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>The Problem</h2>
+                <div class="diagram-container">
+                    <svg width="800" height="200" viewBox="0 0 800 200">
+                        <defs>
+                            <linearGradient id="grad2" x1="0%" y1="0%" x2="100%" y2="0%">
+                                <stop offset="0%" style="stop-color:#58a6ff;stop-opacity:1" />
+                                <stop offset="100%" style="stop-color:#1f6feb;stop-opacity:1" />
+                            </linearGradient>
+                        </defs>
+                        <!-- Process flow -->
+                        <g id="step1">
+                            <rect x="20" y="60" width="120" height="80" rx="10" fill="#ff6b6b" opacity="0.2" stroke="#ff6b6b" stroke-width="2"/>
+                            <text x="80" y="95" font-size="14" text-anchor="middle" font-weight="bold" fill="#ff6b6b">Research</text>
+                            <text x="80" y="115" font-size="12" text-anchor="middle" fill="#8b949e">Time</text>
+                            <text x="80" y="130" font-size="12" text-anchor="middle" fill="#8b949e">Intensive</text>
+                        </g>
+                        <g id="step2">
+                            <rect x="170" y="60" width="120" height="80" rx="10" fill="#ffd93d" opacity="0.2" stroke="#ffd93d" stroke-width="2"/>
+                            <text x="230" y="95" font-size="14" text-anchor="middle" font-weight="bold" fill="#e6b800">Write Story</text>
+                            <text x="230" y="115" font-size="12" text-anchor="middle" fill="#8b949e">Multiple</text>
+                            <text x="230" y="130" font-size="12" text-anchor="middle" fill="#8b949e">Iterations</text>
+                        </g>
+                        <g id="step3">
+                            <rect x="320" y="60" width="120" height="80" rx="10" fill="#ff9f43" opacity="0.2" stroke="#ff9f43" stroke-width="2"/>
+                            <text x="380" y="95" font-size="14" text-anchor="middle" font-weight="bold" fill="#ff9f43">Review</text>
+                            <text x="380" y="115" font-size="12" text-anchor="middle" fill="#8b949e">Fact-check</text>
+                            <text x="380" y="130" font-size="12" text-anchor="middle" fill="#8b949e">Quality</text>
+                        </g>
+                        <g id="step4">
+                            <rect x="470" y="60" width="120" height="80" rx="10" fill="#54a0ff" opacity="0.2" stroke="#54a0ff" stroke-width="2"/>
+                            <text x="530" y="95" font-size="14" text-anchor="middle" font-weight="bold" fill="#54a0ff">Plan Shots</text>
+                            <text x="530" y="115" font-size="12" text-anchor="middle" fill="#8b949e">Video</text>
+                            <text x="530" y="130" font-size="12" text-anchor="middle" fill="#8b949e">Planning</text>
+                        </g>
+                        <g id="step5">
+                            <rect x="620" y="60" width="120" height="80" rx="10" fill="#48dbfb" opacity="0.2" stroke="#48dbfb" stroke-width="2"/>
+                            <text x="680" y="95" font-size="14" text-anchor="middle" font-weight="bold" fill="#48dbfb">Produce</text>
+                            <text x="680" y="115" font-size="12" text-anchor="middle" fill="#8b949e">Final</text>
+                            <text x="680" y="130" font-size="12" text-anchor="middle" fill="#8b949e">Content</text>
+                        </g>
+                        <!-- Arrows -->
+                        <path d="M 145 100 L 165 100" stroke="#999" stroke-width="2" fill="none" marker-end="url(#arrowhead)"/>
+                        <path d="M 295 100 L 315 100" stroke="#999" stroke-width="2" fill="none" marker-end="url(#arrowhead)"/>
+                        <path d="M 445 100 L 465 100" stroke="#999" stroke-width="2" fill="none" marker-end="url(#arrowhead)"/>
+                        <path d="M 595 100 L 615 100" stroke="#999" stroke-width="2" fill="none" marker-end="url(#arrowhead)"/>
+                        <defs>
+                            <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+                                <polygon points="0 0, 10 3, 0 6" fill="#999" />
+                            </marker>
+                        </defs>
+                    </svg>
+                </div>
+                <div class="box">
+                    <p>Creating story-based content for social media is <span class="highlight">challenging and time-consuming</span>:</p>
+                    <ul>
+                        <li>Research takes significant time and effort</li>
+                        <li>Writing requires multiple iterations</li>
+                        <li>Fact-checking ensures accuracy</li>
+                        <li>Video shot planning shapes the final content</li>
+                        <li>Each step requires expertise and attention</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 3: The Challenge with AI -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>The Challenge with Traditional AI Chat</h2>
+                <div class="grid-2">
+                    <div>
+                        <h3>Without Structure</h3>
+                        <div class="diagram-container">
+                            <svg width="350" height="250" viewBox="0 0 350 250">
+                                <!-- Chaotic paths -->
+                                <path d="M 50 125 Q 100 50, 150 125 T 250 125" stroke="#ff6b6b" stroke-width="3" fill="none" opacity="0.5"/>
+                                <path d="M 50 125 Q 100 200, 150 125 T 250 125" stroke="#ff9f43" stroke-width="3" fill="none" opacity="0.5"/>
+                                <path d="M 50 125 Q 120 80, 200 150" stroke="#ffd93d" stroke-width="3" fill="none" opacity="0.5"/>
+                                <!-- Question marks -->
+                                <text x="100" y="100" font-size="40" fill="#ff6b6b" opacity="0.7">?</text>
+                                <text x="180" y="180" font-size="40" fill="#ff9f43" opacity="0.7">?</text>
+                                <text x="250" y="120" font-size="40" fill="#ffd93d" opacity="0.7">?</text>
+                                <!-- Labels -->
+                                <text x="30" y="130" font-size="14" fill="#8b949e">Input</text>
+                                <text x="260" y="130" font-size="14" fill="#8b949e">Output</text>
+                                <text x="175" y="230" font-size="16" fill="#ff6b6b" text-anchor="middle" font-weight="bold">Non-Deterministic</text>
+                            </svg>
+                        </div>
+                        <ul>
+                            <li>Inconsistent results</li>
+                            <li>Unpredictable output</li>
+                            <li>Hard to control</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3>With Structure</h3>
+                        <div class="diagram-container">
+                            <svg width="350" height="250" viewBox="0 0 350 250">
+                                <!-- Straight path with guardrails -->
+                                <rect x="80" y="100" width="180" height="50" rx="5" fill="url(#grad1)" opacity="0.1"/>
+                                <line x1="50" y1="125" x2="280" y2="125" stroke="url(#grad1)" stroke-width="4"/>
+                                <circle cx="50" cy="125" r="8" fill="#58a6ff"/>
+                                <circle cx="280" cy="125" r="8" fill="#1f6feb"/>
+                                <!-- Guardrails -->
+                                <line x1="80" y1="100" x2="260" y2="100" stroke="#58a6ff" stroke-width="2" stroke-dasharray="5,5"/>
+                                <line x1="80" y1="150" x2="260" y2="150" stroke="#58a6ff" stroke-width="2" stroke-dasharray="5,5"/>
+                                <!-- Icons -->
+                                <g transform="translate(130, 115)">
+                                    <circle r="6" fill="#58a6ff"/>
+                                    <text y="5" font-size="8" fill="#c9d1d9" text-anchor="middle">P</text>
+                                </g>
+                                <g transform="translate(165, 115)">
+                                    <circle r="6" fill="#58a6ff"/>
+                                    <text y="5" font-size="8" fill="#c9d1d9" text-anchor="middle">G</text>
+                                </g>
+                                <g transform="translate(200, 115)">
+                                    <circle r="6" fill="#58a6ff"/>
+                                    <text y="5" font-size="8" fill="#c9d1d9" text-anchor="middle">I</text>
+                                </g>
+                                <!-- Labels -->
+                                <text x="30" y="130" font-size="14" fill="#8b949e">Input</text>
+                                <text x="290" y="130" font-size="14" fill="#8b949e">Output</text>
+                                <text x="175" y="180" font-size="12" fill="#58a6ff" text-anchor="middle">P = Persona</text>
+                                <text x="175" y="195" font-size="12" fill="#58a6ff" text-anchor="middle">G = Guardrails</text>
+                                <text x="175" y="210" font-size="12" fill="#58a6ff" text-anchor="middle">I = Instructions</text>
+                                <text x="175" y="230" font-size="16" fill="#58a6ff" text-anchor="middle" font-weight="bold">Deterministic</text>
+                            </svg>
+                        </div>
+                        <ul>
+                            <li>Predictable output</li>
+                            <li>Reliable results</li>
+                            <li>Controlled behavior</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 4: The Solution -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>The Mythline Solution</h2>
+                <div class="box" style="text-align: center; margin: 2rem 0;">
+                    <h3 style="margin-bottom: 1.5rem;">A frictionless AI system that researches and builds video-ready stories from end to end</h3>
+                </div>
+                <div class="diagram-container">
+                    <svg width="900" height="280" viewBox="0 0 900 280">
+                        <defs>
+                            <linearGradient id="grad3" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+                                <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
+                            </linearGradient>
+                            <filter id="shadow">
+                                <feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.3"/>
+                            </filter>
+                        </defs>
+
+                        <!-- User Input -->
+                        <g id="user-input">
+                            <rect x="20" y="120" width="100" height="60" rx="10" fill="#21262d" stroke="#58a6ff" stroke-width="2" filter="url(#shadow)"/>
+                            <text x="70" y="145" font-size="14" text-anchor="middle" font-weight="bold" fill="#58a6ff">User</text>
+                            <text x="70" y="162" font-size="12" text-anchor="middle" fill="#8b949e">Topic</text>
+                        </g>
+
+                        <!-- Mythline System -->
+                        <rect x="180" y="40" width="520" height="200" rx="15" fill="url(#grad3)" opacity="0.1" stroke="url(#grad3)" stroke-width="3"/>
+                        <text x="440" y="70" font-size="18" text-anchor="middle" font-weight="bold" fill="#58a6ff">Mythline AI System</text>
+
+                        <!-- Research -->
+                        <g id="research">
+                            <rect x="200" y="100" width="100" height="60" rx="10" fill="#58a6ff" opacity="0.8" filter="url(#shadow)"/>
+                            <text x="250" y="125" font-size="13" text-anchor="middle" font-weight="bold" fill="white">Research</text>
+                            <text x="250" y="142" font-size="11" text-anchor="middle" fill="white">Web Search</text>
+                        </g>
+
+                        <!-- Story Creation -->
+                        <g id="story">
+                            <rect x="340" y="100" width="100" height="60" rx="10" fill="#1f6feb" opacity="0.8" filter="url(#shadow)"/>
+                            <text x="390" y="125" font-size="13" text-anchor="middle" font-weight="bold" fill="white">Story</text>
+                            <text x="390" y="142" font-size="11" text-anchor="middle" fill="white">Creation</text>
+                        </g>
+
+                        <!-- Shot Planning -->
+                        <g id="shots">
+                            <rect x="480" y="100" width="100" height="60" rx="10" fill="#58a6ff" opacity="0.8" filter="url(#shadow)"/>
+                            <text x="530" y="125" font-size="13" text-anchor="middle" font-weight="bold" fill="white">Shot</text>
+                            <text x="530" y="142" font-size="11" text-anchor="middle" fill="white">Planning</text>
+                        </g>
+
+                        <!-- Output -->
+                        <g id="output">
+                            <rect x="760" y="120" width="120" height="60" rx="10" fill="#2ecc71" opacity="0.2" stroke="#2ecc71" stroke-width="2" filter="url(#shadow)"/>
+                            <text x="820" y="142" font-size="14" text-anchor="middle" font-weight="bold" fill="#2ecc71">Video-Ready</text>
+                            <text x="820" y="159" font-size="12" text-anchor="middle" fill="#8b949e">Story</text>
+                        </g>
+
+                        <!-- Arrows -->
+                        <path d="M 125 150 L 175 150" stroke="#58a6ff" stroke-width="3" fill="none" marker-end="url(#arrow1)"/>
+                        <path d="M 305 130 L 335 130" stroke="#1f6feb" stroke-width="3" fill="none" marker-end="url(#arrow1)"/>
+                        <path d="M 445 130 L 475 130" stroke="#58a6ff" stroke-width="3" fill="none" marker-end="url(#arrow1)"/>
+                        <path d="M 585 130 L 615 130" stroke="#58a6ff" stroke-width="3" fill="none" marker-end="url(#arrow1)"/>
+                        <path d="M 710 150 L 755 150" stroke="#2ecc71" stroke-width="3" fill="none" marker-end="url(#arrow2)"/>
+
+                        <!-- AI Brain Icon -->
+                        <g transform="translate(620, 120)">
+                            <circle r="25" fill="#1f6feb" opacity="0.2"/>
+                            <text y="8" font-size="20" fill="#1f6feb" text-anchor="middle" font-weight="bold">AI</text>
+                        </g>
+
+                        <defs>
+                            <marker id="arrow1" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+                                <polygon points="0 0, 10 3, 0 6" fill="#58a6ff" />
+                            </marker>
+                            <marker id="arrow2" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+                                <polygon points="0 0, 10 3, 0 6" fill="#2ecc71" />
+                            </marker>
+                        </defs>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 5: Technology Stack -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>Technology Stack</h2>
+                <div class="diagram-container">
+                    <svg width="700" height="300" viewBox="0 0 700 300">
+                        <defs>
+                            <linearGradient id="techGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+                                <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
+                            </linearGradient>
+                        </defs>
+
+                        <!-- Foundation Layer -->
+                        <rect x="50" y="220" width="600" height="60" rx="10" fill="#21262d" stroke="#58a6ff" stroke-width="2"/>
+                        <text x="350" y="255" font-size="18" text-anchor="middle" font-weight="bold" fill="#58a6ff">OpenAI GPT-4o Mini - Story Writing Engine</text>
+
+                        <!-- Framework Layer -->
+                        <rect x="100" y="140" width="500" height="60" rx="10" fill="url(#techGrad)" opacity="0.2" stroke="url(#techGrad)" stroke-width="2"/>
+                        <text x="350" y="175" font-size="16" text-anchor="middle" font-weight="bold" fill="#1f6feb">Pydantic AI Framework + Pydantic Graph (FSM)</text>
+
+                        <!-- Services Layer -->
+                        <g id="services">
+                            <rect x="50" y="50" width="150" height="70" rx="8" fill="#58a6ff" opacity="0.15" stroke="#58a6ff" stroke-width="2"/>
+                            <text x="125" y="75" font-size="13" text-anchor="middle" font-weight="bold" fill="#58a6ff">Web Search</text>
+                            <text x="125" y="92" font-size="11" text-anchor="middle" fill="#8b949e">Custom Built</text>
+                            <text x="125" y="106" font-size="11" text-anchor="middle" fill="#8b949e">Open Source</text>
+
+                            <rect x="225" y="50" width="125" height="70" rx="8" fill="#1f6feb" opacity="0.15" stroke="#1f6feb" stroke-width="2"/>
+                            <text x="287" y="75" font-size="13" text-anchor="middle" font-weight="bold" fill="#1f6feb">FastMCP</text>
+                            <text x="287" y="92" font-size="11" text-anchor="middle" fill="#8b949e">MCP</text>
+                            <text x="287" y="106" font-size="11" text-anchor="middle" fill="#8b949e">Servers</text>
+
+                            <rect x="375" y="50" width="125" height="70" rx="8" fill="#58a6ff" opacity="0.15" stroke="#58a6ff" stroke-width="2"/>
+                            <text x="437" y="75" font-size="13" text-anchor="middle" font-weight="bold" fill="#58a6ff">Qdrant</text>
+                            <text x="437" y="92" font-size="11" text-anchor="middle" fill="#8b949e">Vector</text>
+                            <text x="437" y="106" font-size="11" text-anchor="middle" fill="#8b949e">Knowledge Base</text>
+
+                            <rect x="525" y="50" width="125" height="70" rx="8" fill="#1f6feb" opacity="0.15" stroke="#1f6feb" stroke-width="2"/>
+                            <text x="587" y="75" font-size="13" text-anchor="middle" font-weight="bold" fill="#1f6feb">Filesystem</text>
+                            <text x="587" y="92" font-size="11" text-anchor="middle" fill="#8b949e">Operations</text>
+                        </g>
+                    </svg>
+                </div>
+                <div class="tech-stack">
+                    <div class="tech-item">OpenAI GPT-4o Mini</div>
+                    <div class="tech-item">Pydantic AI</div>
+                    <div class="tech-item">Pydantic Graph (FSM)</div>
+                    <div class="tech-item">FastMCP</div>
+                    <div class="tech-item">Qdrant Vector DB</div>
+                    <div class="tech-item">Custom Web Search</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 6: Data Flow -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>Data Flow & Structure</h2>
+                <div class="diagram-container">
+                    <svg width="800" height="320" viewBox="0 0 800 320">
+                        <defs>
+                            <linearGradient id="dataGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                                <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+                                <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
+                            </linearGradient>
+                        </defs>
+
+                        <!-- Web Research -->
+                        <g id="web-research">
+                            <rect x="50" y="50" width="150" height="100" rx="10" fill="#3498db" opacity="0.2" stroke="#3498db" stroke-width="2"/>
+                            <text x="125" y="85" font-size="16" text-anchor="middle" font-weight="bold" fill="#3498db">Web Research</text>
+                            <text x="125" y="108" font-size="12" text-anchor="middle" fill="#8b949e">Plain Text</text>
+                            <text x="125" y="125" font-size="11" text-anchor="middle" fill="#8b949e">from web sources</text>
+                        </g>
+
+                        <!-- Research Document -->
+                        <g id="research-doc">
+                            <rect x="250" y="50" width="150" height="100" rx="10" fill="#9b59b6" opacity="0.2" stroke="#9b59b6" stroke-width="2"/>
+                            <text x="325" y="85" font-size="16" text-anchor="middle" font-weight="bold" fill="#9b59b6">Research Doc</text>
+                            <text x="325" y="108" font-size="12" text-anchor="middle" fill="#8b949e">Markdown</text>
+                            <text x="325" y="125" font-size="11" text-anchor="middle" fill="#8b949e">Structured content</text>
+                        </g>
+
+                        <!-- Story JSON -->
+                        <g id="story-json">
+                            <rect x="450" y="50" width="150" height="100" rx="10" fill="#e74c3c" opacity="0.2" stroke="#e74c3c" stroke-width="2"/>
+                            <text x="525" y="85" font-size="16" text-anchor="middle" font-weight="bold" fill="#e74c3c">Story JSON</text>
+                            <text x="525" y="108" font-size="12" text-anchor="middle" fill="#8b949e">Structured Data</text>
+                            <text x="525" y="125" font-size="11" text-anchor="middle" fill="#8b949e">Story sections</text>
+                        </g>
+
+                        <!-- Shot JSON -->
+                        <g id="shot-json">
+                            <rect x="650" y="50" width="130" height="100" rx="10" fill="#2ecc71" opacity="0.2" stroke="#2ecc71" stroke-width="2"/>
+                            <text x="715" y="85" font-size="16" text-anchor="middle" font-weight="bold" fill="#2ecc71">Shot JSON</text>
+                            <text x="715" y="108" font-size="12" text-anchor="middle" fill="#8b949e">Video Shots</text>
+                            <text x="715" y="125" font-size="11" text-anchor="middle" fill="#8b949e">Production ready</text>
+                        </g>
+
+                        <!-- Arrows -->
+                        <path d="M 205 100 L 245 100" stroke="#58a6ff" stroke-width="3" marker-end="url(#arrow3)"/>
+                        <path d="M 405 100 L 445 100" stroke="#58a6ff" stroke-width="3" marker-end="url(#arrow3)"/>
+                        <path d="M 605 100 L 645 100" stroke="#58a6ff" stroke-width="3" marker-end="url(#arrow3)"/>
+
+                        <!-- Why JSON Box -->
+                        <rect x="200" y="190" width="400" height="110" rx="10" fill="#0d1117" stroke="#58a6ff" stroke-width="2"/>
+                        <text x="400" y="215" font-size="18" text-anchor="middle" font-weight="bold" fill="#58a6ff">Why JSON?</text>
+
+                        <g id="reason1">
+                            <circle cx="230" cy="240" r="5" fill="#58a6ff"/>
+                            <text x="245" y="245" font-size="14" fill="#8b949e">Structured data for voice direction & production</text>
+                        </g>
+                        <g id="reason2">
+                            <circle cx="230" cy="270" r="5" fill="#1f6feb"/>
+                            <text x="245" y="275" font-size="14" fill="#8b949e">Forces determinism = consistent AI behavior</text>
+                        </g>
+
+                        <defs>
+                            <marker id="arrow3" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+                                <polygon points="0 0, 10 3, 0 6" fill="#58a6ff" />
+                            </marker>
+                        </defs>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 7: Architecture -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>System Architecture</h2>
+                <div class="diagram-container">
+                    <svg width="850" height="380" viewBox="0 0 850 380">
+                        <defs>
+                            <linearGradient id="archGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+                                <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
+                            </linearGradient>
+                            <filter id="glow">
+                                <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+                                <feMerge>
+                                    <feMergeNode in="coloredBlur"/>
+                                    <feMergeNode in="SourceGraphic"/>
+                                </feMerge>
+                            </filter>
+                        </defs>
+
+                        <!-- Main Container -->
+                        <rect x="40" y="20" width="770" height="340" rx="15" fill="url(#archGrad)" opacity="0.05" stroke="url(#archGrad)" stroke-width="2"/>
+
+                        <!-- Core: Pydantic AI -->
+                        <g id="core">
+                            <rect x="320" y="150" width="210" height="80" rx="12" fill="url(#archGrad)" opacity="0.9" filter="url(#glow)"/>
+                            <text x="425" y="180" font-size="18" text-anchor="middle" font-weight="bold" fill="white">Pydantic AI</text>
+                            <text x="425" y="202" font-size="14" text-anchor="middle" fill="white">Core Framework</text>
+                        </g>
+
+                        <!-- FSM -->
+                        <g id="fsm">
+                            <rect x="340" y="250" width="170" height="60" rx="10" fill="#1f6feb" opacity="0.8"/>
+                            <text x="425" y="275" font-size="14" text-anchor="middle" font-weight="bold" fill="white">Pydantic Graph</text>
+                            <text x="425" y="293" font-size="12" text-anchor="middle" fill="white">FSM State Manager</text>
+                        </g>
+
+                        <!-- Services around core -->
+                        <!-- Web Search -->
+                        <g id="web-search-service">
+                            <rect x="60" y="60" width="140" height="70" rx="10" fill="#3498db" opacity="0.8"/>
+                            <text x="130" y="88" font-size="13" text-anchor="middle" font-weight="bold" fill="white">Web Search</text>
+                            <text x="130" y="105" font-size="11" text-anchor="middle" fill="white">Custom Built</text>
+                            <text x="130" y="120" font-size="10" text-anchor="middle" fill="white">Open Source</text>
+                        </g>
+
+                        <!-- FastMCP -->
+                        <g id="fastmcp-service">
+                            <rect x="60" y="150" width="140" height="70" rx="10" fill="#e67e22" opacity="0.8"/>
+                            <text x="130" y="178" font-size="13" text-anchor="middle" font-weight="bold" fill="white">FastMCP</text>
+                            <text x="130" y="195" font-size="11" text-anchor="middle" fill="white">MCP Servers</text>
+                            <text x="130" y="210" font-size="10" text-anchor="middle" fill="white">Tools & Functions</text>
+                        </g>
+
+                        <!-- Qdrant -->
+                        <g id="qdrant-service">
+                            <rect x="60" y="240" width="140" height="70" rx="10" fill="#16a085" opacity="0.8"/>
+                            <text x="130" y="268" font-size="13" text-anchor="middle" font-weight="bold" fill="white">Qdrant</text>
+                            <text x="130" y="285" font-size="11" text-anchor="middle" fill="white">Vector DB</text>
+                            <text x="130" y="300" font-size="10" text-anchor="middle" fill="white">Knowledge Base</text>
+                        </g>
+
+                        <!-- GPT Engine -->
+                        <g id="gpt-service">
+                            <rect x="650" y="60" width="140" height="70" rx="10" fill="#9b59b6" opacity="0.8"/>
+                            <text x="720" y="83" font-size="13" text-anchor="middle" font-weight="bold" fill="white">GPT-4o Mini</text>
+                            <text x="720" y="100" font-size="11" text-anchor="middle" fill="white">OpenAI</text>
+                            <text x="720" y="115" font-size="10" text-anchor="middle" fill="white">LLM Engine</text>
+                        </g>
+
+                        <!-- Filesystem -->
+                        <g id="filesystem-service">
+                            <rect x="650" y="150" width="140" height="70" rx="10" fill="#c0392b" opacity="0.8"/>
+                            <text x="720" y="178" font-size="13" text-anchor="middle" font-weight="bold" fill="white">Filesystem</text>
+                            <text x="720" y="195" font-size="11" text-anchor="middle" fill="white">File Operations</text>
+                            <text x="720" y="210" font-size="10" text-anchor="middle" fill="white">Read/Write</text>
+                        </g>
+
+                        <!-- Output -->
+                        <g id="output-service">
+                            <rect x="650" y="240" width="140" height="70" rx="10" fill="#27ae60" opacity="0.8"/>
+                            <text x="720" y="268" font-size="13" text-anchor="middle" font-weight="bold" fill="white">Output</text>
+                            <text x="720" y="285" font-size="11" text-anchor="middle" fill="white">Video-Ready</text>
+                            <text x="720" y="300" font-size="10" text-anchor="middle" fill="white">Story & Shots</text>
+                        </g>
+
+                        <!-- Connection lines -->
+                        <line x1="205" y1="95" x2="315" y2="170" stroke="#58a6ff" stroke-width="2" opacity="0.5"/>
+                        <line x1="205" y1="185" x2="315" y2="185" stroke="#58a6ff" stroke-width="2" opacity="0.5"/>
+                        <line x1="205" y1="275" x2="315" y2="210" stroke="#58a6ff" stroke-width="2" opacity="0.5"/>
+
+                        <line x1="535" y1="170" x2="645" y2="95" stroke="#1f6feb" stroke-width="2" opacity="0.5"/>
+                        <line x1="535" y1="185" x2="645" y2="185" stroke="#1f6feb" stroke-width="2" opacity="0.5"/>
+                        <line x1="535" y1="200" x2="645" y2="275" stroke="#1f6feb" stroke-width="2" opacity="0.5"/>
+
+                        <line x1="425" y1="235" x2="425" y2="245" stroke="#58a6ff" stroke-width="2"/>
+
+                        <!-- Title -->
+                        <text x="425" y="50" font-size="20" text-anchor="middle" font-weight="bold" fill="#58a6ff">Mythline System Architecture</text>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 8: Result -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>The Result</h2>
+                <div class="diagram-container">
+                    <svg width="600" height="250" viewBox="0 0 600 250">
+                        <defs>
+                            <linearGradient id="resultGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" style="stop-color:#2ecc71;stop-opacity:1" />
+                                <stop offset="100%" style="stop-color:#27ae60;stop-opacity:1" />
+                            </linearGradient>
+                        </defs>
+
+                        <!-- Video frame -->
+                        <rect x="100" y="30" width="400" height="180" rx="15" fill="#161b22" stroke="#2ecc71" stroke-width="3"/>
+                        <rect x="120" y="50" width="360" height="140" rx="10" fill="url(#resultGrad)" opacity="0.3"/>
+
+                        <!-- Play button -->
+                        <circle cx="300" cy="120" r="35" fill="#2ecc71" opacity="0.9"/>
+                        <polygon points="290,105 290,135 320,120" fill="white"/>
+
+                        <!-- Video elements -->
+                        <text x="300" y="70" font-size="16" text-anchor="middle" font-weight="bold" fill="#2ecc71">Video-Ready Story</text>
+                        <text x="300" y="165" font-size="14" text-anchor="middle" fill="#2ecc71">Complete with:</text>
+                        <text x="300" y="183" font-size="12" text-anchor="middle" fill="#27ae60">Narration • Dialogue • Shots</text>
+
+                        <!-- Checkmarks -->
+                        <g transform="translate(520, 50)">
+                            <circle r="15" fill="#2ecc71"/>
+                            <path d="M -5 0 L -2 5 L 5 -5" stroke="white" stroke-width="2" fill="none"/>
+                        </g>
+                        <g transform="translate(520, 120)">
+                            <circle r="15" fill="#2ecc71"/>
+                            <path d="M -5 0 L -2 5 L 5 -5" stroke="white" stroke-width="2" fill="none"/>
+                        </g>
+                        <g transform="translate(520, 190)">
+                            <circle r="15" fill="#2ecc71"/>
+                            <path d="M -5 0 L -2 5 L 5 -5" stroke="white" stroke-width="2" fill="none"/>
+                        </g>
+
+                        <!-- Sparkles -->
+                        <g opacity="0.7">
+                            <circle cx="80" cy="50" r="3" fill="#f39c12">
+                                <animate attributeName="opacity" values="0.3;1;0.3" dur="1.5s" repeatCount="indefinite"/>
+                            </circle>
+                            <circle cx="520" cy="220" r="3" fill="#f39c12">
+                                <animate attributeName="opacity" values="0.3;1;0.3" dur="2s" repeatCount="indefinite"/>
+                            </circle>
+                            <circle cx="90" cy="200" r="3" fill="#f39c12">
+                                <animate attributeName="opacity" values="0.3;1;0.3" dur="1.8s" repeatCount="indefinite"/>
+                            </circle>
+                        </g>
+                    </svg>
+                </div>
+                <div class="box" style="margin-top: 2rem;">
+                    <h3 style="text-align: center; color: #2ecc71;">Production-Ready Content</h3>
+                    <ul style="margin-top: 1rem;">
+                        <li>Researched and fact-checked narrative</li>
+                        <li>Structured story with clear sections</li>
+                        <li>Detailed video shot descriptions</li>
+                        <li>Voice direction and dialogue</li>
+                        <li>Ready for video production</li>
+                    </ul>
+                </div>
+                <p style="text-align: center; margin-top: 2rem; font-size: 1.8rem; color: #58a6ff; font-weight: bold;">Thank You!</p>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button id="prev">Previous</button>
+            <button id="next">Next</button>
+        </div>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+        const prevBtn = document.getElementById('prev');
+        const nextBtn = document.getElementById('next');
+        const currentSlideNum = document.getElementById('current-slide');
+        const totalSlidesNum = document.getElementById('total-slides');
+
+        totalSlidesNum.textContent = totalSlides;
+
+        function showSlide(n) {
+            slides.forEach(slide => slide.classList.remove('active'));
+            slides[n].classList.add('active');
+            currentSlideNum.textContent = n + 1;
+
+            prevBtn.disabled = n === 0;
+            nextBtn.disabled = n === totalSlides - 1;
+        }
+
+        function nextSlide() {
+            if (currentSlide < totalSlides - 1) {
+                currentSlide++;
+                showSlide(currentSlide);
+            }
+        }
+
+        function prevSlide() {
+            if (currentSlide > 0) {
+                currentSlide--;
+                showSlide(currentSlide);
+            }
+        }
+
+        prevBtn.addEventListener('click', prevSlide);
+        nextBtn.addEventListener('click', nextSlide);
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ') {
+                e.preventDefault();
+                nextSlide();
+            } else if (e.key === 'ArrowLeft') {
+                e.preventDefault();
+                prevSlide();
+            }
+        });
+
+        showSlide(0);
+    </script>
+</body>
+</html>

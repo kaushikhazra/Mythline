@@ -45,5 +45,14 @@ name,path,is_dir,is_file,is_symlink,size,modified_time,created_time
 story.md,/path/story.md,False,True,False,1024,2024-11-13T10:30:00,2024-11-12T09:00:00
 ```
 
+## Core Coding Principles
+
+**IMPORTANT:** Before implementing, ensure code follows [Core Coding Principles](../INDEX.md#core-coding-principles):
+1. **Separation of Concerns** - Single responsibility per module/class
+2. **KISS Principle** - Simple, direct solutions (no over-engineering)
+3. **No Comments** - Self-documenting code (add comments only AFTER testing)
+
+---
+
 ## Examples in Codebase
 - MCP filesystem server

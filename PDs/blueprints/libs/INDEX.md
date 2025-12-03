@@ -608,6 +608,15 @@ results = search_knowledge('How to create characters?', top_k=3)
 
 ---
 
+## Core Coding Principles
+
+**IMPORTANT:** Before implementing, ensure code follows [Core Coding Principles](#core-coding-principles):
+1. **Separation of Concerns** - Single responsibility per module/class
+2. **KISS Principle** - Simple, direct solutions (no over-engineering)
+3. **No Comments** - Self-documenting code (add comments only AFTER testing)
+
+---
+
 ## Support
 
 For detailed information about each library, refer to its specific blueprint file in the appropriate category directory.

@@ -40,8 +40,8 @@ Analyze the provided WoW research document and create a detailed list of Todo it
    - For quest dialogue, include NPC names and dialogue requirements
    - **CRITICAL for all quest segments**: Specify EXACT NPC locations from research:
      - Include specific buildings, landmarks, or area descriptions
-     - Example: "Magistrix Landra inside the main building" NOT just "in Fairbreeze Village"
-     - Example: "Conservator Ilthalaine near Aldrassil (the great tree)" NOT just "in Shadowglen"
+     - Example: "inside the main building" NOT just "in Fairbreeze Village"
+     - Example: "near Aldrassil (the great tree)" NOT just "in Shadowglen"
      - NPCs in WoW have fixed spawn positions—accuracy matters for player immersion
    - **CRITICAL for quest chain dialogue (multiple NPCs at different locations)**:
      - If quest involves NPC A at Location X directing player to find NPC B at Location Y:
@@ -60,6 +60,7 @@ Analyze the provided WoW research document and create a detailed list of Todo it
      - Warlock: Demonic magic, curses, demonic minions
      - Shaman: Elemental magic, totems, lightning/earth spells
    - Make prompts detailed enough that another agent can generate without additional context
+   - **CRITICAL for dialogue prompts**: Dialogue output is ONLY spoken words. Do NOT instruct to include location prefixes, speaker names, or any non-dialogue text in the spoken lines. The `actor` field identifies the speaker separately.
 
    **Suspense and Pacing Principles**:
    - Story introductions: Set ATMOSPHERE and MOOD only. Never reveal quest details or objectives.
@@ -123,20 +124,19 @@ Analyze the provided WoW research document and create a detailed list of Todo it
 
    Subject: shadowglen
    Player: {player}
-   NPC Location: Conservator Ilthalaine near Aldrassil (the great tree at the heart of Shadowglen)
+   NPC: Conservator Ilthalaine
+   NPC Location: Near Aldrassil (the great tree at the heart of Shadowglen)
 
    Create dialogue between Conservator Ilthalaine (quest giver) and {player}. Ilthalaine should explain
    the need for Moonpetal Lilies and Starwood Nuts to sustain the grove. Use appropriate night elf
    speech patterns and druidic wisdom.
 
    Requirements:
-   - Follow WoW quest dialogue patterns with proper speaker tags
-   - Each NPC line MUST start with "Conservator Ilthalaine:" prefix
-   - First NPC line MUST include location: "Conservator Ilthalaine near Aldrassil (the great tree):"
+   - Dialogue lines contain ONLY spoken words (no location prefixes, no speaker names in text)
+   - The actor field identifies the speaker separately
    - NPC must explicitly state quest objective (collect X items, return to me)
-   - Player response confirms acceptance and restates objective
+   - Player response confirms acceptance
    - 2-4 dialogue lines total
-   - Include "Conservator Ilthalaine" as actor name
    - Reflect druidic values and connection to nature
    ```
 
@@ -167,7 +167,8 @@ Analyze the provided WoW research document and create a detailed list of Todo it
 
    Subject: shadowglen
    Player: {player}
-   NPC Location: Conservator Ilthalaine near Aldrassil (the great tree)
+   NPC: Conservator Ilthalaine
+   NPC Location: Near Aldrassil (the great tree)
    Context: {player} has collected Moonpetal Lilies and Starwood Nuts and returned
 
    Create completion scene showing {player} returning to Conservator Ilthalaine. This can be:
@@ -177,8 +178,7 @@ Analyze the provided WoW research document and create a detailed list of Todo it
    Choose format based on tone: dialogue for interactive exchanges, narration for atmospheric closings.
 
    Requirements:
-   - If dialogue: Use speaker tags "Conservator Ilthalaine:" and player name
-   - If dialogue: Include location in first NPC line
+   - If dialogue: Lines contain ONLY spoken words (actor field identifies speaker)
    - If narration: Use {player} token, describe NPC's expression/words/scene
    - Word count: 60-100 words
    - End with subtle narrative hook to next quest or broader concern

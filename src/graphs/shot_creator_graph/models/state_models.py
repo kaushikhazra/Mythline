@@ -15,3 +15,5 @@ class ShotCreatorSession:
     current_quest: Optional[Quest] = None
     current_index: int = 0
     shots: list[Shot] = field(default_factory=list)
+    missing_indices: list[int] = field(default_factory=list)
+    processing_missing: bool = False

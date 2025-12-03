@@ -24,3 +24,4 @@ class StorySession(BaseModel):
     player: str
     session_id: str
     current_todo_index: int = 0
+    research_content: str = ""

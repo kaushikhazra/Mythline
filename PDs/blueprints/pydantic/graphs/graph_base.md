@@ -447,6 +447,15 @@ class MyGraph:
             return f"Error: {str(e)}"
 ```
 
+## Core Coding Principles
+
+**IMPORTANT:** Before implementing, ensure code follows [Core Coding Principles](../../INDEX.md#core-coding-principles):
+1. **Separation of Concerns** - Single responsibility per module/class/node
+2. **KISS Principle** - Simple, direct solutions (no over-engineering)
+3. **No Comments** - Self-documenting code (add comments only AFTER testing)
+
+---
+
 ## Best Practices
 
 ### Node Naming

@@ -24,8 +24,12 @@ from src.agents.story_creator_agent.models.story_models import (
 from src.agents.story_planner_agent.agent import StoryPlannerAgent
 from src.agents.narrator_agent.agent import NarratorAgent
 from src.agents.dialog_creator_agent.agent import DialogCreatorAgent
+from src.agents.story_reviewer_agent import StoryReviewerAgent
 from src.libs.filesystem.file_operations import read_file, write_file, file_exists
 from src.libs.filesystem.directory_operations import create_directory
+
+MAX_REVIEW_RETRIES = 3
+QUALITY_THRESHOLD = 0.75
 
 
 def save_progress(subject: str, status: str, message: str, current: int = 0, total: int = 0, details: dict = None):
@@ -61,6 +65,7 @@ class GetStoryResearch(BaseNode[StorySession]):
             return End(error_msg)
 
         research_content = read_file(research_file)
+        ctx.state.research_content = research_content
         print(colored(f"[+] Research loaded", "green"))
 
         if not self.regenerate_plan and file_exists(todo_cache_file):
@@ -151,38 +156,95 @@ class CreateStorySegment(BaseNode[StorySession]):
     def __post_init__(self):
         self.narrator_agent = None
         self.dialog_creator_agent = None
+        self.reviewer_agent = None
 
     async def run(self, ctx: GraphRunContext[StorySession]) -> WriteToFile:
         current_todo = ctx.state.todo_list[ctx.state.current_todo_index]
         segment = current_todo.item
 
         prompt = self._build_prompt(segment, ctx.state)
+        is_dialogue = segment.sub_type in ["quest_dialogue", "quest_conclusion"]
+        content_type = "dialogue" if is_dialogue else "narration"
 
-        if segment.sub_type in ["quest_dialogue", "quest_conclusion"]:
-            if self.dialog_creator_agent is None:
-                self.dialog_creator_agent = DialogCreatorAgent(session_id=ctx.state.session_id)
+        best_output = None
+        best_score = 0.0
 
-            print(colored(f"[*] Generating dialogue using DialogCreatorAgent...", "cyan"))
-            self.dialog_creator_agent.messages = []
-            result = await self.dialog_creator_agent.run(prompt)
-            segment.output = result.output
-        else:
-            if self.narrator_agent is None:
-                self.narrator_agent = NarratorAgent(session_id=ctx.state.session_id)
+        for attempt in range(1, MAX_REVIEW_RETRIES + 1):
+            if is_dialogue:
+                output = await self._generate_dialogue(prompt, ctx.state.session_id)
+            else:
+                output = await self._generate_narration(prompt, ctx.state.session_id)
 
-            print(colored(f"[*] Generating narration using NarratorAgent...", "cyan"))
-            self.narrator_agent.messages = []
-            result = await self.narrator_agent.run(prompt)
-            segment.output = result.output
+            review = await self._review_content(output, content_type, segment, ctx.state)
 
-        print(colored(f"[+] Content generated successfully", "green"))
+            if review.quality_score > best_score:
+                best_score = review.quality_score
+                best_output = output
+
+            if review.passed:
+                print(colored(f"[+] Review passed (score: {review.quality_score:.2f})", "green"))
+                segment.output = output
+                current_todo.status = "done"
+                return WriteToFile()
+
+            print(colored(f"[!] Review failed (attempt {attempt}/{MAX_REVIEW_RETRIES}, score: {review.quality_score:.2f})", "yellow"))
+            if review.suggestions:
+                print(colored(f"    Feedback: {review.suggestions[0]}", "yellow"))
+
+            if attempt < MAX_REVIEW_RETRIES:
+                feedback = "\n".join(review.suggestions) if review.suggestions else review.summary
+                prompt = self._build_prompt_with_feedback(segment, ctx.state, feedback)
+
+        print(colored(f"[!] Max retries reached, using best attempt (score: {best_score:.2f})", "yellow"))
+        segment.output = best_output
         current_todo.status = "done"
         return WriteToFile()
+
+    async def _generate_narration(self, prompt: str, session_id: str) -> Narration:
+        if self.narrator_agent is None:
+            self.narrator_agent = NarratorAgent(session_id=session_id)
+
+        print(colored(f"[*] Generating narration using NarratorAgent...", "cyan"))
+        self.narrator_agent.messages = []
+        result = await self.narrator_agent.run(prompt)
+        return result.output
+
+    async def _generate_dialogue(self, prompt: str, session_id: str) -> DialogueLines:
+        if self.dialog_creator_agent is None:
+            self.dialog_creator_agent = DialogCreatorAgent(session_id=session_id)
+
+        print(colored(f"[*] Generating dialogue using DialogCreatorAgent...", "cyan"))
+        self.dialog_creator_agent.messages = []
+        result = await self.dialog_creator_agent.run(prompt)
+        return result.output
+
+    async def _review_content(self, output, content_type: str, segment: StorySegment, state: StorySession):
+        if self.reviewer_agent is None:
+            self.reviewer_agent = StoryReviewerAgent()
+
+        if content_type == "dialogue":
+            content_str = "\n".join([f"{line.actor}: {line.line}" for line in output.lines])
+        else:
+            content_str = output.text
+
+        print(colored(f"[*] Reviewing {content_type}...", "cyan"))
+        result = await self.reviewer_agent.run(
+            content=content_str,
+            content_type=content_type,
+            research_context=state.research_content[:5000],
+            segment_prompt=segment.prompt,
+            player_name=state.player
+        )
+        return result.output
 
     def _build_prompt(self, segment: StorySegment, state: StorySession) -> str:
         player = state.player
         prompt = segment.prompt.replace("{player}", player)
         return prompt
+
+    def _build_prompt_with_feedback(self, segment: StorySegment, state: StorySession, feedback: str) -> str:
+        base_prompt = self._build_prompt(segment, state)
+        return f"{base_prompt}\n\n## Reviewer Feedback (Please Address)\n\n{feedback}"
 
 
 @dataclass

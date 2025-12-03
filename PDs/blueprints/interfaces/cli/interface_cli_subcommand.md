@@ -680,3 +680,14 @@ search_parser = subparsers.add_parser(
     epilog='Example: python -m cli search --query "agent patterns" --results 10'
 )
 ```
+
+---
+
+## Core Coding Principles
+
+**IMPORTANT:** Before implementing, ensure code follows [Core Coding Principles](../../INDEX.md#core-coding-principles):
+1. **Separation of Concerns** - Single responsibility per module/class
+2. **KISS Principle** - Simple, direct solutions (no over-engineering)
+3. **No Comments** - Self-documenting code (add comments only AFTER testing)
+
+---

@@ -47,5 +47,14 @@ for result in results:
 ## Dependencies
 - `ddgs` - DuckDuckGo Search library
 
+## Core Coding Principles
+
+**IMPORTANT:** Before implementing, ensure code follows [Core Coding Principles](../INDEX.md#core-coding-principles):
+1. **Separation of Concerns** - Single responsibility per module/class
+2. **KISS Principle** - Simple, direct solutions (no over-engineering)
+3. **No Comments** - Self-documenting code (add comments only AFTER testing)
+
+---
+
 ## Examples in Codebase
 - MCP web_search server
