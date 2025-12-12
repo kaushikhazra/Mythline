@@ -9,10 +9,11 @@ async def crawl_content(url: str) -> str:
 
     config = CrawlerRunConfig(
         markdown_generator=md_generator,
-        excluded_tags=["nav", "header", "footer", "aside"]
+        excluded_tags=["nav", "header", "footer", "aside"],
+        simulate_user=True
     )
 
-    browser_conf = BrowserConfig(
+    browser_conf = BrowserConfig( 
         browser_type="chromium",
         headless=True,
         text_mode=True
