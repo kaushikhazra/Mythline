@@ -1,4 +1,5 @@
 import os
+import json
 from dotenv import load_dotenv
 from pydantic_ai import Agent
 from pydantic_ai.mcp import load_mcp_servers
@@ -26,12 +27,17 @@ class StoryPlannerAgent:
             toolsets=servers
         )
 
-    async def run(self, research_content: str, player_name: str) -> list[Todo]:
+    async def run(self, segment: dict, player_name: str) -> list[Todo]:
+        segment_type = segment.get('segment_type', 'unknown')
+        segment_json = json.dumps(segment, indent=2)
+
         prompt = f"""Player Character: {player_name}
 
-Research Content:
-{research_content}
+Segment Type: {segment_type}
 
-Create a story plan based on the research above."""
+Segment Data:
+{segment_json}
+
+Generate todos for this {segment_type} segment based on the data above."""
         result = await self.agent.run(prompt)
         return result.output

@@ -1,4 +1,5 @@
 from __future__ import annotations
+import asyncio
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -175,6 +176,8 @@ class CrawlNPCPages(BaseNode[ResearchSession]):
                     logger.info(f"Crawling NPC: {url}")
                     content = await crawl_content(url)
                     ctx.state.npc_contents[url] = content
+                    logger.info("Breathing for 5 seconds")
+                    await asyncio.sleep(5)
                 except Exception as e:
                     logger.warning(f"Error crawling NPC {url}: {e}")
                     ctx.state.npc_contents[url] = ""
@@ -191,6 +194,13 @@ class EnrichNPCData(BaseNode[ResearchSession]):
         extraction = ctx.state._current_extraction
         agent = NPCExtractorAgent()
 
+        quest_context = {
+            "quest_title": extraction.title,
+            "story_beat": extraction.story_beat,
+            "zone": extraction.zone,
+            "execution_area": extraction.execution_area
+        }
+
         quest_giver_npc = None
         turn_in_npc = None
 
@@ -200,7 +210,7 @@ class EnrichNPCData(BaseNode[ResearchSession]):
                 continue
 
             try:
-                npc_data = await agent.run(content)
+                npc_data = await agent.run(content, quest_context=quest_context)
 
                 if npc_data.name.lower() in extraction.quest_giver_name.lower() or extraction.quest_giver_name.lower() in npc_data.name.lower():
                     quest_giver_npc = npc_data
@@ -230,6 +240,8 @@ class CrawlLocationPages(BaseNode[ResearchSession]):
                     logger.info(f"Crawling location: {url}")
                     content = await crawl_content(url)
                     ctx.state.location_contents[url] = content
+                    logger.info("Breathing for 5 seconds")
+                    await asyncio.sleep(5)
                 except Exception as e:
                     logger.warning(f"Error crawling location {url}: {e}")
                     ctx.state.location_contents[url] = ""

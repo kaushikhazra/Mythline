@@ -36,9 +36,18 @@ class NPCExtractorAgent:
             system_prompt=system_prompt
         )
 
-    async def run(self, npc_page_content: str, location_hint: str = "") -> NPCExtraction:
+    async def run(self, npc_page_content: str, quest_context: dict = None) -> NPCExtraction:
         prompt = npc_page_content
-        if location_hint:
-            prompt += f"\n\nLocation hint from quest: {location_hint}"
+        if quest_context:
+            context_block = "\n".join([
+                "## Quest Context",
+                f"Quest: {quest_context.get('quest_title', '')}",
+                f"Story Beat: {quest_context.get('story_beat', '')}",
+                f"Zone: {quest_context.get('zone', '')}",
+                f"Execution Area: {quest_context.get('execution_area', '')}",
+                "",
+                "## NPC Page Content"
+            ])
+            prompt = f"{context_block}\n{npc_page_content}"
         result = await self.agent.run(prompt)
         return result.output

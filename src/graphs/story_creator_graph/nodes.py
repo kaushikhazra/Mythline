@@ -54,19 +54,22 @@ class GetStoryResearch(BaseNode[StorySession]):
 
     async def run(self, ctx: GraphRunContext[StorySession]) -> CreateTODO | GetNextTODO | End[str]:
         subject = ctx.state.subject
-        research_file = f"output/{subject}/research.md"
+        research_file = f"output/{subject}/research.json"
         todo_cache_file = f"output/{subject}/todo.json"
 
         print(colored(f"\n[*] Reading research notes for {subject}...", "cyan"))
 
         if not file_exists(research_file):
-            error_msg = f"Research file not found for subject: {subject}"
+            error_msg = f"Research file not found for subject: {subject}. Run the research graph first."
             print(colored(f"[!] {error_msg}", "red"))
             return End(error_msg)
 
-        research_content = read_file(research_file)
-        ctx.state.research_content = research_content
-        print(colored(f"[+] Research loaded", "green"))
+        research_json = read_file(research_file)
+        research_data = json.loads(research_json)
+
+        ctx.state.research_data = research_data
+        ctx.state.research_content = self._format_research_summary(research_data)
+        print(colored(f"[+] Research loaded ({len(research_data.get('quests', []))} quests)", "green"))
 
         if not self.regenerate_plan and file_exists(todo_cache_file):
             print(colored(f"[*] Loading cached todo list from {todo_cache_file}...", "cyan"))
@@ -84,25 +87,130 @@ class GetStoryResearch(BaseNode[StorySession]):
                 print(colored(f"[!] Failed to load cached todos: {e}", "yellow"))
                 print(colored(f"[*] Regenerating plan...", "cyan"))
 
-        return CreateTODO(research_content=research_content)
+        return CreateTODO()
+
+    def _format_research_summary(self, research_data: dict) -> str:
+        setting = research_data.get('setting', {})
+        quests = research_data.get('quests', [])
+        quest_titles = [q.get('title', 'Unknown') for q in quests]
+        return f"Chain: {research_data.get('chain_title', 'Unknown')} | Zone: {setting.get('zone', 'Unknown')} | Quests: {', '.join(quest_titles)}"
+
+    def _get_settings_segment(self, research_data: dict, segment_type: str) -> dict:
+        setting = research_data.get('setting', {})
+        return {
+            "segment_type": segment_type,
+            "chain_title": research_data.get('chain_title', ''),
+            "zone": setting.get('zone', ''),
+            "description": setting.get('description', ''),
+            "lore_context": setting.get('lore_context', '')
+        }
+
+    def _get_quest_segment(self, research_data: dict, quest_index: int) -> dict:
+        quest = research_data.get('quests', [])[quest_index]
+        quest_giver = quest.get('quest_giver', {})
+        turn_in_npc = quest.get('turn_in_npc', {})
+        exec_loc = quest.get('execution_location', {})
+
+        def extract_location(loc: dict) -> dict:
+            area = loc.get('area', {})
+            area_name = area.get('name', '') if isinstance(area, dict) else str(area)
+            return {
+                "area_name": area_name,
+                "position": loc.get('position', ''),
+                "landmarks": loc.get('landmarks', '')
+            }
+
+        return {
+            "segment_type": "quest",
+            "title": quest.get('title', ''),
+            "story_beat": quest.get('story_beat', ''),
+            "objectives": quest.get('objectives', {}),
+            "quest_giver": {
+                "name": quest_giver.get('name', ''),
+                "title": quest_giver.get('title', ''),
+                "personality": quest_giver.get('personality', ''),
+                "lore": quest_giver.get('lore', ''),
+                "location": extract_location(quest_giver.get('location', {}))
+            },
+            "turn_in_npc": {
+                "name": turn_in_npc.get('name', ''),
+                "title": turn_in_npc.get('title', ''),
+                "personality": turn_in_npc.get('personality', ''),
+                "lore": turn_in_npc.get('lore', ''),
+                "location": extract_location(turn_in_npc.get('location', {}))
+            },
+            "execution_location": {
+                "area_name": exec_loc.get('area', {}).get('name', '') if isinstance(exec_loc.get('area'), dict) else str(exec_loc.get('area', '')),
+                "enemies": exec_loc.get('enemies', ''),
+                "landmarks": exec_loc.get('landmarks', '')
+            },
+            "story_text": quest.get('story_text', ''),
+            "completion_text": quest.get('completion_text', '')
+        }
 
 
 @dataclass
 class CreateTODO(BaseNode[StorySession]):
-    research_content: str
 
     def __post_init__(self):
         self.planner_agent = None
+        self.research_node = GetStoryResearch()
 
     async def run(self, ctx: GraphRunContext[StorySession]) -> GetNextTODO | End:
         if self.planner_agent is None:
             self.planner_agent = StoryPlannerAgent(session_id=ctx.state.session_id)
 
-        print(colored("\n[*] Generating story plan...", "cyan"))
+        print(colored("\n[*] Generating story plan from segments...", "cyan"))
         save_progress(ctx.state.subject, "in_progress", "Generating story plan", 0, 0)
 
-        todo_list = await self.planner_agent.run(self.research_content, ctx.state.player)
-        ctx.state.todo_list = todo_list
+        research_data = ctx.state.research_data
+        todos = []
+
+        print(colored("[*] Processing introduction segment...", "cyan"))
+        intro_segment = self.research_node._get_settings_segment(research_data, "introduction")
+        intro_todos = await self.planner_agent.run(intro_segment, ctx.state.player)
+        todos.extend(intro_todos)
+        print(colored(f"[+] Introduction: {len(intro_todos)} todos", "green"))
+
+        quests = research_data.get('quests', [])
+        for i, quest in enumerate(quests):
+            quest_title = quest.get('title', f'Quest {i+1}')
+            print(colored(f"[*] Processing quest segment: {quest_title}...", "cyan"))
+            quest_segment = self.research_node._get_quest_segment(research_data, i)
+
+            quest_segment['quest_position'] = i + 1
+            quest_segment['total_quests'] = len(quests)
+            quest_segment['is_first_quest'] = (i == 0)
+            quest_segment['is_final_quest'] = (i == len(quests) - 1)
+
+            if i > 0:
+                prev_quest = quests[i - 1]
+                prev_quest_giver = prev_quest.get('quest_giver', {}).get('name', '')
+                current_quest_giver = quest.get('quest_giver', {}).get('name', '')
+                quest_segment['previous_quest'] = {
+                    'title': prev_quest.get('title'),
+                    'completion_text': prev_quest.get('completion_text', '')[:500]
+                }
+                quest_segment['same_npc_as_previous'] = (prev_quest_giver == current_quest_giver)
+
+            if i < len(quests) - 1:
+                next_quest = quests[i + 1]
+                quest_segment['next_quest'] = {
+                    'title': next_quest.get('title'),
+                    'story_beat': next_quest.get('story_beat', '')[:200]
+                }
+
+            quest_todos = await self.planner_agent.run(quest_segment, ctx.state.player)
+            todos.extend(quest_todos)
+            print(colored(f"[+] {quest_title}: {len(quest_todos)} todos", "green"))
+
+        print(colored("[*] Processing conclusion segment...", "cyan"))
+        conclusion_segment = self.research_node._get_settings_segment(research_data, "conclusion")
+        conclusion_todos = await self.planner_agent.run(conclusion_segment, ctx.state.player)
+        todos.extend(conclusion_todos)
+        print(colored(f"[+] Conclusion: {len(conclusion_todos)} todos", "green"))
+
+        ctx.state.todo_list = todos
 
         print(colored(f"[+] Plan created with {len(ctx.state.todo_list)} todos", "green"))
         save_progress(ctx.state.subject, "in_progress", f"Plan created with {len(ctx.state.todo_list)} todos", 0, len(ctx.state.todo_list))
