@@ -14,14 +14,13 @@ parser.add_argument('--regenerate-plan', action='store_true', help='Force regene
 
 args = parser.parse_args()
 
-research_path = f"output/{args.subject}/research.md"
+research_path = f"output/{args.subject}/research.json"
 
 if not os.path.exists(research_path):
     print(f"Error: Research file not found at {research_path}")
-    print(f"Please run story_research_agent first to create research notes.")
+    print(f"Please run the story research graph first to create research notes.")
     print(f"\nExample:")
-    print(f"  start_story_researcher.bat")
-    print(f"  User: Research {args.subject}")
+    print(f"  python -m src.ui.cli.research_story_graph --subject {args.subject}")
     sys.exit(1)
 
 async def main():

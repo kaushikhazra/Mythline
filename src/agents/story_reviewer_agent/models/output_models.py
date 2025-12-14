@@ -3,7 +3,7 @@ from pydantic import BaseModel, Field
 
 
 class ReviewIssue(BaseModel):
-    category: Literal["lore", "narrative", "word_count", "consistency", "dialogue"]
+    category: Literal["lore", "narrative", "word_count", "consistency", "dialogue", "template", "game_data", "addressee", "exposition"]
     severity: Literal["critical", "high", "medium", "low"]
     description: str = Field(description="What the issue is")
     suggestion: str = Field(description="How to fix it")

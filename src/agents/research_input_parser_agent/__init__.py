@@ -1,0 +1,1 @@
+from src.agents.research_input_parser_agent.agent import ResearchInputParserAgent

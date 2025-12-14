@@ -25,3 +25,4 @@ class StorySession(BaseModel):
     session_id: str
     current_todo_index: int = 0
     research_content: str = ""
+    research_data: dict = {}
