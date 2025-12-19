@@ -110,6 +110,49 @@ save_long_term_memory(self.AGENT_ID, preference_text)
 - Directory operations
 - File existence checks
 
+## External Service Libraries
+
+### YouTube Uploader (`src/libs/youtube/`)
+
+**Purpose:** Upload videos to YouTube with full metadata support
+
+**Components:**
+- `auth.py` - OAuth 2.0 authentication with token storage
+- `uploader.py` - YouTubeUploader class following OBSController pattern
+
+**Credential Storage:** `.mythline/youtube/credentials.json`
+
+**Usage:**
+```python
+from src.libs.youtube import YouTubeUploader, VideoMetadata
+
+uploader = YouTubeUploader()
+success, error = uploader.connect()
+
+metadata = VideoMetadata(
+    title="My Video",
+    description="Description",
+    tags=["tag1", "tag2"],
+    privacy_status="private"
+)
+
+success, video_id, error = uploader.upload(video_path, metadata)
+```
+
+### OBS Controller (`src/libs/obs/`)
+
+**Purpose:** Control OBS Studio for screen recording
+
+**Pattern:** Service controller with connect/disconnect and tuple returns
+
+### Voice Recognition (`src/libs/voice/`)
+
+**Purpose:** Voice command recognition for hands-free navigation
+
+**Components:**
+- `voice_recognizer.py` - Vosk-based speech recognition
+- `voice_commands.py` - Command parsing and interpretation
+
 ### MCP Configuration
 
 MCP servers are configured per agent in `config/mcp_config.json`:
@@ -263,6 +306,27 @@ python -m src.ui.cli.research_story
 
 # Story creation (non-interactive, requires --subject)
 python -m src.ui.cli.create_story --subject shadowglen
+```
+
+### Voice Navigator
+
+```bash
+# Start voice-controlled shot navigation
+python -m src.ui.cli.voice_navigator --subject shadowglen
+```
+
+### YouTube Upload
+
+```bash
+# Upload video with metadata
+python -m src.ui.cli.upload_youtube video.mp4 -t "Title" -d "Description" --tags "tag1,tag2" -p public
+
+# List categories and playlists
+python -m src.ui.cli.upload_youtube --list-categories
+python -m src.ui.cli.upload_youtube --list-playlists
+
+# Clear stored credentials
+python -m src.ui.cli.upload_youtube --logout
 ```
 
 ### Checking Memory
