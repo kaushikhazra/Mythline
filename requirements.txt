@@ -10,3 +10,10 @@ fastapi
 uvicorn[standard]
 websockets
 python-multipart
+rich
+vosk>=0.3.45
+pyaudio>=0.2.14
+sounddevice>=0.4.6
+soundfile>=0.12.1
+numpy>=1.24.0
+obsws-python>=1.7.0
