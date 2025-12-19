@@ -6,13 +6,35 @@ from typing import Callable
 from vosk import Model, KaldiRecognizer
 import pyaudio
 
+VOICE_GRAMMAR = [
+    "start", "play", "begin",
+    "next", "forward",
+    "previous", "back",
+    "again", "repeat", "replay",
+    "pause", "wait", "hold",
+    "resume", "continue",
+    "stop", "quit", "exit", "end",
+    "go to", "jump to", "shot",
+    "start recording", "begin recording", "start record",
+    "pause recording", "post recording", "hold recording", "pause record",
+    "resume recording", "continue recording", "resume record",
+    "stop recording", "end recording", "stop record",
+    "one", "two", "three", "four", "five",
+    "six", "seven", "eight", "nine", "ten",
+    "eleven", "twelve", "thirteen", "fourteen", "fifteen",
+    "sixteen", "seventeen", "eighteen", "nineteen", "twenty",
+    "thirty", "forty", "fifty", "sixty", "seventy", "eighty", "ninety",
+    "hundred",
+    "[unk]",
+]
+
 
 class VoiceRecognizer:
     SAMPLE_RATE = 16000
-    CHUNK_SIZE = 8000
+    CHUNK_SIZE = 4000
     DEFAULT_MODEL_PATH = ".mythline/vosk/models/vosk-model-small-en-us"
 
-    def __init__(self, model_path: str | None = None):
+    def __init__(self, model_path: str | None = None, use_grammar: bool = True):
         if model_path:
             self._model_path = Path(model_path)
         else:
@@ -24,7 +46,11 @@ class VoiceRecognizer:
                 "Download from https://alphacephei.com/vosk/models"
             )
         self._model = Model(str(self._model_path))
-        self._recognizer = KaldiRecognizer(self._model, self.SAMPLE_RATE)
+        if use_grammar:
+            grammar_json = json.dumps(VOICE_GRAMMAR)
+            self._recognizer = KaldiRecognizer(self._model, self.SAMPLE_RATE, grammar_json)
+        else:
+            self._recognizer = KaldiRecognizer(self._model, self.SAMPLE_RATE)
         self._audio = pyaudio.PyAudio()
         self._stream = None
         self._is_listening = False
