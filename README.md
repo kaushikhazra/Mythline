@@ -10,6 +10,8 @@ Mythline is a multi-agent system built with [Pydantic AI](https://ai.pydantic.de
 
 - **Story Creation**: Automated WoW story generation with quest research, narration, and dialogue
 - **Shot Creation**: Visual scene descriptions for cinematic storytelling
+- **Voice Navigation**: Hands-free shot navigation with voice commands and OBS integration
+- **YouTube Upload**: Direct video upload to YouTube with full metadata support
 - **Contextual Memory**: Session-based context memory for coherent multi-part stories
 - **Long-term Memory**: User preference tracking across sessions
 - **Web Research**: Automated lore research using web search and crawling
@@ -115,6 +117,13 @@ MCP_WEB_CRAWLER_PORT=8001
 MCP_FILESYSTEM_PORT=8002
 ```
 
+5. Setup YouTube Upload (optional):
+   - Go to [Google Cloud Console](https://console.cloud.google.com)
+   - Create a project and enable YouTube Data API v3
+   - Create OAuth 2.0 credentials (Desktop application)
+   - Download and save as `client_secrets.json` in project root
+   - First upload will open browser for OAuth consent
+
 ## Usage
 
 ### Start MCP Servers
@@ -189,6 +198,39 @@ python -m src.ui.cli.create_story --subject shadowglen
 python -m src.ui.cli.create_story -s shadowglen
 ```
 
+**Voice Navigator:**
+```bash
+# Navigate shots with voice commands
+python -m src.ui.cli.voice_navigator --subject shadowglen
+
+# Commands: "next", "previous", "repeat", "pause", "resume", "go to shot 5"
+# Recording: "start recording", "pause recording", "stop recording"
+```
+
+**YouTube Uploader:**
+```bash
+# Basic upload
+python -m src.ui.cli.upload_youtube video.mp4 -t "My Video"
+
+# Full metadata upload
+python -m src.ui.cli.upload_youtube video.mp4 \
+    -t "Epic Gaming Moment" \
+    -d "Watch this amazing play!" \
+    --tags "gaming,wow,epic" \
+    -p public \
+    --thumbnail thumb.jpg \
+    --category "Gaming" \
+    --playlist "My Gaming Videos"
+
+# Scheduled publish
+python -m src.ui.cli.upload_youtube video.mp4 -t "Upcoming" --publish-at "2024-12-25T10:00:00"
+
+# Utility commands
+python -m src.ui.cli.upload_youtube --list-categories
+python -m src.ui.cli.upload_youtube --list-playlists
+python -m src.ui.cli.upload_youtube --logout
+```
+
 ### Example Workflow
 
 **Step 1: Research (Interactive)**
@@ -243,8 +285,12 @@ Mythline/
 │   │   └── mcp_filesystem/
 │   ├── libs/
 │   │   ├── agent_memory/
+│   │   ├── audio/
 │   │   ├── filesystem/
+│   │   ├── obs/
+│   │   ├── voice/
 │   │   ├── web/
+│   │   ├── youtube/
 │   │   └── utils/
 │   └── ui/
 │       └── cli/
