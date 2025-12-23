@@ -1,4 +1,6 @@
 import argparse
+import asyncio
+import json
 import sys
 from datetime import datetime
 from pathlib import Path
@@ -8,6 +10,7 @@ from rich.progress import Progress, SpinnerColumn, TextColumn, BarColumn, TaskPr
 from rich.table import Table
 
 from src.libs.youtube import YouTubeUploader, VideoMetadata
+from src.agents.youtube_metadata_agent import YouTubeMetadataAgent
 
 
 console = Console()
@@ -15,31 +18,13 @@ console = Console()
 
 def parse_arguments() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Upload videos to YouTube with full metadata support"
+        description="Upload videos to YouTube with auto-generated metadata from story"
     )
 
     parser.add_argument(
-        "video",
-        nargs="?",
+        "--subject",
         type=str,
-        help="Path to video file"
-    )
-    parser.add_argument(
-        "--title", "-t",
-        type=str,
-        help="Video title"
-    )
-    parser.add_argument(
-        "--description", "-d",
-        type=str,
-        default="",
-        help="Video description"
-    )
-    parser.add_argument(
-        "--tags",
-        type=str,
-        default="",
-        help="Comma-separated tags"
+        help="Subject name (loads video from output/{subject}/video/upload/{subject}.mp4)"
     )
     parser.add_argument(
         "--privacy", "-p",
@@ -61,8 +46,8 @@ def parse_arguments() -> argparse.Namespace:
     parser.add_argument(
         "--category", "-c",
         type=str,
-        default="22",
-        help="Category ID or name (default: 22 - People & Blogs)"
+        default="20",
+        help="Category ID or name (default: 20 - Gaming)"
     )
     parser.add_argument(
         "--playlist",
@@ -88,19 +73,23 @@ def parse_arguments() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def validate_video(video_path: str) -> Path | None:
-    path = Path(video_path)
-    if not path.exists():
-        console.print(f"[red]Error: Video file not found: {video_path}[/red]")
+def validate_subject(subject: str) -> tuple[Path, Path] | None:
+    subject_dir = Path(f"output/{subject}")
+    if not subject_dir.exists():
+        console.print(f"[red]Error: Subject directory not found: {subject_dir}[/red]")
         return None
 
-    valid_extensions = {".mp4", ".mov", ".avi", ".mkv", ".wmv", ".flv", ".webm"}
-    if path.suffix.lower() not in valid_extensions:
-        console.print(f"[red]Error: Unsupported video format: {path.suffix}[/red]")
-        console.print(f"Supported formats: {', '.join(valid_extensions)}")
+    story_file = subject_dir / "story.json"
+    if not story_file.exists():
+        console.print(f"[red]Error: Story file not found: {story_file}[/red]")
         return None
 
-    return path
+    video_file = subject_dir / "video" / "upload" / f"{subject}.mp4"
+    if not video_file.exists():
+        console.print(f"[red]Error: Video file not found: {video_file}[/red]")
+        return None
+
+    return video_file, story_file
 
 
 def validate_thumbnail(thumbnail_path: str) -> Path | None:
@@ -135,8 +124,8 @@ def resolve_category(uploader: YouTubeUploader, category: str) -> str:
         if cat["title"].lower() == category.lower():
             return cat["id"]
 
-    console.print(f"[yellow]Warning: Category '{category}' not found, using default (22)[/yellow]")
-    return "22"
+    console.print(f"[yellow]Warning: Category '{category}' not found, using default (20)[/yellow]")
+    return "20"
 
 
 def display_categories(uploader: YouTubeUploader) -> None:
@@ -175,14 +164,24 @@ def display_playlists(uploader: YouTubeUploader) -> None:
     console.print(table)
 
 
+async def generate_metadata(story_file: Path) -> tuple[str, str, list[str]]:
+    with open(story_file, "r", encoding="utf-8") as f:
+        story_data = json.load(f)
+
+    story_json = json.dumps(story_data, indent=2)
+
+    agent = YouTubeMetadataAgent()
+    result = await agent.run(story_json)
+
+    return result.output.title, result.output.description, result.output.tags
+
+
 def handle_upload(uploader: YouTubeUploader, args: argparse.Namespace) -> None:
-    video_path = validate_video(args.video)
-    if not video_path:
+    paths = validate_subject(args.subject)
+    if not paths:
         sys.exit(1)
 
-    if not args.title:
-        console.print("[red]Error: --title is required for upload[/red]")
-        sys.exit(1)
+    video_path, story_file = paths
 
     thumbnail_path = None
     if args.thumbnail:
@@ -198,20 +197,25 @@ def handle_upload(uploader: YouTubeUploader, args: argparse.Namespace) -> None:
 
     category_id = resolve_category(uploader, args.category)
 
-    tags = [tag.strip() for tag in args.tags.split(",") if tag.strip()] if args.tags else []
+    console.print()
+    with console.status("[cyan]Generating YouTube metadata from story..."):
+        title, description, tags = asyncio.run(generate_metadata(story_file))
+
+    console.print(f"[bold]Title:[/bold] {title}")
+    console.print(f"[bold]Description:[/bold] {description[:100]}...")
+    console.print(f"[bold]Tags:[/bold] {', '.join(tags[:5])}...")
+    console.print()
 
     metadata = VideoMetadata(
-        title=args.title,
-        description=args.description,
+        title=title,
+        description=description,
         tags=tags,
         category_id=category_id,
         privacy_status=args.privacy,
         publish_at=publish_at
     )
 
-    console.print()
     console.print(f"[bold]Uploading:[/bold] {video_path.name}")
-    console.print(f"[bold]Title:[/bold] {metadata.title}")
     console.print(f"[bold]Privacy:[/bold] {metadata.privacy_status}")
     if publish_at:
         console.print(f"[bold]Scheduled:[/bold] {publish_at.isoformat()}")
@@ -284,9 +288,9 @@ def main():
             console.print("[yellow]No credentials to clear[/yellow]")
         return
 
-    if not args.list_categories and not args.list_playlists and not args.video:
-        console.print("[red]Error: video path is required[/red]")
-        console.print("Usage: python -m src.ui.cli.upload_youtube VIDEO --title TITLE")
+    if not args.list_categories and not args.list_playlists and not args.subject:
+        console.print("[red]Error: --subject is required[/red]")
+        console.print("Usage: python -m src.ui.cli.upload_youtube --subject <subject_name>")
         sys.exit(1)
 
     uploader = YouTubeUploader()

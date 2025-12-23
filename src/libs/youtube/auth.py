@@ -9,7 +9,7 @@ from google.auth.transport.requests import Request
 
 CREDENTIALS_DIR = Path(".mythline/youtube")
 CREDENTIALS_FILE = CREDENTIALS_DIR / "credentials.json"
-CLIENT_SECRETS_FILE = Path("client_secrets.json")
+CLIENT_SECRETS_FILE = CREDENTIALS_DIR / "client_secrets.json"
 
 SCOPES = [
     "https://www.googleapis.com/auth/youtube.upload",
