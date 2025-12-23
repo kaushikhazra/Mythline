@@ -147,8 +147,8 @@ class ProcessQuestIntroduction(BaseNode[ShotCreatorSession]):
         if self.chunker_agent is None:
             self.chunker_agent = ChunkerAgent()
 
-        quest_num = ctx.state.quest_index + 1
-        reference = f"Quest {quest_num} - Introduction"
+        quest_title = ctx.state.current_quest.title
+        reference = f"{quest_title} - Introduction"
 
         result = await self.chunker_agent.run(
             text=ctx.state.current_quest.sections.introduction.text,
@@ -175,8 +175,8 @@ class ProcessQuestDialogue(BaseNode[ShotCreatorSession]):
         if self.chunker_agent is None:
             self.chunker_agent = ChunkerAgent()
 
-        quest_num = ctx.state.quest_index + 1
-        reference = f"Quest {quest_num} - Dialogue"
+        quest_title = ctx.state.current_quest.title
+        reference = f"{quest_title} - Dialogue"
         chunk_count = 0
 
         for line in ctx.state.current_quest.sections.dialogue.lines:
@@ -208,8 +208,8 @@ class ProcessQuestExecution(BaseNode[ShotCreatorSession]):
         if self.chunker_agent is None:
             self.chunker_agent = ChunkerAgent()
 
-        quest_num = ctx.state.quest_index + 1
-        reference = f"Quest {quest_num} - Execution"
+        quest_title = ctx.state.current_quest.title
+        reference = f"{quest_title} - Execution"
 
         result = await self.chunker_agent.run(
             text=ctx.state.current_quest.sections.execution.text,
@@ -236,8 +236,8 @@ class ProcessQuestCompletion(BaseNode[ShotCreatorSession]):
         if self.chunker_agent is None:
             self.chunker_agent = ChunkerAgent()
 
-        quest_num = ctx.state.quest_index + 1
-        reference = f"Quest {quest_num} - Completion"
+        quest_title = ctx.state.current_quest.title
+        reference = f"{quest_title} - Completion"
         chunk_count = 0
 
         for line in ctx.state.current_quest.sections.completion.lines:
