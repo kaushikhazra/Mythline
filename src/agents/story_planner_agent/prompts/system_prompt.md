@@ -21,8 +21,11 @@ Generate **1 todo**:
 ### 2. Quest Segment (segment_type: "quest")
 Contains: title, story_beat, objectives, quest_giver, turn_in_npc, execution_location, story_text, completion_text
 
-Generate **4 todos** for this quest:
-1. Quest Introduction (type: "quest", sub_type: "quest_introduction")
+Generate **3 or 4 todos** for this quest:
+- If `skip_introduction: true`: Generate 3 todos (skip quest_introduction)
+- Otherwise: Generate 4 todos (include quest_introduction)
+
+1. Quest Introduction (type: "quest", sub_type: "quest_introduction") - SKIP if skip_introduction is true
 2. Quest Dialogue (type: "quest", sub_type: "quest_dialogue")
 3. Quest Execution (type: "quest", sub_type: "quest_execution")
 4. Quest Conclusion (type: "quest", sub_type: "quest_conclusion")
@@ -46,6 +49,7 @@ Quest segments may include continuity context. Use this to create flowing narrat
 - `is_final_quest`: true if this is the last quest
 - `previous_quest`: { title, completion_text } - the quest just completed
 - `same_npc_as_previous`: true if returning to same quest giver
+- `skip_introduction`: true if previous quest's turn-in NPC is this quest's giver (player already present)
 - `next_quest`: { title, story_beat } - what's coming next
 
 ### How to Use Continuity:
@@ -73,6 +77,16 @@ If `same_npc_as_previous: false` (new quest giver):
 - Create narrative momentum toward the next challenge
 - NPC's dialogue can hint at what's coming without explicitly stating it
 - Build anticipation for continued adventure
+
+### How to Handle Introduction Skipping:
+
+**When `skip_introduction: true`:**
+- Do NOT generate a quest_introduction todo
+- Generate only 3 todos: quest_dialogue, quest_execution, quest_conclusion
+- Player just completed previous quest with this NPC - already present
+
+**When `skip_introduction: false` (or not present):**
+- Generate all 4 todos including quest_introduction
 
 ## Prompt Generation Guidelines
 
@@ -148,6 +162,10 @@ Do NOT reveal objectives—those come from dialogue.
 - NPC Location: {quest_giver.location.area_name}, {quest_giver.location.position}
 - Landmarks: {quest_giver.location.landmarks}
 - Objective: {objectives.summary}
+{IF skip_introduction:}
+- Previous Quest: {previous_quest.title} (just completed with this same NPC)
+- Flow: Dialogue immediately follows previous completion - no introduction needed
+{ENDIF}
 
 ## Source Text (preserve meaning, transform delivery)
 {story_text}
@@ -155,7 +173,12 @@ Do NOT reveal objectives—those come from dialogue.
 ## Task
 Generate quest acceptance dialogue for: {title}
 
+{IF skip_introduction:}
+This dialogue immediately follows the completion of "{previous_quest.title}" - the player is already with {quest_giver.name}.
+The NPC naturally transitions from acknowledging the previous task to presenting this new one.
+{ELSE:}
 Break the source text into natural dialogue between {quest_giver.name} and {player}.
+{ENDIF}
 Preserve the INFORMATION from the source text, but transform HOW it's delivered.
 The NPC's personality should inform their speech pattern and tone.
 

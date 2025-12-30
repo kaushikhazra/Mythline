@@ -318,8 +318,11 @@ python -m src.ui.cli.voice_navigator --subject shadowglen
 ### YouTube Upload
 
 ```bash
-# Upload video with metadata
-python -m src.ui.cli.upload_youtube video.mp4 -t "Title" -d "Description" --tags "tag1,tag2" -p public
+# Upload video with auto-generated metadata from story
+python -m src.ui.cli.upload_youtube --subject last_stand
+
+# Upload with custom privacy setting
+python -m src.ui.cli.upload_youtube --subject last_stand -p public
 
 # List categories and playlists
 python -m src.ui.cli.upload_youtube --list-categories

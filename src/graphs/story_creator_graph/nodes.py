@@ -187,11 +187,13 @@ class CreateTODO(BaseNode[StorySession]):
                 prev_quest = quests[i - 1]
                 prev_quest_giver = prev_quest.get('quest_giver', {}).get('name', '')
                 current_quest_giver = quest.get('quest_giver', {}).get('name', '')
+                prev_turn_in_npc = prev_quest.get('turn_in_npc', {}).get('name', '')
                 quest_segment['previous_quest'] = {
                     'title': prev_quest.get('title'),
                     'completion_text': prev_quest.get('completion_text', '')[:500]
                 }
                 quest_segment['same_npc_as_previous'] = (prev_quest_giver == current_quest_giver)
+                quest_segment['skip_introduction'] = (prev_turn_in_npc == current_quest_giver)
 
             if i < len(quests) - 1:
                 next_quest = quests[i + 1]
@@ -408,12 +410,18 @@ class WriteToFile(BaseNode[StorySession]):
             story.quests.append(quest)
 
         elif segment.sub_type == "quest_dialogue":
+            quest_found = None
             for quest in story.quests:
                 if quest.title == segment.quest_name:
-                    quest.sections.dialogue = segment.output # type: ignore
+                    quest_found = quest
                     break
+
+            if quest_found:
+                quest_found.sections.dialogue = segment.output # type: ignore
             else:
-                raise ValueError(f"Quest not found: {segment.quest_name}")
+                quest = Quest(title=segment.quest_name, sections=QuestSection())  # type: ignore
+                quest.sections.dialogue = segment.output # type: ignore
+                story.quests.append(quest)
 
         elif segment.sub_type == "quest_execution":
             for quest in story.quests:
