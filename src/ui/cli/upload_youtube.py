@@ -84,7 +84,7 @@ def validate_subject(subject: str) -> tuple[Path, Path] | None:
         console.print(f"[red]Error: Story file not found: {story_file}[/red]")
         return None
 
-    video_file = subject_dir / "video" / "upload" / f"{subject}.mp4"
+    video_file = subject_dir / "video" / "upload" / f"{subject}.mov"
     if not video_file.exists():
         console.print(f"[red]Error: Video file not found: {video_file}[/red]")
         return None
