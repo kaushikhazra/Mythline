@@ -5,11 +5,20 @@ from playwright.async_api import async_playwright
 
 async def crawl_content(url: str, headless: bool = False, wait_for_cloudflare: bool = True) -> str:
     async with async_playwright() as p:
-        browser = await p.chromium.launch(headless=headless)
+        browser = await p.chromium.launch(
+            headless=headless,
+            args=['--disable-blink-features=AutomationControlled']
+        )
         context = await browser.new_context(
-            user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+            user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+            viewport={'width': 1920, 'height': 1080},
+            locale='en-US'
         )
         page = await context.new_page()
+
+        await page.add_init_script("""
+            Object.defineProperty(navigator, 'webdriver', { get: () => undefined });
+        """)
 
         await page.goto(url)
 
@@ -42,24 +51,48 @@ async def _wait_for_cloudflare(page, timeout: int = 60):
 
 async def _try_click_turnstile(page):
     try:
-        turnstile_frame = page.frame_locator("iframe[src*='challenges.cloudflare.com']")
-        checkbox = turnstile_frame.locator("input[type='checkbox']")
+        await page.mouse.move(500, 400)
+        await asyncio.sleep(0.5)
 
-        if await checkbox.count() > 0:
-            await checkbox.click()
+        iframe_selectors = [
+            "iframe[src*='challenges.cloudflare.com']",
+            "iframe[src*='turnstile']",
+            "iframe[title*='cloudflare']",
+            "iframe[title*='Cloudflare']",
+            "#turnstile-wrapper iframe",
+            ".cf-turnstile iframe"
+        ]
+
+        for selector in iframe_selectors:
+            try:
+                frame = page.frame_locator(selector)
+                box = await frame.locator("body").bounding_box()
+                if box:
+                    center_x = box['x'] + box['width'] / 2
+                    center_y = box['y'] + box['height'] / 2
+                    await page.mouse.move(center_x, center_y)
+                    await asyncio.sleep(0.3)
+                    await page.mouse.click(center_x, center_y)
+                    print(f"[*] Clicked Turnstile iframe: {selector}")
+                    return
+            except Exception:
+                continue
+
+        turnstile_div = page.locator("[class*='turnstile']").first
+        if await turnstile_div.count() > 0:
+            await turnstile_div.click()
+            print("[*] Clicked Turnstile div")
             return
 
-        label = turnstile_frame.locator("label")
-        if await label.count() > 0:
-            await label.first.click()
-            return
+        verify_box = page.locator("text=Verify you are human").first
+        if await verify_box.count() > 0:
+            box = await verify_box.bounding_box()
+            if box:
+                await page.mouse.click(box['x'] + 20, box['y'] + box['height'] / 2)
+                print("[*] Clicked near verify text")
 
-        body = turnstile_frame.locator("body")
-        if await body.count() > 0:
-            await body.click()
-
-    except Exception:
-        pass
+    except Exception as e:
+        print(f"[!] Turnstile click failed: {e}")
 
 
 def _html_to_markdown(html: str) -> str:
