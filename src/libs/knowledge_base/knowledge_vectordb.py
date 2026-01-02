@@ -8,9 +8,11 @@ from qdrant_client import QdrantClient
 from qdrant_client.models import Distance, VectorParams, PointStruct
 
 from src.libs.embedding import generate_embedding
-from src.libs.parsers import chunk_markdown_by_headers
+from src.libs.parsers import chunk_markdown_by_headers, chunk_story_by_quests
 
 load_dotenv()
+
+STORIES_COLLECTION = "stories_knowledge"
 
 
 @contextmanager
@@ -180,4 +182,93 @@ def list_all_chunks(knowledge_dir: str) -> list[dict]:
                 'collection': collection_name
             }
             for record in records
+        ]
+
+
+def _ensure_stories_collection():
+    with qdrant_client() as client:
+        collections = client.get_collections().collections
+        if not any(c.name == STORIES_COLLECTION for c in collections):
+            client.create_collection(
+                collection_name=STORIES_COLLECTION,
+                vectors_config=VectorParams(size=1536, distance=Distance.COSINE)
+            )
+
+
+def index_story(story_path: str) -> int:
+    _ensure_stories_collection()
+
+    chunks = chunk_story_by_quests(story_path)
+
+    if not chunks:
+        return 0
+
+    points = []
+    point_id = 0
+
+    with qdrant_client() as client:
+        collection_info = client.get_collection(STORIES_COLLECTION)
+        if collection_info.points_count > 0:
+            records, _ = client.scroll(collection_name=STORIES_COLLECTION, limit=10000)
+            if records:
+                max_id = max([r.id for r in records], default=-1)
+                point_id = max_id + 1
+
+    for chunk in chunks:
+        embedding = generate_embedding(chunk['text'])
+
+        point = PointStruct(
+            id=point_id,
+            vector=embedding,
+            payload={
+                'text': chunk['text'],
+                'story_subject': chunk['story_subject'],
+                'story_title': chunk['story_title'],
+                'quest_title': chunk['quest_title'],
+                'quest_index': chunk['quest_index'],
+                'npcs': chunk['npcs'],
+                'section_header': chunk['section_header']
+            }
+        )
+
+        points.append(point)
+        point_id += 1
+
+    if points:
+        with qdrant_client() as client:
+            client.upsert(
+                collection_name=STORIES_COLLECTION,
+                points=points
+            )
+
+    return len(points)
+
+
+def search_story_knowledge(query: str, top_k: int = 3) -> list[dict]:
+    with qdrant_client() as client:
+        collections = client.get_collections().collections
+        if not any(c.name == STORIES_COLLECTION for c in collections):
+            return []
+
+    query_embedding = generate_embedding(query)
+
+    with qdrant_client() as client:
+        results = client.search(
+            collection_name=STORIES_COLLECTION,
+            query_vector=query_embedding,
+            limit=top_k
+        )
+
+        return [
+            {
+                'text': hit.payload['text'],
+                'story_subject': hit.payload['story_subject'],
+                'story_title': hit.payload['story_title'],
+                'quest_title': hit.payload['quest_title'],
+                'quest_index': hit.payload['quest_index'],
+                'npcs': hit.payload['npcs'],
+                'section_header': hit.payload['section_header'],
+                'score': hit.score
+            }
+            for hit in results
         ]

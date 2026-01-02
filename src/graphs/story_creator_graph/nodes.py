@@ -27,6 +27,7 @@ from src.agents.dialog_creator_agent.agent import DialogCreatorAgent
 from src.agents.story_reviewer_agent import StoryReviewerAgent
 from src.libs.filesystem.file_operations import read_file, write_file, file_exists
 from src.libs.filesystem.directory_operations import create_directory
+from src.libs.knowledge_base import index_story
 
 MAX_REVIEW_RETRIES = 3
 QUALITY_THRESHOLD = 0.75
@@ -232,7 +233,7 @@ class CreateTODO(BaseNode[StorySession]):
 @dataclass
 class GetNextTODO(BaseNode[StorySession]):
 
-    async def run(self, ctx: GraphRunContext[StorySession]) -> CreateStorySegment | End[None]:
+    async def run(self, ctx: GraphRunContext[StorySession]) -> CreateStorySegment | IndexStoryToKB:
         if ctx.state.current_todo_index < len(ctx.state.todo_list):
             current_todo = ctx.state.todo_list[ctx.state.current_todo_index]
             current_todo.status = "in_progress"
@@ -257,7 +258,7 @@ class GetNextTODO(BaseNode[StorySession]):
         else:
             print(colored("\n[+] Story generation complete!", "green"))
             save_progress(ctx.state.subject, "complete", "Story generation complete", len(ctx.state.todo_list), len(ctx.state.todo_list))
-            return End(None)
+            return IndexStoryToKB()
 
 
 @dataclass
@@ -440,3 +441,21 @@ class WriteToFile(BaseNode[StorySession]):
                 raise ValueError(f"Quest not found: {segment.quest_name}")
 
         return story
+
+
+@dataclass
+class IndexStoryToKB(BaseNode[StorySession]):
+
+    async def run(self, ctx: GraphRunContext[StorySession]) -> End[None]:
+        subject = ctx.state.subject
+        story_path = f"output/{subject}/story.json"
+
+        print(colored(f"\n[*] Indexing story to knowledge base...", "cyan"))
+
+        try:
+            chunks_indexed = index_story(story_path)
+            print(colored(f"[+] Story indexed: {chunks_indexed} chunks added to knowledge base", "green"))
+        except Exception as e:
+            print(colored(f"[!] Failed to index story: {e}", "yellow"))
+
+        return End(None)

@@ -6,7 +6,9 @@ from .knowledge_vectordb import (
     clear_collection,
     index_knowledge,
     search_knowledge,
-    list_all_chunks
+    list_all_chunks,
+    index_story,
+    search_story_knowledge
 )
 
 __all__ = [
@@ -17,5 +19,7 @@ __all__ = [
     'clear_collection',
     'index_knowledge',
     'search_knowledge',
-    'list_all_chunks'
+    'list_all_chunks',
+    'index_story',
+    'search_story_knowledge'
 ]

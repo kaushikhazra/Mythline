@@ -2,7 +2,7 @@ import os
 from dotenv import load_dotenv
 from mcp.server.fastmcp import FastMCP
 
-from src.libs.knowledge_base.knowledge_vectordb import search_knowledge, list_all_chunks, get_all_knowledge_collections, index_knowledge
+from src.libs.knowledge_base.knowledge_vectordb import search_knowledge, list_all_chunks, get_all_knowledge_collections, index_knowledge, search_story_knowledge
 
 load_dotenv()
 
@@ -106,6 +106,45 @@ def reindex_knowledge(knowledge_dir: str = "guides") -> str:
         error_msg = f"Error re-indexing '{knowledge_dir}': {str(e)}"
         print(error_msg)
         return error_msg
+
+
+@server.tool()
+def search_past_story_knowledge(query: str, top_k: int = 3) -> str:
+    """Searches past stories for events, characters, and continuity references.
+
+    Use this tool to find what happened in previous stories. Useful for:
+    - Finding past events in a location
+    - Looking up character history and interactions
+    - Building narrative continuity across stories
+
+    Args:
+        query (str): The search query (e.g., "Shadowglen", "Ilthalaine", "fel corruption")
+        top_k (int): Number of results to return (default: 3)
+
+    Returns:
+        str: Formatted search results with story and quest context
+    """
+    print(f"Searching past stories for: {query}")
+
+    results = search_story_knowledge(query, top_k)
+
+    if not results:
+        return f"No past story events found for: {query}"
+
+    output = f"Found {len(results)} relevant past story event(s):\n\n"
+
+    for i, result in enumerate(results, 1):
+        output += f"--- Result {i} (Score: {result['score']:.3f}) ---\n"
+        output += f"Story: {result['story_title']} ({result['story_subject']})\n"
+        if result['quest_title']:
+            output += f"Quest: {result['quest_title']}\n"
+        if result['npcs']:
+            output += f"NPCs: {', '.join(result['npcs'])}\n"
+        output += f"\n{result['text']}\n\n"
+
+    print(output)
+
+    return output
 
 
 if __name__=='__main__':

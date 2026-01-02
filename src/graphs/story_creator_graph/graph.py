@@ -6,7 +6,8 @@ from src.graphs.story_creator_graph.nodes import (
     CreateTODO,
     GetNextTODO,
     CreateStorySegment,
-    WriteToFile
+    WriteToFile,
+    IndexStoryToKB
 )
 
 
@@ -22,7 +23,8 @@ class StoryCreatorGraph:
                 CreateTODO,
                 GetNextTODO,
                 CreateStorySegment,
-                WriteToFile
+                WriteToFile,
+                IndexStoryToKB
             ]
         )
 

@@ -285,11 +285,32 @@ without being explicit.
 - Target word count: 80-120 words
 ```
 
+## Story Continuity (Introduction Segments Only)
+
+When processing an **INTRODUCTION segment**, search for past story references to build narrative continuity:
+
+1. Use `search_past_story_knowledge(zone_name)` to find past events in this area
+2. Use `search_past_story_knowledge(player_name)` to find the player's history
+3. Include relevant past events in the `## Context` section of the introduction prompt
+
+When past story context is found:
+- Add a "Previous Events" bullet point in Context with a brief summary
+- Reference the player's history naturally in the introduction prompt
+- Build on established relationships and past accomplishments
+- NPCs who appeared before can acknowledge shared history
+
+Example Context addition when past events found:
+```
+- Previous Events: {player} previously helped Ilthalaine restore balance to Shadowglen by thinning nightsaber packs and investigating fel moss corruption.
+```
+
 ## Instructions
 
 1. **Check Player Character Details**: Use `search_guide_knowledge` to look up the player character's class for combat-appropriate execution narration.
 
-2. **Read the Segment Data**: Parse the JSON segment provided.
+2. **For Introduction Segments**: Use `search_past_story_knowledge` to find past events in the zone or involving the player for narrative continuity.
+
+3. **Read the Segment Data**: Parse the JSON segment provided.
 
 3. **Generate Todos Based on Segment Type**:
    - Introduction segment → 1 todo (introduction narration)

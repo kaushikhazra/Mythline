@@ -1,12 +1,16 @@
 import argparse
 from termcolor import colored
 
+from pathlib import Path
+
 from src.libs.knowledge_base.knowledge_vectordb import (
     index_knowledge,
     search_knowledge,
     list_all_chunks,
     clear_collection,
-    collection_exists
+    collection_exists,
+    index_story,
+    search_story_knowledge
 )
 
 
@@ -111,6 +115,62 @@ def clear_command(args):
         print(colored(f"Error: {str(e)}", "red"))
 
 
+def load_stories_command(args):
+    print(colored("Loading stories from output/*/story.json into knowledge base...", "cyan"))
+
+    output_dir = Path("output")
+    if not output_dir.exists():
+        print(colored("Error: output/ directory not found.", "red"))
+        return
+
+    story_files = list(output_dir.glob("*/story.json"))
+
+    if not story_files:
+        print(colored("No story files found in output/*/story.json", "yellow"))
+        return
+
+    print(colored(f"Found {len(story_files)} story file(s)", "green"))
+
+    total_chunks = 0
+    for story_file in story_files:
+        subject = story_file.parent.name
+        print(colored(f"  Indexing: {subject}...", "cyan"))
+        try:
+            chunks = index_story(str(story_file))
+            total_chunks += chunks
+            print(colored(f"    -> {chunks} chunks indexed", "green"))
+        except Exception as e:
+            print(colored(f"    -> Error: {str(e)}", "red"))
+
+    print(colored(f"\nTotal: {total_chunks} chunks indexed from {len(story_files)} stories", "green"))
+
+
+def search_stories_command(args):
+    print(colored(f"Searching past stories for: {args.query}", "cyan"))
+
+    try:
+        results = search_story_knowledge(args.query, args.top_k)
+
+        if not results:
+            print(colored("No past story events found.", "yellow"))
+            return
+
+        print(colored(f"\nFound {len(results)} result(s):\n", "green"))
+
+        for i, result in enumerate(results, 1):
+            print(colored(f"--- Result {i} (Score: {result['score']:.3f}) ---", "cyan"))
+            print(f"Story: {result['story_title']} ({result['story_subject']})")
+            if result['quest_title']:
+                print(f"Quest: {result['quest_title']}")
+            if result['npcs']:
+                print(f"NPCs: {', '.join(result['npcs'])}")
+            print(f"\n{result['text'][:500]}...")
+            print()
+
+    except Exception as e:
+        print(colored(f"Error: {str(e)}", "red"))
+
+
 def main():
     parser = argparse.ArgumentParser(description="Manage knowledge bases")
     subparsers = parser.add_subparsers(dest='command', help='Available commands')
@@ -131,6 +191,12 @@ def main():
     clear_parser = subparsers.add_parser('clear', help='Clear a knowledge base')
     clear_parser.add_argument('--knowledge-dir', default='guides', help='Directory to clear (default: guides)')
 
+    subparsers.add_parser('load-stories', help='Load all stories from output/*/story.json into knowledge base')
+
+    search_stories_parser = subparsers.add_parser('search-stories', help='Search past stories for continuity')
+    search_stories_parser.add_argument('query', help='Search query')
+    search_stories_parser.add_argument('--top-k', type=int, default=3, help='Number of results to return')
+
     args = parser.parse_args()
 
     if not args.command:
@@ -142,7 +208,9 @@ def main():
         'rebuild': rebuild_command,
         'search': search_command,
         'list': list_command,
-        'clear': clear_command
+        'clear': clear_command,
+        'load-stories': load_stories_command,
+        'search-stories': search_stories_command
     }
 
     commands[args.command](args)
