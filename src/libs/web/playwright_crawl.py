@@ -25,15 +25,41 @@ async def crawl_content(url: str, headless: bool = False, wait_for_cloudflare: b
         return cleaned
 
 
-async def _wait_for_cloudflare(page, timeout: int = 30):
-    for _ in range(timeout):
+async def _wait_for_cloudflare(page, timeout: int = 60):
+    for i in range(timeout):
         title = await page.title()
         if "just a moment" not in title.lower() and "cloudflare" not in title.lower():
             await asyncio.sleep(1)
             return
+
+        if i == 3:
+            await _try_click_turnstile(page)
+
         await asyncio.sleep(1)
 
     raise TimeoutError("Cloudflare challenge did not resolve")
+
+
+async def _try_click_turnstile(page):
+    try:
+        turnstile_frame = page.frame_locator("iframe[src*='challenges.cloudflare.com']")
+        checkbox = turnstile_frame.locator("input[type='checkbox']")
+
+        if await checkbox.count() > 0:
+            await checkbox.click()
+            return
+
+        label = turnstile_frame.locator("label")
+        if await label.count() > 0:
+            await label.first.click()
+            return
+
+        body = turnstile_frame.locator("body")
+        if await body.count() > 0:
+            await body.click()
+
+    except Exception:
+        pass
 
 
 def _html_to_markdown(html: str) -> str:
