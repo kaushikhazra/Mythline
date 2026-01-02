@@ -17,6 +17,7 @@ from src.graphs.story_research_graph.models.research_models import (
 )
 from src.libs.web.playwright_crawl import crawl_content
 from src.libs.web.duck_duck_go import search as web_search
+from src.libs.cache import get_npc, set_npc, get_location, set_location
 from src.agents.research_input_parser_agent import ResearchInputParserAgent
 from src.agents.quest_extractor_agent import QuestExtractorAgent
 from src.agents.npc_extractor_agent import NPCExtractorAgent
@@ -104,7 +105,12 @@ def search_npc_url(npc_name: str) -> str | None:
     return None
 
 
-def search_location_url(location_name: str) -> str | None:
+def search_location_url(location_name: str) -> tuple[str | None, str | None]:
+    cached = get_location(location_name)
+    if cached:
+        logger.success(f"Location cache hit: {location_name}")
+        return cached['url'], cached['content']
+
     query = f'site:warcraft.wiki.gg {location_name}'
     logger.info(f"Searching: {query}")
     try:
@@ -112,10 +118,10 @@ def search_location_url(location_name: str) -> str | None:
         if results:
             url = results[0]['href']
             logger.success(f"Found: {url}")
-            return url
+            return url, None
     except Exception as e:
         logger.warning(f"Search error: {e}")
-    return None
+    return None, None
 
 
 @dataclass
@@ -134,27 +140,53 @@ class ExtractQuestData(BaseNode[ResearchSession]):
         logger.success(f"Execution Area: {extraction.execution_area}")
 
         npc_urls = []
+        ctx.state._cached_quest_giver = None
+        ctx.state._cached_turn_in_npc = None
+
         if extraction.quest_giver_name:
-            url = search_npc_url(extraction.quest_giver_name)
-            if url:
-                npc_urls.append(url)
+            cached_npc = get_npc(extraction.quest_giver_name)
+            if cached_npc:
+                logger.success(f"NPC cache hit: {extraction.quest_giver_name}")
+                ctx.state._cached_quest_giver = cached_npc
+            else:
+                url = search_npc_url(extraction.quest_giver_name)
+                if url:
+                    npc_urls.append(url)
+
         if extraction.turn_in_npc_name and extraction.turn_in_npc_name != extraction.quest_giver_name:
-            url = search_npc_url(extraction.turn_in_npc_name)
-            if url:
-                npc_urls.append(url)
+            cached_npc = get_npc(extraction.turn_in_npc_name)
+            if cached_npc:
+                logger.success(f"NPC cache hit: {extraction.turn_in_npc_name}")
+                ctx.state._cached_turn_in_npc = cached_npc
+            else:
+                url = search_npc_url(extraction.turn_in_npc_name)
+                if url:
+                    npc_urls.append(url)
 
         location_urls = []
+        location_names_to_crawl = []
+
         if extraction.zone:
-            url = search_location_url(extraction.zone)
+            url, cached_content = search_location_url(extraction.zone)
             if url:
-                location_urls.append(url)
+                if cached_content:
+                    ctx.state.location_contents[url] = cached_content
+                else:
+                    location_urls.append(url)
+                    location_names_to_crawl.append(extraction.zone)
+
         if extraction.execution_area and extraction.execution_area != extraction.zone:
-            url = search_location_url(extraction.execution_area)
+            url, cached_content = search_location_url(extraction.execution_area)
             if url:
-                location_urls.append(url)
+                if cached_content:
+                    ctx.state.location_contents[url] = cached_content
+                else:
+                    location_urls.append(url)
+                    location_names_to_crawl.append(extraction.execution_area)
 
         ctx.state.current_npc_urls = npc_urls
         ctx.state.current_location_urls = location_urls
+        ctx.state._location_names_to_crawl = location_names_to_crawl
 
         ctx.state._current_extraction = extraction
 
@@ -185,6 +217,25 @@ class CrawlNPCPages(BaseNode[ResearchSession]):
         return EnrichNPCData()
 
 
+def _extraction_to_npc(npc_data) -> NPC:
+    return NPC(
+        name=npc_data.name,
+        title=npc_data.title,
+        personality=npc_data.personality,
+        lore=npc_data.lore,
+        location=Location(
+            area=Area(
+                name=npc_data.location_area,
+                x=npc_data.location_x,
+                y=npc_data.location_y
+            ),
+            position=npc_data.location_position,
+            visual=npc_data.location_visual,
+            landmarks=npc_data.location_landmarks
+        )
+    )
+
+
 @dataclass
 class EnrichNPCData(BaseNode[ResearchSession]):
 
@@ -192,35 +243,45 @@ class EnrichNPCData(BaseNode[ResearchSession]):
         logger.info("EnrichNPCData")
 
         extraction = ctx.state._current_extraction
-        agent = NPCExtractorAgent()
 
-        quest_context = {
-            "quest_title": extraction.title,
-            "story_beat": extraction.story_beat,
-            "zone": extraction.zone,
-            "execution_area": extraction.execution_area
-        }
+        quest_giver_npc = getattr(ctx.state, '_cached_quest_giver', None)
+        turn_in_npc = getattr(ctx.state, '_cached_turn_in_npc', None)
 
-        quest_giver_npc = None
-        turn_in_npc = None
+        if quest_giver_npc:
+            logger.success(f"Using cached quest giver: {quest_giver_npc.name}")
+        if turn_in_npc:
+            logger.success(f"Using cached turn-in NPC: {turn_in_npc.name}")
 
-        for url in ctx.state.current_npc_urls:
-            content = ctx.state.npc_contents.get(url, "")
-            if not content:
-                continue
+        if ctx.state.current_npc_urls:
+            agent = NPCExtractorAgent()
+            quest_context = {
+                "quest_title": extraction.title,
+                "story_beat": extraction.story_beat,
+                "zone": extraction.zone,
+                "execution_area": extraction.execution_area
+            }
 
-            try:
-                npc_data = await agent.run(content, quest_context=quest_context)
+            for url in ctx.state.current_npc_urls:
+                content = ctx.state.npc_contents.get(url, "")
+                if not content:
+                    continue
 
-                if npc_data.name.lower() in extraction.quest_giver_name.lower() or extraction.quest_giver_name.lower() in npc_data.name.lower():
-                    quest_giver_npc = npc_data
-                    logger.success(f"Extracted quest giver: {npc_data.name}")
+                try:
+                    npc_data = await agent.run(content, quest_context=quest_context)
+                    npc_model = _extraction_to_npc(npc_data)
 
-                if npc_data.name.lower() in extraction.turn_in_npc_name.lower() or extraction.turn_in_npc_name.lower() in npc_data.name.lower():
-                    turn_in_npc = npc_data
-                    logger.success(f"Extracted turn-in NPC: {npc_data.name}")
-            except Exception as e:
-                logger.warning(f"Error extracting NPC: {e}")
+                    set_npc(npc_model)
+                    logger.success(f"Cached NPC: {npc_model.name}")
+
+                    if npc_data.name.lower() in extraction.quest_giver_name.lower() or extraction.quest_giver_name.lower() in npc_data.name.lower():
+                        quest_giver_npc = npc_model
+                        logger.success(f"Extracted quest giver: {npc_data.name}")
+
+                    if npc_data.name.lower() in extraction.turn_in_npc_name.lower() or extraction.turn_in_npc_name.lower() in npc_data.name.lower():
+                        turn_in_npc = npc_model
+                        logger.success(f"Extracted turn-in NPC: {npc_data.name}")
+                except Exception as e:
+                    logger.warning(f"Error extracting NPC: {e}")
 
         ctx.state._quest_giver_npc = quest_giver_npc
         ctx.state._turn_in_npc = turn_in_npc
@@ -234,12 +295,19 @@ class CrawlLocationPages(BaseNode[ResearchSession]):
     async def run(self, ctx: GraphRunContext[ResearchSession]) -> EnrichLocationData:
         logger.info("CrawlLocationPages")
 
-        for url in ctx.state.current_location_urls:
+        location_names = getattr(ctx.state, '_location_names_to_crawl', [])
+
+        for i, url in enumerate(ctx.state.current_location_urls):
             if url not in ctx.state.location_contents:
                 try:
                     logger.info(f"Crawling location: {url}")
                     content = await crawl_content(url)
                     ctx.state.location_contents[url] = content
+
+                    if i < len(location_names):
+                        set_location(location_names[i], url, content)
+                        logger.success(f"Cached location: {location_names[i]}")
+
                     logger.info("Breathing for 5 seconds")
                     await asyncio.sleep(5)
                 except Exception as e:
@@ -291,39 +359,45 @@ class StoreQuestResearch(BaseNode[ResearchSession]):
         turn_in_npc = getattr(ctx.state, '_turn_in_npc', None)
         execution_location = getattr(ctx.state, '_execution_location', None)
 
-        quest_giver = NPC(
-            name=extraction.quest_giver_name,
-            title=quest_giver_npc.title if quest_giver_npc else "",
-            personality=quest_giver_npc.personality if quest_giver_npc else "",
-            lore=quest_giver_npc.lore if quest_giver_npc else "",
-            location=Location(
-                area=Area(
-                    name=quest_giver_npc.location_area if quest_giver_npc else extraction.quest_giver_location_hint,
-                    x=quest_giver_npc.location_x if quest_giver_npc else extraction.quest_giver_location_x,
-                    y=quest_giver_npc.location_y if quest_giver_npc else extraction.quest_giver_location_y
-                ),
-                position=quest_giver_npc.location_position if quest_giver_npc else "",
-                visual=quest_giver_npc.location_visual if quest_giver_npc else "",
-                landmarks=quest_giver_npc.location_landmarks if quest_giver_npc else ""
+        if quest_giver_npc:
+            quest_giver = quest_giver_npc
+        else:
+            quest_giver = NPC(
+                name=extraction.quest_giver_name,
+                title="",
+                personality="",
+                lore="",
+                location=Location(
+                    area=Area(
+                        name=extraction.quest_giver_location_hint,
+                        x=extraction.quest_giver_location_x,
+                        y=extraction.quest_giver_location_y
+                    ),
+                    position="",
+                    visual="",
+                    landmarks=""
+                )
             )
-        )
 
-        turn_in = NPC(
-            name=extraction.turn_in_npc_name,
-            title=turn_in_npc.title if turn_in_npc else "",
-            personality=turn_in_npc.personality if turn_in_npc else "",
-            lore=turn_in_npc.lore if turn_in_npc else "",
-            location=Location(
-                area=Area(
-                    name=turn_in_npc.location_area if turn_in_npc else extraction.turn_in_npc_location_hint,
-                    x=turn_in_npc.location_x if turn_in_npc else extraction.turn_in_npc_location_x,
-                    y=turn_in_npc.location_y if turn_in_npc else extraction.turn_in_npc_location_y
-                ),
-                position=turn_in_npc.location_position if turn_in_npc else "",
-                visual=turn_in_npc.location_visual if turn_in_npc else "",
-                landmarks=turn_in_npc.location_landmarks if turn_in_npc else ""
+        if turn_in_npc:
+            turn_in = turn_in_npc
+        else:
+            turn_in = NPC(
+                name=extraction.turn_in_npc_name,
+                title="",
+                personality="",
+                lore="",
+                location=Location(
+                    area=Area(
+                        name=extraction.turn_in_npc_location_hint,
+                        x=extraction.turn_in_npc_location_x,
+                        y=extraction.turn_in_npc_location_y
+                    ),
+                    position="",
+                    visual="",
+                    landmarks=""
+                )
             )
-        )
 
         exec_loc = ExecutionLocation(
             area=Area(

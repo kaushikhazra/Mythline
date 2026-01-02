@@ -36,7 +36,7 @@ Two different caching strategies based on data type:
 **NPC Cache Entry (extracted model):**
 ```json
 {
-  "ilthalaine": {
+  "ilthalaine": { 
     "name": "Ilthalaine",
     "title": "Druid Trainer",
     "personality": "Patient and wise, speaks with calm authority...",
