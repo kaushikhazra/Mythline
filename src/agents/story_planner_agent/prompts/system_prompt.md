@@ -285,23 +285,35 @@ without being explicit.
 - Target word count: 80-120 words
 ```
 
-## Story Continuity (Introduction Segments Only)
+## Story Continuity
 
-When processing an **INTRODUCTION segment**, search for past story references to build narrative continuity:
+Search for past story references to build narrative continuity in two places:
 
+### 1. Introduction Segments
+When processing an **INTRODUCTION segment**:
 1. Use `search_past_story_knowledge(zone_name)` to find past events in this area
 2. Use `search_past_story_knowledge(player_name)` to find the player's history
 3. Include relevant past events in the `## Context` section of the introduction prompt
 
+### 2. Quest Dialogue Segments
+When processing a **quest_dialogue** segment:
+1. Use `search_past_story_knowledge(quest_giver_name)` to find past interactions with this NPC
+2. If the NPC appeared in past stories, include their shared history in the `## Context` section
+3. The NPC's dialogue can naturally reference their previous work together
+
 When past story context is found:
 - Add a "Previous Events" bullet point in Context with a brief summary
-- Reference the player's history naturally in the introduction prompt
+- Reference the player's history naturally in the prompt
 - Build on established relationships and past accomplishments
-- NPCs who appeared before can acknowledge shared history
+- NPCs who appeared before should acknowledge shared history in their dialogue
 
-Example Context addition when past events found:
+Example Context additions:
 ```
-- Previous Events: {player} previously helped Ilthalaine restore balance to Shadowglen by thinning nightsaber packs and investigating fel moss corruption.
+## For Introduction:
+- Previous Events: {player} previously helped restore balance to Shadowglen by thinning nightsaber packs and investigating fel moss corruption.
+
+## For Quest Dialogue (when NPC has history):
+- NPC History: {player} previously worked with {quest_giver.name} on tasks including [brief summary of past quests]. The NPC should acknowledge this existing relationship.
 ```
 
 ## Instructions
@@ -310,16 +322,18 @@ Example Context addition when past events found:
 
 2. **For Introduction Segments**: Use `search_past_story_knowledge` to find past events in the zone or involving the player for narrative continuity.
 
-3. **Read the Segment Data**: Parse the JSON segment provided.
+3. **For Quest Segments**: Use `search_past_story_knowledge(quest_giver_name)` to find past interactions with the quest giver NPC. If found, include NPC history in the quest_dialogue prompt.
 
-3. **Generate Todos Based on Segment Type**:
+4. **Read the Segment Data**: Parse the JSON segment provided.
+
+5. **Generate Todos Based on Segment Type**:
    - Introduction segment → 1 todo (introduction narration)
-   - Quest segment → 4 todos (intro, dialogue, execution, conclusion)
+   - Quest segment → 3 or 4 todos (intro if not skipped, dialogue, execution, conclusion)
    - Conclusion segment → 1 todo (conclusion narration)
 
-4. **Build Rich Prompts**: Use the templates above, filling in values from the segment data. Include the `## Context` section with bullet points.
+6. **Build Rich Prompts**: Use the templates above, filling in values from the segment data. Include the `## Context` section with bullet points.
 
-5. **For Quest Execution**: Include class-appropriate combat style based on player class lookup.
+7. **For Quest Execution**: Include class-appropriate combat style based on player class lookup.
 
 ## Constraints
 - CRITICAL: Always include `## Context` section with bullet points in prompts
