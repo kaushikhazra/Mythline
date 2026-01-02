@@ -21,6 +21,8 @@ Mythline is a multi-agent system built with [Pydantic AI](https://ai.pydantic.de
 
 ### Agents
 
+**Orchestrator Agents**
+
 **story_research_agent**
 - Research orchestrator for WoW lore gathering
 - Researches WoW lore using MCP web tools
@@ -33,6 +35,16 @@ Mythline is a multi-agent system built with [Pydantic AI](https://ai.pydantic.de
 - Delegates narration and dialogue to sub-agents
 - Structures stories with proper sections
 
+**shot_creator_agent**
+- Creates visual scene descriptions
+- Supports cinematic storytelling
+
+**video_director_agent**
+- Orchestrates video production workflow
+- Coordinates shot creation and review
+
+**Sub-Agents (Stateful)**
+
 **narrator_agent**
 - Creates third-person narrations
 - Maintains context across story segments
@@ -43,29 +55,84 @@ Mythline is a multi-agent system built with [Pydantic AI](https://ai.pydantic.de
 - Maintains consistent character voices
 - Ensures all actors have speaking parts
 
+**story_planner_agent**
+- Plans story structure and flow
+- Creates story outlines
+
+**shot_reviewer_agent**
+- Reviews and validates shot descriptions
+- Ensures visual consistency
+
+**story_reviewer_agent**
+- Reviews generated stories for quality
+- Validates narrative coherence
+
+**Sub-Agents (Stateless)**
+
 **user_preference_agent**
 - Stateless preference analyzer
 - Extracts memorable user preferences
 - Feeds into long-term memory system
 
-**shot_creator_agent**
-- Creates visual scene descriptions
-- Supports cinematic storytelling
+**chunker_agent**
+- Splits content into manageable chunks
+- Supports processing pipelines
+
+**location_extractor_agent**
+- Extracts location information from lore
+- Identifies key settings
+
+**npc_extractor_agent**
+- Extracts NPC information from research
+- Identifies characters and their roles
+
+**quest_extractor_agent**
+- Extracts quest information from lore
+- Identifies objectives and storylines
+
+**research_input_parser_agent**
+- Parses user research input
+- Structures research requests
+
+**search_query_generator**
+- Generates optimized search queries
+- Improves research efficiency
+
+**story_setting_extractor_agent**
+- Extracts setting details from stories
+- Identifies atmosphere and environment
+
+**quality_assessor**
+- Assesses content quality
+- Provides quality metrics
+
+**youtube_metadata_agent**
+- Generates YouTube metadata (titles, descriptions, tags)
+- SEO optimization for video uploads
+
+**llm_tester_agent**
+- Tests LLM responses
+- Validates model behavior
 
 ### MCP Servers
 
-**mcp_web_search**
+**mcp_web_search (port 8000)**
 - DuckDuckGo search integration
 - Crawls top results for comprehensive research
 
-**mcp_web_crawler**
+**mcp_web_crawler (port 8001)**
 - Web page content extraction
 - Markdown conversion for LLM consumption
 
-**mcp_filesystem**
+**mcp_filesystem (port 8002)**
 - File read/write operations
 - Directory management
 - File existence checking
+
+**mcp_knowledge_base (port 8003)**
+- Vector-based knowledge storage
+- Semantic search capabilities
+- Qdrant-powered embeddings
 
 ### Memory System
 
@@ -84,7 +151,7 @@ Mythline is a multi-agent system built with [Pydantic AI](https://ai.pydantic.de
 ### Prerequisites
 
 - Python 3.8+
-- OpenAI API key
+- OpenRouter API key
 
 ### Setup
 
@@ -101,13 +168,14 @@ pip install -r requirements.txt
 
 3. Configure environment:
 ```bash
-cp .evn.example .env
+cp .env.example .env
 ```
 
 Edit `.env` and add:
 ```
-OPENAI_API_KEY=your_api_key_here
-LLM_MODEL=gpt-4o
+OPENROUTER_API_KEY=your_api_key_here
+LLM_MODEL=openai/gpt-4o-mini
+EMBEDDING_MODEL=openai/text-embedding-3-small
 ```
 
 4. Configure MCP server ports (optional):
@@ -115,6 +183,7 @@ LLM_MODEL=gpt-4o
 MCP_WEB_SEARCH_PORT=8000
 MCP_WEB_CRAWLER_PORT=8001
 MCP_FILESYSTEM_PORT=8002
+MCP_KNOWLEDGE_BASE_PORT=8003
 ```
 
 5. Setup YouTube Upload (optional):
@@ -134,6 +203,7 @@ Start all required MCP servers before running agents:
 start_web_search_mcp.bat
 start_web_crawler_mcp.bat
 start_filesystem_mcp.bat
+start_knowledge_base_mcp.bat
 ```
 
 Or manually:
@@ -141,6 +211,7 @@ Or manually:
 python -m src.mcp_servers.mcp_web_search.server
 python -m src.mcp_servers.mcp_web_crawler.server
 python -m src.mcp_servers.mcp_filesystem.server
+python -m src.mcp_servers.mcp_knowledge_base.server
 ```
 
 ### Run Story Research Agent
@@ -209,26 +280,41 @@ python -m src.ui.cli.voice_navigator --subject shadowglen
 
 **YouTube Uploader:**
 ```bash
-# Basic upload
-python -m src.ui.cli.upload_youtube video.mp4 -t "My Video"
+# Upload with auto-generated metadata from story
+python -m src.ui.cli.upload_youtube --subject last_stand
 
-# Full metadata upload
-python -m src.ui.cli.upload_youtube video.mp4 \
-    -t "Epic Gaming Moment" \
-    -d "Watch this amazing play!" \
-    --tags "gaming,wow,epic" \
-    -p public \
-    --thumbnail thumb.jpg \
-    --category "Gaming" \
-    --playlist "My Gaming Videos"
-
-# Scheduled publish
-python -m src.ui.cli.upload_youtube video.mp4 -t "Upcoming" --publish-at "2024-12-25T10:00:00"
+# Upload with custom privacy setting
+python -m src.ui.cli.upload_youtube --subject last_stand -p public
 
 # Utility commands
 python -m src.ui.cli.upload_youtube --list-categories
 python -m src.ui.cli.upload_youtube --list-playlists
 python -m src.ui.cli.upload_youtube --logout
+```
+
+**Additional CLI Tools:**
+```bash
+# Shot generation
+python -m src.ui.cli.create_shots --subject shadowglen
+python -m src.ui.cli.generate_shots --subject shadowglen
+
+# Direct shot creation
+python -m src.ui.cli.direct_shots --subject shadowglen
+
+# Shot director (interactive)
+python -m src.ui.cli.shot_director --subject shadowglen
+
+# Audio creation
+python -m src.ui.cli.create_audio --subject shadowglen
+
+# Knowledge base management
+python -m src.ui.cli.manage_knowledge_base
+
+# Research with graph visualization
+python -m src.ui.cli.research_story_graph
+
+# LLM testing
+python -m src.ui.cli.test_llm
 ```
 
 ### Example Workflow
@@ -273,21 +359,40 @@ Output file: output/shadowglen/story.json
 Mythline/
 ├── src/
 │   ├── agents/
-│   │   ├── story_research_agent/
-│   │   ├── story_creator_agent/
-│   │   ├── narrator_agent/
+│   │   ├── chunker_agent/
 │   │   ├── dialog_creator_agent/
+│   │   ├── llm_tester_agent/
+│   │   ├── location_extractor_agent/
+│   │   ├── narrator_agent/
+│   │   ├── npc_extractor_agent/
+│   │   ├── quality_assessor/
+│   │   ├── quest_extractor_agent/
+│   │   ├── research_input_parser_agent/
+│   │   ├── search_query_generator/
+│   │   ├── shot_creator_agent/
+│   │   ├── shot_reviewer_agent/
+│   │   ├── story_creator_agent/
+│   │   ├── story_planner_agent/
+│   │   ├── story_research_agent/
+│   │   ├── story_reviewer_agent/
+│   │   ├── story_setting_extractor_agent/
 │   │   ├── user_preference_agent/
-│   │   └── shot_creator_agent/
+│   │   ├── video_director_agent/
+│   │   └── youtube_metadata_agent/
 │   ├── mcp_servers/
 │   │   ├── mcp_web_search/
 │   │   ├── mcp_web_crawler/
-│   │   └── mcp_filesystem/
+│   │   ├── mcp_filesystem/
+│   │   └── mcp_knowledge_base/
 │   ├── libs/
 │   │   ├── agent_memory/
 │   │   ├── audio/
+│   │   ├── embedding/
 │   │   ├── filesystem/
+│   │   ├── knowledge_base/
+│   │   ├── logger/
 │   │   ├── obs/
+│   │   ├── parsers/
 │   │   ├── voice/
 │   │   ├── web/
 │   │   ├── youtube/
@@ -349,5 +454,5 @@ Follow the guidelines in `PDs/pydantic_ai_coding_guide.md`:
 ## Acknowledgments
 
 - Built with [Pydantic AI](https://ai.pydantic.dev/)
-- Powered by OpenAI GPT models
+- Powered by OpenRouter (unified API for multiple LLM providers)
 - World of Warcraft lore from [warcraft.wiki.gg](https://warcraft.wiki.gg/)

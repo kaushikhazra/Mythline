@@ -36,6 +36,7 @@ agent_name/
 - story_research_agent
 - story_creator_agent
 - shot_creator_agent
+- video_director_agent
 - Load MCP servers for external tools
 - Have both context and long-term memory
 - Delegate specialized tasks to sub-agents
@@ -43,12 +44,25 @@ agent_name/
 **Sub-Agents (stateful)**
 - narrator_agent
 - dialog_creator_agent
+- story_planner_agent
+- shot_reviewer_agent
+- story_reviewer_agent
 - Have context memory for coherent output
 - No MCP servers (lightweight)
 - Focused single purpose
 
 **Sub-Agents (stateless)**
 - user_preference_agent
+- chunker_agent
+- location_extractor_agent
+- npc_extractor_agent
+- quest_extractor_agent
+- research_input_parser_agent
+- search_query_generator
+- story_setting_extractor_agent
+- quality_assessor
+- youtube_metadata_agent
+- llm_tester_agent
 - No session_id or context memory
 - Pure input/output transformation
 - Used for analysis and extraction
@@ -110,6 +124,11 @@ save_long_term_memory(self.AGENT_ID, preference_text)
 - Directory operations
 - File existence checks
 
+**mcp_knowledge_base (port 8003)**
+- Vector-based knowledge storage
+- Semantic search with Qdrant
+- Embedding-powered retrieval
+
 ## External Service Libraries
 
 ### YouTube Uploader (`src/libs/youtube/`)
@@ -152,6 +171,30 @@ success, video_id, error = uploader.upload(video_path, metadata)
 **Components:**
 - `voice_recognizer.py` - Vosk-based speech recognition
 - `voice_commands.py` - Command parsing and interpretation
+
+### Embedding (`src/libs/embedding/`)
+
+**Purpose:** Text embedding generation for semantic operations
+
+**Usage:** Supports knowledge base and semantic search functionality
+
+### Knowledge Base (`src/libs/knowledge_base/`)
+
+**Purpose:** Vector storage and semantic retrieval
+
+**Components:** Qdrant-based vector database operations
+
+### Logger (`src/libs/logger/`)
+
+**Purpose:** Centralized logging utilities
+
+**Usage:** Consistent logging across agents and services
+
+### Parsers (`src/libs/parsers/`)
+
+**Purpose:** Content parsing utilities
+
+**Usage:** Parse and structure various content formats
 
 ### MCP Configuration
 
@@ -387,8 +430,10 @@ async def use_sub_agent(ctx: RunContext, input: str) -> str:
 - `src/agents/story_research_agent/agent.py` - Research orchestrator example
 - `src/agents/story_creator_agent/agent.py` - Story orchestrator example
 - `src/agents/shot_creator_agent/agent.py` - Simple agent example
+- `src/agents/video_director_agent/agent.py` - Video orchestrator example
 - `src/agents/narrator_agent/agent.py` - Stateful sub-agent example
 - `src/agents/user_preference_agent/agent.py` - Stateless sub-agent example
+- `src/agents/youtube_metadata_agent/agent.py` - Metadata generation example
 
 ## Environment Variables
 
