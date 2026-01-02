@@ -15,7 +15,7 @@ from src.graphs.story_research_graph.models.research_models import (
     ExecutionLocation,
     Objectives
 )
-from src.libs.web.crawl import crawl_content
+from src.libs.web.playwright_crawl import crawl_content
 from src.libs.web.duck_duck_go import search as web_search
 from src.agents.research_input_parser_agent import ResearchInputParserAgent
 from src.agents.quest_extractor_agent import QuestExtractorAgent

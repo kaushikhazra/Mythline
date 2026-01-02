@@ -14,8 +14,8 @@ async def crawl_content(url: str) -> str:
     )
 
     browser_conf = BrowserConfig( 
-        browser_type="chromium",
-        headless=True,
+        # browser_type="chromium",
+        headless=False,
         text_mode=True
     )
 
