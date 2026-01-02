@@ -131,7 +131,7 @@ def index_knowledge(knowledge_dir: str, fresh: bool = False):
 
 
 def search_knowledge(query: str, top_k: int = 3) -> list[dict]:
-    all_collections = get_all_knowledge_collections()
+    all_collections = [c for c in get_all_knowledge_collections() if c != STORIES_COLLECTION]
 
     if not all_collections:
         return []
