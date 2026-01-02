@@ -164,7 +164,7 @@ def search_stories_command(args):
                 print(f"Quest: {result['quest_title']}")
             if result['npcs']:
                 print(f"NPCs: {', '.join(result['npcs'])}")
-            print(f"\n{result['text'][:500]}...")
+            print(f"\n{result['text']}")
             print()
 
     except Exception as e:
