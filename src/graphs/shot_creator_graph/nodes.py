@@ -63,7 +63,7 @@ class LoadStory(BaseNode[ShotCreatorSession]):
                 is_parallel = seg['is_parallel']
 
                 if is_parallel and phase == 'exec':
-                    quest_ids = [get_node_info(n)[0] for n in nodes]
+                    quest_ids = sorted([get_node_info(n)[0] for n in nodes])
                     ctx.state.graph_segments.append(GraphSegment(
                         quest_id=quest_ids[0],
                         phase=phase,

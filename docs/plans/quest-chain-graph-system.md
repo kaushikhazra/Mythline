@@ -98,17 +98,22 @@ Implement a graph-based quest chain system that supports parallel quest pickups,
 ### 5.2 Handle parallel executions
 When multiple `.exec` nodes can run in parallel, determine order by:
 
-**Priority 1: Coordinates (if available)**
+**Priority 0: Alphabetical (default)** ✅ IMPLEMENTED
+- Sort quest IDs alphabetically (A, B, C, D)
+- Predictable, consistent ordering
+- Fallback when no other criteria available
+
+**Priority 1: Coordinates (if available)** ⏳ TODO
 - If execution has location coordinates from research
 - Order by distance from player's current position
 - Nearer locations first
 
-**Priority 2: Lore Continuity**
+**Priority 2: Lore Continuity** ⏳ TODO
 - Query knowledge base for connected events
 - Group related quests together
 - Follow narrative threads
 
-**Priority 3: Same Area Detection**
+**Priority 3: Same Area Detection** ⏳ TODO
 - If executions are in the same area/zone
 - Bake them together into a combined narrative segment
 - Single execution section covering multiple quest objectives
