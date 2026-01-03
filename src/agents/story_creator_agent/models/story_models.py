@@ -24,6 +24,7 @@ class QuestSection(BaseModel):
 
 
 class Quest(BaseModel):
+    id: str
     title: str
     sections: QuestSection
 

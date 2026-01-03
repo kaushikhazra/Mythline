@@ -20,7 +20,11 @@ from src.graphs.shot_creator_graph.nodes import (
     CreateShot,
     StoreShot,
     WriteShotsFile,
-    IncrementChunkIndex
+    IncrementChunkIndex,
+    InitializeGraphSegments,
+    CheckHasMoreGraphSegments,
+    ProcessGraphSegment,
+    IncrementGraphSegmentIndex
 )
 
 
@@ -48,7 +52,11 @@ class ShotCreatorGraph:
                 CreateShot,
                 StoreShot,
                 WriteShotsFile,
-                IncrementChunkIndex
+                IncrementChunkIndex,
+                InitializeGraphSegments,
+                CheckHasMoreGraphSegments,
+                ProcessGraphSegment,
+                IncrementGraphSegmentIndex
             ]
         )
 

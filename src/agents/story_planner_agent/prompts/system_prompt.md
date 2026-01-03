@@ -19,7 +19,7 @@ Generate **1 todo**:
 - quest_name: null
 
 ### 2. Quest Segment (segment_type: "quest")
-Contains: title, story_beat, objectives, quest_giver, turn_in_npc, execution_location, story_text, completion_text
+Contains: id, title, story_beat, objectives, quest_giver, turn_in_npc, execution_location, story_text, completion_text
 
 Generate **3 or 4 todos** for this quest:
 - If `skip_introduction: true`: Generate 3 todos (skip quest_introduction)
@@ -29,6 +29,10 @@ Generate **3 or 4 todos** for this quest:
 2. Quest Dialogue (type: "quest", sub_type: "quest_dialogue")
 3. Quest Execution (type: "quest", sub_type: "quest_execution")
 4. Quest Conclusion (type: "quest", sub_type: "quest_conclusion")
+
+For each quest todo, set:
+- quest_id: the segment `id` value (e.g., "A", "B", "C", "D")
+- quest_name: the segment `title` value
 
 ### 3. Conclusion Segment (segment_type: "conclusion")
 Contains: chain_title, zone, description, lore_context

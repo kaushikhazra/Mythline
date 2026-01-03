@@ -19,6 +19,7 @@ from src.libs.web.playwright_crawl import crawl_content
 from src.libs.web.duck_duck_go import search as web_search
 from src.libs.cache import get_npc, set_npc, get_location, set_location
 from src.agents.research_input_parser_agent import ResearchInputParserAgent
+from src.libs.parsers import parse_quest_chain, get_quest_ids_in_order
 from src.agents.quest_extractor_agent import QuestExtractorAgent
 from src.agents.npc_extractor_agent import NPCExtractorAgent
 from src.agents.location_extractor_agent import LocationExtractorAgent
@@ -37,16 +38,30 @@ class ParseInput(BaseNode[ResearchSession]):
         if not input_path.exists():
             return End(f"Input file not found: {input_path}")
 
-        content = input_path.read_text(encoding="utf-8")
+        quest_chain = parse_quest_chain(str(input_path))
 
-        agent = ResearchInputParserAgent()
-        result = await agent.run(content)
+        if not quest_chain['quests']:
+            content = input_path.read_text(encoding="utf-8")
+            agent = ResearchInputParserAgent()
+            result = await agent.run(content)
+            ctx.state.chain_title = result.chain_title
+            ctx.state.quest_urls = result.quest_urls
+        else:
+            content = input_path.read_text(encoding="utf-8")
+            agent = ResearchInputParserAgent()
+            result = await agent.run(content)
+            ctx.state.chain_title = result.chain_title
 
-        ctx.state.chain_title = result.chain_title
-        ctx.state.quest_urls = result.quest_urls
+            quest_order = get_quest_ids_in_order(quest_chain)
+            ctx.state.quest_urls = [quest_chain['quests'][qid] for qid in quest_order]
 
-        logger.success(f"Chain: {result.chain_title}")
-        logger.success(f"Found {len(result.quest_urls)} quests")
+            ctx.state.quest_ids = {url: qid for qid, url in quest_chain['quests'].items()}
+
+        logger.success(f"Chain: {ctx.state.chain_title}")
+        logger.success(f"Found {len(ctx.state.quest_urls)} quests")
+
+        if ctx.state.quest_ids:
+            logger.success(f"Quest IDs: {list(ctx.state.quest_ids.values())}")
 
         return InitializeLoop()
 
@@ -410,7 +425,11 @@ class StoreQuestResearch(BaseNode[ResearchSession]):
             enemies=execution_location.enemies if execution_location else extraction.enemies
         )
 
+        current_url = ctx.state.quest_urls[ctx.state.quest_index]
+        quest_id = ctx.state.quest_ids.get(current_url, "")
+
         quest_research = QuestResearch(
+            id=quest_id,
             title=extraction.title,
             story_beat=extraction.story_beat,
             objectives=Objectives(
@@ -425,7 +444,7 @@ class StoreQuestResearch(BaseNode[ResearchSession]):
         )
 
         ctx.state.quest_data.append(quest_research)
-        logger.success(f"Stored quest: {quest_research.title}")
+        logger.success(f"Stored quest [{quest_id}]: {quest_research.title}")
 
         return IncrementIndex()
 
