@@ -48,6 +48,8 @@ class QuestResearch(BaseModel):
 
 class Setting(BaseModel):
     zone: str
+    starting_location: str | None = None
+    journey: str | None = None
     description: str
     lore_context: str
 

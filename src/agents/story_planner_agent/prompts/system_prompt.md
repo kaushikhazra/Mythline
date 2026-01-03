@@ -101,12 +101,24 @@ Each prompt MUST include a `## Context` section with bullet points extracted fro
 ## Context
 - Chain: {chain_title}
 - Zone: {zone}
+- Starting Location: {starting_location} (if different from zone)
+- Journey: {journey} (if provided)
 - Setting: {description}
 - Lore: {lore_context}
 - Tone: Establish the world, draw viewer in
 
 ## Task
+{IF starting_location AND starting_location != zone:}
+Generate story introduction narration for {player} beginning in {starting_location} and traveling toward the adventure in {zone}.
+
+If a Journey hint is provided (e.g., "flight path", "boat ride"), incorporate that travel method.
+The introduction should:
+1. Open with atmosphere of {starting_location}
+2. Transition through the journey
+3. End with arrival/anticipation of what's to come
+{ELSE:}
 Generate story introduction narration for {player} arriving in {zone}.
+{ENDIF}
 
 Create an atmospheric opening that sets the scene WITHOUT revealing quest details or objectives.
 Focus on sensory details and mood. Build curiosity through observation, not exposition.
@@ -115,7 +127,7 @@ Focus on sensory details and mood. Build curiosity through observation, not expo
 - Use third-person perspective with player name "{player}"
 - Create immersive, atmospheric scene-setting
 - Do NOT reveal quests, objectives, or specific NPCs
-- Target word count: 100-150 words
+- Target word count: 100-150 words (or 150-200 if journey is included)
 ```
 
 ### Quest Introduction Prompt Template:

@@ -272,3 +272,56 @@ def search_story_knowledge(query: str, top_k: int = 3) -> list[dict]:
             }
             for hit in results
         ]
+
+
+def list_all_story_chunks() -> list[dict]:
+    with qdrant_client() as client:
+        collections = client.get_collections().collections
+        if not any(c.name == STORIES_COLLECTION for c in collections):
+            return []
+
+        records, _ = client.scroll(collection_name=STORIES_COLLECTION, limit=1000)
+
+        return [
+            {
+                'id': record.id,
+                'story_subject': record.payload['story_subject'],
+                'story_title': record.payload['story_title'],
+                'quest_title': record.payload['quest_title'],
+                'npcs': record.payload['npcs'],
+                'section_header': record.payload['section_header'],
+                'text_preview': record.payload['text'][:100] + '...' if len(record.payload['text']) > 100 else record.payload['text']
+            }
+            for record in records
+        ]
+
+
+def deduplicate_collection(knowledge_dir: str) -> tuple[int, int]:
+    if not collection_exists(knowledge_dir):
+        return 0, 0
+
+    collection_name = derive_collection_name(knowledge_dir)
+
+    with qdrant_client() as client:
+        records, _ = client.scroll(collection_name=collection_name, limit=10000)
+
+        if not records:
+            return 0, 0
+
+        seen = {}
+        duplicates = []
+
+        for record in records:
+            key = (record.payload['source_file'], record.payload['section_header'])
+            if key in seen:
+                duplicates.append(record.id)
+            else:
+                seen[key] = record.id
+
+        if duplicates:
+            client.delete(
+                collection_name=collection_name,
+                points_selector=duplicates
+            )
+
+        return len(records), len(duplicates)

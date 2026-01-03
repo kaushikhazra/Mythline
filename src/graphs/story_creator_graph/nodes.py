@@ -102,6 +102,8 @@ class GetStoryResearch(BaseNode[StorySession]):
             "segment_type": segment_type,
             "chain_title": research_data.get('chain_title', ''),
             "zone": setting.get('zone', ''),
+            "starting_location": setting.get('starting_location', ''),
+            "journey": setting.get('journey', ''),
             "description": setting.get('description', ''),
             "lore_context": setting.get('lore_context', '')
         }

@@ -15,6 +15,7 @@ class ResearchSession:
     chain_title: str = ""
     quest_urls: list[str] = field(default_factory=list)
     quest_ids: dict[str, str] = field(default_factory=dict)
+    parsed_setting: dict = field(default_factory=dict)
 
     quest_contents: dict[str, str] = field(default_factory=dict)
     npc_contents: dict[str, str] = field(default_factory=dict)

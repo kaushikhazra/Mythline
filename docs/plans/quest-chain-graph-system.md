@@ -38,6 +38,31 @@ Implement a graph-based quest chain system that supports parallel quest pickups,
   - Quest ID to URL mapping
   - Mermaid graph edges
 
+### 2.3 Setting section in quest-chain.md ✅ NEW
+The `quest-chain.md` file now supports a Setting section:
+
+```markdown
+## Setting
+- Start: Darnassus
+- Zone: Darkshore
+- Journey: Flight path from Darnassus to Lor'danel
+
+## Quests
+- A: https://...
+```
+
+| Field | Required | Purpose |
+|-------|----------|---------|
+| Start | Yes | Where player begins (intro atmosphere) |
+| Zone | Yes | Where quests happen (lore context, reduces hallucination) |
+| Journey | No | How player travels to first quest (optional hint) |
+
+**Data flow:**
+1. Parser extracts Start, Zone, Journey from quest-chain.md
+2. Setting extractor uses Zone for lore_context
+3. Story intro prompt receives Start + first quest giver location + Journey hint
+4. Introduction describes: atmosphere at Start → journey → arrival at first quest
+
 ---
 
 ## Phase 3: Story Output Modification

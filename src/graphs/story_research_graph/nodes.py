@@ -13,7 +13,8 @@ from src.graphs.story_research_graph.models.research_models import (
     NPC,
     Location,
     ExecutionLocation,
-    Objectives
+    Objectives,
+    Setting
 )
 from src.libs.web.playwright_crawl import crawl_content
 from src.libs.web.duck_duck_go import search as web_search
@@ -57,11 +58,17 @@ class ParseInput(BaseNode[ResearchSession]):
 
             ctx.state.quest_ids = {url: qid for qid, url in quest_chain['quests'].items()}
 
+            if quest_chain.get('setting'):
+                ctx.state.parsed_setting = quest_chain['setting']
+
         logger.success(f"Chain: {ctx.state.chain_title}")
         logger.success(f"Found {len(ctx.state.quest_urls)} quests")
 
         if ctx.state.quest_ids:
             logger.success(f"Quest IDs: {list(ctx.state.quest_ids.values())}")
+
+        if ctx.state.parsed_setting.get('start'):
+            logger.success(f"Starting location: {ctx.state.parsed_setting['start']}")
 
         return InitializeLoop()
 
@@ -463,7 +470,15 @@ class ExtractSetting(BaseNode[ResearchSession]):
     async def run(self, ctx: GraphRunContext[ResearchSession]) -> SynthesizeBrief:
         logger.info("ExtractSetting")
 
+        parsed_setting = ctx.state.parsed_setting
+        specified_zone = parsed_setting.get('zone')
+        starting_location = parsed_setting.get('start')
+        journey = parsed_setting.get('journey')
+
         collected_data = f"Chain: {ctx.state.chain_title}\n\n"
+
+        if specified_zone:
+            collected_data += f"Primary Zone: {specified_zone}\n\n"
 
         for quest in ctx.state.quest_data:
             collected_data += f"Quest: {quest.title}\n"
@@ -474,8 +489,27 @@ class ExtractSetting(BaseNode[ResearchSession]):
         agent = StorySettingExtractorAgent()
         setting = await agent.run(collected_data)
 
+        if specified_zone:
+            setting = Setting(
+                zone=specified_zone,
+                starting_location=starting_location,
+                journey=journey,
+                description=setting.description,
+                lore_context=setting.lore_context
+            )
+        else:
+            setting = Setting(
+                zone=setting.zone,
+                starting_location=starting_location,
+                journey=journey,
+                description=setting.description,
+                lore_context=setting.lore_context
+            )
+
         ctx.state.setting = setting
         logger.success(f"Setting extracted: {setting.zone}")
+        if starting_location:
+            logger.success(f"Starting location: {starting_location}")
 
         return SynthesizeBrief()
 

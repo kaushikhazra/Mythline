@@ -9,13 +9,37 @@ def parse_quest_chain(file_path: str) -> dict:
 
     quests = _parse_quests_section(content)
     edges, nodes = _parse_mermaid_graph(content)
+    setting = _parse_setting_section(content)
 
     return {
         'quests': quests,
         'edges': edges,
         'nodes': nodes,
-        'graph': _build_adjacency_list(edges)
+        'graph': _build_adjacency_list(edges),
+        'setting': setting
     }
+
+
+def _parse_setting_section(content: str) -> dict:
+    setting = {
+        'start': None,
+        'zone': None,
+        'journey': None
+    }
+
+    start_match = re.search(r'^- Start:\s*(.+)$', content, re.MULTILINE)
+    if start_match:
+        setting['start'] = start_match.group(1).strip()
+
+    zone_match = re.search(r'^- Zone:\s*(.+)$', content, re.MULTILINE)
+    if zone_match:
+        setting['zone'] = zone_match.group(1).strip()
+
+    journey_match = re.search(r'^- Journey:\s*(.+)$', content, re.MULTILINE)
+    if journey_match:
+        setting['journey'] = journey_match.group(1).strip()
+
+    return setting
 
 
 def _parse_quests_section(content: str) -> dict:
