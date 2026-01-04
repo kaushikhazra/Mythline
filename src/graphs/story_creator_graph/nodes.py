@@ -100,16 +100,22 @@ class GetStoryResearch(BaseNode[StorySession]):
         setting = research_data.get('setting', {})
         roleplay = research_data.get('roleplay', {})
         roleplay_key = segment_type.title()
-        return {
+        roleplay_text = roleplay.get(roleplay_key)
+
+        segment = {
             "segment_type": segment_type,
             "chain_title": research_data.get('chain_title', ''),
             "zone": setting.get('zone', ''),
             "starting_location": setting.get('starting_location', ''),
             "journey": setting.get('journey', ''),
             "description": setting.get('description', ''),
-            "lore_context": setting.get('lore_context', ''),
-            "roleplay": roleplay.get(roleplay_key, '')
+            "lore_context": setting.get('lore_context', '')
         }
+
+        if roleplay_text:
+            segment["roleplay"] = roleplay_text
+
+        return segment
 
     def _get_quest_segment(self, research_data: dict, quest_index: int) -> dict:
         quest = research_data.get('quests', [])[quest_index]
@@ -128,7 +134,7 @@ class GetStoryResearch(BaseNode[StorySession]):
                 "landmarks": loc.get('landmarks', '')
             }
 
-        return {
+        segment = {
             "segment_type": "quest",
             "id": quest_id,
             "title": quest.get('title', ''),
@@ -154,13 +160,21 @@ class GetStoryResearch(BaseNode[StorySession]):
                 "landmarks": exec_loc.get('landmarks', '')
             },
             "story_text": quest.get('story_text', ''),
-            "completion_text": quest.get('completion_text', ''),
-            "roleplay": {
-                "accept": roleplay.get(f'{quest_id}.accept', ''),
-                "exec": roleplay.get(f'{quest_id}.exec', ''),
-                "complete": roleplay.get(f'{quest_id}.complete', '')
-            }
+            "completion_text": quest.get('completion_text', '')
         }
+
+        quest_roleplay = {}
+        if roleplay.get(f'{quest_id}.accept'):
+            quest_roleplay['accept'] = roleplay[f'{quest_id}.accept']
+        if roleplay.get(f'{quest_id}.exec'):
+            quest_roleplay['exec'] = roleplay[f'{quest_id}.exec']
+        if roleplay.get(f'{quest_id}.complete'):
+            quest_roleplay['complete'] = roleplay[f'{quest_id}.complete']
+
+        if quest_roleplay:
+            segment["roleplay"] = quest_roleplay
+
+        return segment
 
 
 @dataclass
