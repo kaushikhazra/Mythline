@@ -200,7 +200,114 @@ class CreateTODO(BaseNode[StorySession]):
         todos.extend(intro_todos)
         print(colored(f"[+] Introduction: {len(intro_todos)} todos", "green"))
 
+        execution_order = research_data.get('execution_order', [])
         quests = research_data.get('quests', [])
+        quest_by_id = {q.get('id'): q for q in quests}
+        quest_index_by_id = {q.get('id'): i for i, q in enumerate(quests)}
+
+        if execution_order:
+            todos.extend(await self._generate_todos_by_flow(
+                ctx, execution_order, quests, quest_by_id, quest_index_by_id
+            ))
+        else:
+            todos.extend(await self._generate_todos_sequential(ctx, quests))
+
+        print(colored("[*] Processing conclusion segment...", "cyan"))
+        conclusion_segment = self.research_node._get_settings_segment(research_data, "conclusion")
+        conclusion_todos = await self.planner_agent.run(conclusion_segment, ctx.state.player)
+        todos.extend(conclusion_todos)
+        print(colored(f"[+] Conclusion: {len(conclusion_todos)} todos", "green"))
+
+        ctx.state.todo_list = todos
+
+        print(colored(f"[+] Plan created with {len(ctx.state.todo_list)} todos", "green"))
+        save_progress(ctx.state.subject, "in_progress", f"Plan created with {len(ctx.state.todo_list)} todos", 0, len(ctx.state.todo_list))
+
+        todo_cache_file = f"output/{ctx.state.subject}/todo.json"
+        print(colored(f"[*] Saving todo list to {todo_cache_file}...", "cyan"))
+        try:
+            todos_data = [todo.model_dump() for todo in ctx.state.todo_list]
+            write_file(todo_cache_file, json.dumps(todos_data, indent=2))
+            print(colored(f"[+] Todo list cached successfully", "green"))
+        except Exception as e:
+            print(colored(f"[!] Failed to cache todos: {e}", "yellow"))
+
+        return GetNextTODO()
+
+    async def _generate_todos_by_flow(self, ctx, execution_order, quests, quest_by_id, quest_index_by_id):
+        todos = []
+        research_data = ctx.state.research_data
+        total_quests = len(quests)
+
+        accept_order = []
+        complete_order = []
+        for seg in execution_order:
+            phase = seg.get('phase') if isinstance(seg, dict) else seg.phase
+            nodes = seg.get('nodes') if isinstance(seg, dict) else seg.nodes
+            if phase == 'accept':
+                accept_order.extend([n.split('.')[0] for n in nodes])
+            elif phase == 'complete':
+                complete_order.extend([n.split('.')[0] for n in nodes])
+
+        previous_accept_quest = None
+
+        for seg in execution_order:
+            phase = seg.get('phase') if isinstance(seg, dict) else seg.phase
+            nodes = seg.get('nodes') if isinstance(seg, dict) else seg.nodes
+            is_parallel = seg.get('is_parallel') if isinstance(seg, dict) else seg.is_parallel
+
+            for node in sorted(nodes):
+                quest_id = node.split('.')[0]
+                quest = quest_by_id.get(quest_id)
+                if not quest:
+                    continue
+
+                quest_index = quest_index_by_id.get(quest_id, 0)
+                quest_title = quest.get('title', f'Quest {quest_id}')
+                quest_segment = self.research_node._get_quest_segment(research_data, quest_index)
+
+                quest_segment['quest_position'] = accept_order.index(quest_id) + 1 if quest_id in accept_order else quest_index + 1
+                quest_segment['total_quests'] = total_quests
+                quest_segment['is_first_quest'] = (accept_order[0] == quest_id) if accept_order else (quest_index == 0)
+                quest_segment['is_final_quest'] = (complete_order[-1] == quest_id) if complete_order else (quest_index == total_quests - 1)
+                quest_segment['target_phase'] = phase
+
+                if phase == 'accept':
+                    if previous_accept_quest:
+                        prev_quest = quest_by_id.get(previous_accept_quest)
+                        if prev_quest:
+                            prev_quest_giver = prev_quest.get('quest_giver', {}).get('name', '')
+                            current_quest_giver = quest.get('quest_giver', {}).get('name', '')
+                            prev_turn_in_npc = prev_quest.get('turn_in_npc', {}).get('name', '')
+                            quest_segment['previous_quest'] = {
+                                'title': prev_quest.get('title'),
+                                'completion_text': prev_quest.get('completion_text', '')[:500]
+                            }
+                            quest_segment['same_npc_as_previous'] = (prev_quest_giver == current_quest_giver)
+                            quest_segment['skip_introduction'] = (prev_turn_in_npc == current_quest_giver)
+                    previous_accept_quest = quest_id
+
+                    next_accept_idx = accept_order.index(quest_id) + 1 if quest_id in accept_order else -1
+                    if next_accept_idx > 0 and next_accept_idx < len(accept_order):
+                        next_quest_id = accept_order[next_accept_idx]
+                        next_quest = quest_by_id.get(next_quest_id)
+                        if next_quest:
+                            quest_segment['next_quest'] = {
+                                'title': next_quest.get('title'),
+                                'story_beat': next_quest.get('story_beat', '')[:200]
+                            }
+
+                print(colored(f"[*] Processing {quest_title} ({phase})...", "cyan"))
+                phase_todos = await self.planner_agent.run(quest_segment, ctx.state.player)
+                todos.extend(phase_todos)
+                print(colored(f"[+] {quest_title} ({phase}): {len(phase_todos)} todos", "green"))
+
+        return todos
+
+    async def _generate_todos_sequential(self, ctx, quests):
+        todos = []
+        research_data = ctx.state.research_data
+
         for i, quest in enumerate(quests):
             quest_title = quest.get('title', f'Quest {i+1}')
             print(colored(f"[*] Processing quest segment: {quest_title}...", "cyan"))
@@ -234,27 +341,7 @@ class CreateTODO(BaseNode[StorySession]):
             todos.extend(quest_todos)
             print(colored(f"[+] {quest_title}: {len(quest_todos)} todos", "green"))
 
-        print(colored("[*] Processing conclusion segment...", "cyan"))
-        conclusion_segment = self.research_node._get_settings_segment(research_data, "conclusion")
-        conclusion_todos = await self.planner_agent.run(conclusion_segment, ctx.state.player)
-        todos.extend(conclusion_todos)
-        print(colored(f"[+] Conclusion: {len(conclusion_todos)} todos", "green"))
-
-        ctx.state.todo_list = todos
-
-        print(colored(f"[+] Plan created with {len(ctx.state.todo_list)} todos", "green"))
-        save_progress(ctx.state.subject, "in_progress", f"Plan created with {len(ctx.state.todo_list)} todos", 0, len(ctx.state.todo_list))
-
-        todo_cache_file = f"output/{ctx.state.subject}/todo.json"
-        print(colored(f"[*] Saving todo list to {todo_cache_file}...", "cyan"))
-        try:
-            todos_data = [todo.model_dump() for todo in ctx.state.todo_list]
-            write_file(todo_cache_file, json.dumps(todos_data, indent=2))
-            print(colored(f"[+] Todo list cached successfully", "green"))
-        except Exception as e:
-            print(colored(f"[!] Failed to cache todos: {e}", "yellow"))
-
-        return GetNextTODO()
+        return todos
 
 
 @dataclass

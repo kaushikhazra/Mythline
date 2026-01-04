@@ -54,11 +54,18 @@ class Setting(BaseModel):
     lore_context: str
 
 
+class FlowSegment(BaseModel):
+    nodes: list[str]
+    is_parallel: bool
+    phase: str
+
+
 class ResearchBrief(BaseModel):
     chain_title: str
     setting: Setting
     quests: list[QuestResearch]
     roleplay: dict[str, str] = {}
+    execution_order: list[FlowSegment] = []
 
 
 class QuestChainInput(BaseModel):

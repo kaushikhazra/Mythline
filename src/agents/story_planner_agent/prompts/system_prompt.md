@@ -21,7 +21,12 @@ Generate **1 todo**:
 ### 2. Quest Segment (segment_type: "quest")
 Contains: id, title, story_beat, objectives, quest_giver, turn_in_npc, execution_location, story_text, completion_text, roleplay
 
-Generate **3 or 4 todos** for this quest:
+**If `target_phase` is specified**, generate todos for ONLY that phase:
+- `target_phase: "accept"` → quest_introduction (if not skip_introduction) + quest_dialogue
+- `target_phase: "exec"` → quest_execution only
+- `target_phase: "complete"` → quest_conclusion only
+
+**If `target_phase` is NOT specified** (legacy mode), generate all 3-4 todos:
 - If `skip_introduction: true`: Generate 3 todos (skip quest_introduction)
 - Otherwise: Generate 4 todos (include quest_introduction)
 

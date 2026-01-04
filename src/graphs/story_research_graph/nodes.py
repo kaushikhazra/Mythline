@@ -14,13 +14,14 @@ from src.graphs.story_research_graph.models.research_models import (
     Location,
     ExecutionLocation,
     Objectives,
-    Setting
+    Setting,
+    FlowSegment
 )
 from src.libs.web.playwright_crawl import crawl_content
 from src.libs.web.duck_duck_go import search as web_search
 from src.libs.cache import get_npc, set_npc, get_location, set_location
 from src.agents.research_input_parser_agent import ResearchInputParserAgent
-from src.libs.parsers import parse_quest_chain, get_quest_ids_in_order
+from src.libs.parsers import parse_quest_chain, get_quest_ids_in_order, get_execution_order
 from src.agents.quest_extractor_agent import QuestExtractorAgent
 from src.agents.npc_extractor_agent import NPCExtractorAgent
 from src.agents.location_extractor_agent import LocationExtractorAgent
@@ -63,6 +64,8 @@ class ParseInput(BaseNode[ResearchSession]):
 
             if quest_chain.get('roleplay'):
                 ctx.state.parsed_roleplay = quest_chain['roleplay']
+
+            ctx.state.parsed_quest_chain = quest_chain
 
         logger.success(f"Chain: {ctx.state.chain_title}")
         logger.success(f"Found {len(ctx.state.quest_urls)} quests")
@@ -529,11 +532,21 @@ class SynthesizeBrief(BaseNode[ResearchSession]):
     async def run(self, ctx: GraphRunContext[ResearchSession]) -> SaveJSON:
         logger.info("SynthesizeBrief")
 
+        execution_order = []
+        if ctx.state.parsed_quest_chain:
+            raw_segments = get_execution_order(ctx.state.parsed_quest_chain)
+            execution_order = [
+                FlowSegment(nodes=seg['nodes'], is_parallel=seg['is_parallel'], phase=seg['phase'])
+                for seg in raw_segments
+            ]
+            logger.success(f"Execution order: {len(execution_order)} segments")
+
         research_brief = ResearchBrief(
             chain_title=ctx.state.chain_title,
             setting=ctx.state.setting,
             quests=ctx.state.quest_data,
-            roleplay=ctx.state.parsed_roleplay
+            roleplay=ctx.state.parsed_roleplay,
+            execution_order=execution_order
         )
 
         ctx.state.research_brief = research_brief

@@ -17,6 +17,7 @@ class ResearchSession:
     quest_ids: dict[str, str] = field(default_factory=dict)
     parsed_setting: dict = field(default_factory=dict)
     parsed_roleplay: dict[str, str] = field(default_factory=dict)
+    parsed_quest_chain: dict = field(default_factory=dict)
 
     quest_contents: dict[str, str] = field(default_factory=dict)
     npc_contents: dict[str, str] = field(default_factory=dict)
