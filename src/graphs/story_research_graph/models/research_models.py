@@ -58,6 +58,7 @@ class ResearchBrief(BaseModel):
     chain_title: str
     setting: Setting
     quests: list[QuestResearch]
+    roleplay: dict[str, str] = {}
 
 
 class QuestChainInput(BaseModel):

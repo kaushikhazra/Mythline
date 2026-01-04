@@ -98,6 +98,8 @@ class GetStoryResearch(BaseNode[StorySession]):
 
     def _get_settings_segment(self, research_data: dict, segment_type: str) -> dict:
         setting = research_data.get('setting', {})
+        roleplay = research_data.get('roleplay', {})
+        roleplay_key = segment_type.title()
         return {
             "segment_type": segment_type,
             "chain_title": research_data.get('chain_title', ''),
@@ -105,7 +107,8 @@ class GetStoryResearch(BaseNode[StorySession]):
             "starting_location": setting.get('starting_location', ''),
             "journey": setting.get('journey', ''),
             "description": setting.get('description', ''),
-            "lore_context": setting.get('lore_context', '')
+            "lore_context": setting.get('lore_context', ''),
+            "roleplay": roleplay.get(roleplay_key, '')
         }
 
     def _get_quest_segment(self, research_data: dict, quest_index: int) -> dict:
@@ -113,6 +116,8 @@ class GetStoryResearch(BaseNode[StorySession]):
         quest_giver = quest.get('quest_giver', {})
         turn_in_npc = quest.get('turn_in_npc', {})
         exec_loc = quest.get('execution_location', {})
+        roleplay = research_data.get('roleplay', {})
+        quest_id = quest.get('id', '')
 
         def extract_location(loc: dict) -> dict:
             area = loc.get('area', {})
@@ -125,7 +130,7 @@ class GetStoryResearch(BaseNode[StorySession]):
 
         return {
             "segment_type": "quest",
-            "id": quest.get('id', ''),
+            "id": quest_id,
             "title": quest.get('title', ''),
             "story_beat": quest.get('story_beat', ''),
             "objectives": quest.get('objectives', {}),
@@ -149,7 +154,12 @@ class GetStoryResearch(BaseNode[StorySession]):
                 "landmarks": exec_loc.get('landmarks', '')
             },
             "story_text": quest.get('story_text', ''),
-            "completion_text": quest.get('completion_text', '')
+            "completion_text": quest.get('completion_text', ''),
+            "roleplay": {
+                "accept": roleplay.get(f'{quest_id}.accept', ''),
+                "exec": roleplay.get(f'{quest_id}.exec', ''),
+                "complete": roleplay.get(f'{quest_id}.complete', '')
+            }
         }
 
 

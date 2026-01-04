@@ -10,13 +10,15 @@ def parse_quest_chain(file_path: str) -> dict:
     quests = _parse_quests_section(content)
     edges, nodes = _parse_mermaid_graph(content)
     setting = _parse_setting_section(content)
+    roleplay = _parse_roleplay_section(content, quests.keys())
 
     return {
         'quests': quests,
         'edges': edges,
         'nodes': nodes,
         'graph': _build_adjacency_list(edges),
-        'setting': setting
+        'setting': setting,
+        'roleplay': roleplay
     }
 
 
@@ -40,6 +42,44 @@ def _parse_setting_section(content: str) -> dict:
         setting['journey'] = journey_match.group(1).strip()
 
     return setting
+
+
+def _parse_roleplay_section(content: str, quest_ids: list[str]) -> dict:
+    roleplay_match = re.search(r'## Roleplay\s*\n(.*?)(?=\n## |\Z)', content, re.DOTALL)
+    if not roleplay_match:
+        return {}
+
+    roleplay_content = roleplay_match.group(1)
+
+    valid_keys = _build_roleplay_keys(quest_ids)
+    key_pattern = re.compile(r'^(' + '|'.join(re.escape(k) for k in valid_keys) + r'):\s*$', re.MULTILINE)
+
+    matches = list(key_pattern.finditer(roleplay_content))
+    if not matches:
+        return {}
+
+    roleplay = {}
+    for i, match in enumerate(matches):
+        key = match.group(1)
+        start_pos = match.end()
+
+        if i + 1 < len(matches):
+            end_pos = matches[i + 1].start()
+        else:
+            end_pos = len(roleplay_content)
+
+        value = roleplay_content[start_pos:end_pos].strip()
+        if value:
+            roleplay[key] = value
+
+    return roleplay
+
+
+def _build_roleplay_keys(quest_ids: list[str]) -> list[str]:
+    keys = ['Introduction', 'Conclusion']
+    for qid in quest_ids:
+        keys.extend([f'{qid}.accept', f'{qid}.exec', f'{qid}.complete'])
+    return keys
 
 
 def _parse_quests_section(content: str) -> dict:

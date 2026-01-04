@@ -61,6 +61,9 @@ class ParseInput(BaseNode[ResearchSession]):
             if quest_chain.get('setting'):
                 ctx.state.parsed_setting = quest_chain['setting']
 
+            if quest_chain.get('roleplay'):
+                ctx.state.parsed_roleplay = quest_chain['roleplay']
+
         logger.success(f"Chain: {ctx.state.chain_title}")
         logger.success(f"Found {len(ctx.state.quest_urls)} quests")
 
@@ -69,6 +72,9 @@ class ParseInput(BaseNode[ResearchSession]):
 
         if ctx.state.parsed_setting.get('start'):
             logger.success(f"Starting location: {ctx.state.parsed_setting['start']}")
+
+        if ctx.state.parsed_roleplay:
+            logger.success(f"Roleplay sections: {list(ctx.state.parsed_roleplay.keys())}")
 
         return InitializeLoop()
 
@@ -526,7 +532,8 @@ class SynthesizeBrief(BaseNode[ResearchSession]):
         research_brief = ResearchBrief(
             chain_title=ctx.state.chain_title,
             setting=ctx.state.setting,
-            quests=ctx.state.quest_data
+            quests=ctx.state.quest_data,
+            roleplay=ctx.state.parsed_roleplay
         )
 
         ctx.state.research_brief = research_brief

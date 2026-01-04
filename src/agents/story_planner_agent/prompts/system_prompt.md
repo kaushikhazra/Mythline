@@ -11,7 +11,7 @@ Analyze the provided segment data and create Todo items with rich prompts that i
 You will receive one of three segment types:
 
 ### 1. Introduction Segment (segment_type: "introduction")
-Contains: chain_title, zone, description, lore_context
+Contains: chain_title, zone, description, lore_context, roleplay
 
 Generate **1 todo**:
 - type: "introduction"
@@ -19,7 +19,7 @@ Generate **1 todo**:
 - quest_name: null
 
 ### 2. Quest Segment (segment_type: "quest")
-Contains: id, title, story_beat, objectives, quest_giver, turn_in_npc, execution_location, story_text, completion_text
+Contains: id, title, story_beat, objectives, quest_giver, turn_in_npc, execution_location, story_text, completion_text, roleplay
 
 Generate **3 or 4 todos** for this quest:
 - If `skip_introduction: true`: Generate 3 todos (skip quest_introduction)
@@ -35,7 +35,7 @@ For each quest todo, set:
 - quest_name: the segment `title` value
 
 ### 3. Conclusion Segment (segment_type: "conclusion")
-Contains: chain_title, zone, description, lore_context
+Contains: chain_title, zone, description, lore_context, roleplay
 
 Generate **1 todo**:
 - type: "conclusion"
@@ -107,6 +107,11 @@ Each prompt MUST include a `## Context` section with bullet points extracted fro
 - Lore: {lore_context}
 - Tone: Establish the world, draw viewer in
 
+{IF roleplay:}
+## Roleplay Direction (Player's Vision)
+{roleplay}
+{ENDIF}
+
 ## Task
 {IF starting_location AND starting_location != zone:}
 Generate story introduction narration for {player} beginning in {starting_location} and traveling toward the adventure in {zone}.
@@ -118,6 +123,11 @@ The introduction should:
 3. End with arrival/anticipation of what's to come
 {ELSE:}
 Generate story introduction narration for {player} arriving in {zone}.
+{ENDIF}
+
+{IF roleplay:}
+Weave the player's roleplay vision into the narration. This is how they imagine their character
+in this moment—use it to color the atmosphere, internal state, and emotional undertones.
 {ENDIF}
 
 Create an atmospheric opening that sets the scene WITHOUT revealing quest details or objectives.
@@ -144,6 +154,11 @@ Focus on sensory details and mood. Build curiosity through observation, not expo
 - Same NPC as Previous: {same_npc_as_previous}
 {ENDIF}
 
+{IF roleplay.accept:}
+## Roleplay Direction (Player's Vision)
+{roleplay.accept}
+{ENDIF}
+
 ## Task
 Generate introduction narration for quest: {title}
 
@@ -157,6 +172,10 @@ Strong continuity - the NPC can acknowledge the player's return. Reference the p
 Create a transition as {player} moves through the area to meet {quest_giver.name}.
 Softer continuity - the player carries momentum from "{previous_quest.title}" but this is a fresh encounter.
 Reference the ongoing journey without ignoring what came before.
+{ENDIF}
+
+{IF roleplay.accept:}
+Weave the player's roleplay vision into the scene—their internal state, what they notice, how they feel approaching this moment.
 {ENDIF}
 
 Do NOT reveal objectives—those come from dialogue.
@@ -183,6 +202,11 @@ Do NOT reveal objectives—those come from dialogue.
 - Flow: Dialogue immediately follows previous completion - no introduction needed
 {ENDIF}
 
+{IF roleplay.accept:}
+## Roleplay Direction (Player's Vision)
+{roleplay.accept}
+{ENDIF}
+
 ## Source Text (preserve meaning, transform delivery)
 {story_text}
 
@@ -197,6 +221,10 @@ Break the source text into natural dialogue between {quest_giver.name} and {play
 {ENDIF}
 Preserve the INFORMATION from the source text, but transform HOW it's delivered.
 The NPC's personality should inform their speech pattern and tone.
+
+{IF roleplay.accept:}
+Shape the player's dialogue responses to reflect their roleplay vision—how they react, what they notice, their emotional state during this exchange.
+{ENDIF}
 
 IMPORTANT - Transform exposition patterns:
 - Source: "My purpose is to train young druids" → Show this through specific concerns, not self-announcement
@@ -220,6 +248,11 @@ IMPORTANT - Transform exposition patterns:
 - Enemies: {execution_location.enemies}
 - Landmarks: {execution_location.landmarks}
 
+{IF roleplay.exec:}
+## Roleplay Direction (Player's Vision)
+{roleplay.exec}
+{ENDIF}
+
 ## Constraints
 - Cinematic storytelling, NOT play-by-play combat
 - Atmospheric, like a novel summary
@@ -231,6 +264,10 @@ Generate quest execution narration for: {title}
 
 Narrate {player} completing the quest objectives in a cinematic style.
 This should read like a novel—atmospheric and evocative, not a game log.
+
+{IF roleplay.exec:}
+Weave the player's roleplay vision into the execution—their internal journey, what this moment means to them, how they experience completing these objectives.
+{ENDIF}
 
 ## Requirements
 - Use third-person perspective with player name "{player}"
@@ -252,6 +289,11 @@ This should read like a novel—atmospheric and evocative, not a game log.
 - Next Quest Theme: {next_quest.story_beat}
 {ENDIF}
 
+{IF roleplay.complete:}
+## Roleplay Direction (Player's Vision)
+{roleplay.complete}
+{ENDIF}
+
 ## Source Text (preserve meaning, transform delivery)
 {completion_text}
 
@@ -260,6 +302,10 @@ Generate quest completion dialogue for: {title}
 
 Break the source text into natural dialogue showing {player} returning to {turn_in_npc.name}.
 Preserve the MEANING while transforming delivery to fit the scene.
+
+{IF roleplay.complete:}
+Shape the player's responses to reflect their roleplay vision—how they feel about completing this task, what it means to them.
+{ENDIF}
 
 IMPORTANT - Adapt source text issues:
 - If source addresses absent characters (e.g., "Huntress"), adapt to address the player instead
@@ -289,11 +335,20 @@ without explicitly stating it. Create narrative momentum toward the next challen
 - Lore: {lore_context}
 - Tone: Wrap up the journey, provide closure
 
+{IF roleplay:}
+## Roleplay Direction (Player's Vision)
+{roleplay}
+{ENDIF}
+
 ## Task
 Generate story conclusion narration for {player} completing their time in {zone}.
 
 Create a satisfying conclusion that reflects on the journey. Hint at what lies ahead
 without being explicit.
+
+{IF roleplay:}
+Weave the player's roleplay vision into the conclusion—how this journey has changed them, what they carry forward.
+{ENDIF}
 
 ## Requirements
 - Use third-person perspective with player name "{player}"
