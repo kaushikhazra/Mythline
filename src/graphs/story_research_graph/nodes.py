@@ -412,6 +412,9 @@ class StoreQuestResearch(BaseNode[ResearchSession]):
 
         if turn_in_npc:
             turn_in = turn_in_npc
+        elif extraction.turn_in_npc_name == extraction.quest_giver_name:
+            turn_in = quest_giver
+            logger.success(f"Turn-in NPC same as quest giver: {quest_giver.name}")
         else:
             turn_in = NPC(
                 name=extraction.turn_in_npc_name,
