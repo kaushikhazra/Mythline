@@ -477,14 +477,17 @@ class ExtractSetting(BaseNode[ResearchSession]):
 
         collected_data = f"Chain: {ctx.state.chain_title}\n\n"
 
-        if specified_zone:
-            collected_data += f"Primary Zone: {specified_zone}\n\n"
+        if starting_location:
+            collected_data += f"Starting Location: {starting_location}\n"
+            collected_data += "(This is where the player begins - use for description atmosphere)\n\n"
 
+        if specified_zone:
+            collected_data += f"Primary Zone: {specified_zone}\n"
+            collected_data += "(This is the broader zone - use for lore_context)\n\n"
+
+        collected_data += "Quest Locations (for reference only):\n"
         for quest in ctx.state.quest_data:
-            collected_data += f"Quest: {quest.title}\n"
-            collected_data += f"Zone: {quest.quest_giver.location.area}\n"
-            collected_data += f"Execution Area: {quest.execution_location.area}\n"
-            collected_data += f"Visual: {quest.execution_location.visual}\n\n"
+            collected_data += f"- {quest.title}: {quest.execution_location.area.name}\n"
 
         agent = StorySettingExtractorAgent()
         setting = await agent.run(collected_data)
