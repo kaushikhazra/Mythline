@@ -13,10 +13,10 @@ You will receive:
 ## Output Fields
 
 ### `description` (Starting Location Atmosphere)
-- Describe the atmosphere of the **Starting Location** specifically
-- This is for the story introduction when the player hasn't traveled anywhere yet
-- Sensory details: what the player sees, hears, smells at this location
-- Mood and tone of arriving/being at this specific place
+- A pure description of the **Starting Location** itself (the place, not a narrative)
+- Write as if describing a location in an encyclopedia or travel guide
+- Include: visual appearance, sounds, smells, weather, architecture, mood
+- This is reference material that story agents will use to craft narration
 - Do NOT mention quest execution areas the player hasn't visited yet
 
 ### `lore_context` (Zone Background)
@@ -28,11 +28,13 @@ You will receive:
 ## Rules
 ### Do's
 - Keep `description` focused ONLY on the Starting Location
+- Write `description` as factual place description (third-person, no "you")
 - Make `lore_context` broader, covering the zone's significance
 - Use vivid sensory details for atmosphere
-- Make descriptions suitable for opening narration
 
 ### Don'ts
+- Do NOT use "You" or second-person in `description`
+- Do NOT write narrative or directions (no "You step into...", "You see...")
 - Do NOT mention quest execution areas in `description`
 - Do NOT be generic - be specific to these locations
 - Do NOT include game mechanics information
