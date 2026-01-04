@@ -7,6 +7,7 @@ from src.agents.story_creator_agent.models.story_models import Narration, Dialog
 class StorySegment(BaseModel):
     type: Literal['introduction', 'quest', 'conclusion']
     sub_type: Optional[Literal['quest_introduction', 'quest_dialogue', 'quest_execution', 'quest_conclusion']] = None
+    quest_id: Optional[str] = None
     quest_name: Optional[str] = None
     description: str = ""
     prompt: str = ""

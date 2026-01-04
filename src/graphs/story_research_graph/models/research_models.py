@@ -35,6 +35,7 @@ class Objectives(BaseModel):
 
 
 class QuestResearch(BaseModel):
+    id: str
     title: str
     story_beat: str
     objectives: Objectives
@@ -47,6 +48,8 @@ class QuestResearch(BaseModel):
 
 class Setting(BaseModel):
     zone: str
+    starting_location: str | None = None
+    journey: str | None = None
     description: str
     lore_context: str
 
@@ -60,3 +63,4 @@ class ResearchBrief(BaseModel):
 class QuestChainInput(BaseModel):
     chain_title: str
     quest_urls: list[str]
+    quest_ids: dict[str, str] = {}

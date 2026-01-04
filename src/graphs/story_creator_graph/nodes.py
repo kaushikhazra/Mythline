@@ -102,6 +102,8 @@ class GetStoryResearch(BaseNode[StorySession]):
             "segment_type": segment_type,
             "chain_title": research_data.get('chain_title', ''),
             "zone": setting.get('zone', ''),
+            "starting_location": setting.get('starting_location', ''),
+            "journey": setting.get('journey', ''),
             "description": setting.get('description', ''),
             "lore_context": setting.get('lore_context', '')
         }
@@ -123,6 +125,7 @@ class GetStoryResearch(BaseNode[StorySession]):
 
         return {
             "segment_type": "quest",
+            "id": quest.get('id', ''),
             "title": quest.get('title', ''),
             "story_beat": quest.get('story_beat', ''),
             "objectives": quest.get('objectives', {}),
@@ -406,7 +409,7 @@ class WriteToFile(BaseNode[StorySession]):
             story.conclusion = segment.output # type: ignore
 
         elif segment.sub_type == "quest_introduction":
-            quest = Quest(title=segment.quest_name, sections=QuestSection())  # type: ignore
+            quest = Quest(id=segment.quest_id or "", title=segment.quest_name, sections=QuestSection())  # type: ignore
             quest.sections.introduction = segment.output # type: ignore
             story.quests.append(quest)
 
@@ -420,7 +423,7 @@ class WriteToFile(BaseNode[StorySession]):
             if quest_found:
                 quest_found.sections.dialogue = segment.output # type: ignore
             else:
-                quest = Quest(title=segment.quest_name, sections=QuestSection())  # type: ignore
+                quest = Quest(id=segment.quest_id or "", title=segment.quest_name, sections=QuestSection())  # type: ignore
                 quest.sections.dialogue = segment.output # type: ignore
                 story.quests.append(quest)
 

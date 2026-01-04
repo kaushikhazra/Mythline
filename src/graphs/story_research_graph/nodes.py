@@ -13,12 +13,14 @@ from src.graphs.story_research_graph.models.research_models import (
     NPC,
     Location,
     ExecutionLocation,
-    Objectives
+    Objectives,
+    Setting
 )
 from src.libs.web.playwright_crawl import crawl_content
 from src.libs.web.duck_duck_go import search as web_search
 from src.libs.cache import get_npc, set_npc, get_location, set_location
 from src.agents.research_input_parser_agent import ResearchInputParserAgent
+from src.libs.parsers import parse_quest_chain, get_quest_ids_in_order
 from src.agents.quest_extractor_agent import QuestExtractorAgent
 from src.agents.npc_extractor_agent import NPCExtractorAgent
 from src.agents.location_extractor_agent import LocationExtractorAgent
@@ -37,16 +39,36 @@ class ParseInput(BaseNode[ResearchSession]):
         if not input_path.exists():
             return End(f"Input file not found: {input_path}")
 
-        content = input_path.read_text(encoding="utf-8")
+        quest_chain = parse_quest_chain(str(input_path))
 
-        agent = ResearchInputParserAgent()
-        result = await agent.run(content)
+        if not quest_chain['quests']:
+            content = input_path.read_text(encoding="utf-8")
+            agent = ResearchInputParserAgent()
+            result = await agent.run(content)
+            ctx.state.chain_title = result.chain_title
+            ctx.state.quest_urls = result.quest_urls
+        else:
+            content = input_path.read_text(encoding="utf-8")
+            agent = ResearchInputParserAgent()
+            result = await agent.run(content)
+            ctx.state.chain_title = result.chain_title
 
-        ctx.state.chain_title = result.chain_title
-        ctx.state.quest_urls = result.quest_urls
+            quest_order = get_quest_ids_in_order(quest_chain)
+            ctx.state.quest_urls = [quest_chain['quests'][qid] for qid in quest_order]
 
-        logger.success(f"Chain: {result.chain_title}")
-        logger.success(f"Found {len(result.quest_urls)} quests")
+            ctx.state.quest_ids = {url: qid for qid, url in quest_chain['quests'].items()}
+
+            if quest_chain.get('setting'):
+                ctx.state.parsed_setting = quest_chain['setting']
+
+        logger.success(f"Chain: {ctx.state.chain_title}")
+        logger.success(f"Found {len(ctx.state.quest_urls)} quests")
+
+        if ctx.state.quest_ids:
+            logger.success(f"Quest IDs: {list(ctx.state.quest_ids.values())}")
+
+        if ctx.state.parsed_setting.get('start'):
+            logger.success(f"Starting location: {ctx.state.parsed_setting['start']}")
 
         return InitializeLoop()
 
@@ -410,7 +432,11 @@ class StoreQuestResearch(BaseNode[ResearchSession]):
             enemies=execution_location.enemies if execution_location else extraction.enemies
         )
 
+        current_url = ctx.state.quest_urls[ctx.state.quest_index]
+        quest_id = ctx.state.quest_ids.get(current_url, "")
+
         quest_research = QuestResearch(
+            id=quest_id,
             title=extraction.title,
             story_beat=extraction.story_beat,
             objectives=Objectives(
@@ -425,7 +451,7 @@ class StoreQuestResearch(BaseNode[ResearchSession]):
         )
 
         ctx.state.quest_data.append(quest_research)
-        logger.success(f"Stored quest: {quest_research.title}")
+        logger.success(f"Stored quest [{quest_id}]: {quest_research.title}")
 
         return IncrementIndex()
 
@@ -444,19 +470,49 @@ class ExtractSetting(BaseNode[ResearchSession]):
     async def run(self, ctx: GraphRunContext[ResearchSession]) -> SynthesizeBrief:
         logger.info("ExtractSetting")
 
+        parsed_setting = ctx.state.parsed_setting
+        specified_zone = parsed_setting.get('zone')
+        starting_location = parsed_setting.get('start')
+        journey = parsed_setting.get('journey')
+
         collected_data = f"Chain: {ctx.state.chain_title}\n\n"
 
+        if starting_location:
+            collected_data += f"Starting Location: {starting_location}\n"
+            collected_data += "(This is where the player begins - use for description atmosphere)\n\n"
+
+        if specified_zone:
+            collected_data += f"Primary Zone: {specified_zone}\n"
+            collected_data += "(This is the broader zone - use for lore_context)\n\n"
+
+        collected_data += "Quest Locations (for reference only):\n"
         for quest in ctx.state.quest_data:
-            collected_data += f"Quest: {quest.title}\n"
-            collected_data += f"Zone: {quest.quest_giver.location.area}\n"
-            collected_data += f"Execution Area: {quest.execution_location.area}\n"
-            collected_data += f"Visual: {quest.execution_location.visual}\n\n"
+            collected_data += f"- {quest.title}: {quest.execution_location.area.name}\n"
 
         agent = StorySettingExtractorAgent()
         setting = await agent.run(collected_data)
 
+        if specified_zone:
+            setting = Setting(
+                zone=specified_zone,
+                starting_location=starting_location,
+                journey=journey,
+                description=setting.description,
+                lore_context=setting.lore_context
+            )
+        else:
+            setting = Setting(
+                zone=setting.zone,
+                starting_location=starting_location,
+                journey=journey,
+                description=setting.description,
+                lore_context=setting.lore_context
+            )
+
         ctx.state.setting = setting
         logger.success(f"Setting extracted: {setting.zone}")
+        if starting_location:
+            logger.success(f"Starting location: {starting_location}")
 
         return SynthesizeBrief()
 
