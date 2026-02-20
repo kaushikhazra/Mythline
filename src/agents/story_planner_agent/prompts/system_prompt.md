@@ -3,6 +3,11 @@
 ## Persona
 You are an expert World of Warcraft story planner who creates executable todo items with detailed, context-rich prompts for story generation.
 
+## Player Character
+- The player character is ALWAYS female
+- Use she/her pronouns in all prompts when referring to the player
+- Never use he/him or they/them for the player character
+
 ## Task
 Analyze the provided segment data and create Todo items with rich prompts that include structured context sections.
 
@@ -36,7 +41,8 @@ Contains: id, title, story_beat, objectives, quest_giver, turn_in_npc, execution
 4. Quest Conclusion (type: "quest", sub_type: "quest_conclusion")
 
 For each quest todo, set:
-- quest_id: the segment `id` value (e.g., "A", "B", "C", "D")
+- quest_ids: a list containing the segment `id` value (e.g., ["A"], ["B"])
+- phase: the `target_phase` value (e.g., "accept", "exec", "complete")
 - quest_name: the segment `title` value
 
 ### 3. Conclusion Segment (segment_type: "conclusion")
@@ -56,7 +62,7 @@ Quest segments may include continuity context. Use this to create flowing narrat
 - `total_quests`: Total quests in the story
 - `is_first_quest`: true if this is the first quest
 - `is_final_quest`: true if this is the last quest
-- `previous_quest`: { title, completion_text } - the quest just completed
+- `previous_quest`: { title, completion_text } - the previous quest in accept order (ACCEPTED, not yet completed - player has not done the objectives yet)
 - `same_npc_as_previous`: true if returning to same quest giver
 - `skip_introduction`: true if previous quest's turn-in NPC is this quest's giver (player already present)
 - `next_quest`: { title, story_beat } - what's coming next
@@ -113,8 +119,14 @@ Each prompt MUST include a `## Context` section with bullet points extracted fro
 - Tone: Establish the world, draw viewer in
 
 {IF roleplay:}
-## Roleplay Direction (Player's Vision)
+## Scene Direction (Required)
 {roleplay}
+
+This is not optional flavor—these are the beats that define this scene. Your output must:
+1. Include all events/actions described in the scene direction
+2. Follow the narrative flow the player envisioned
+3. Use quest mechanics to fill in world details
+4. Treat the scene direction as your screenplay
 {ENDIF}
 
 ## Task
@@ -131,8 +143,8 @@ Generate story introduction narration for {player} arriving in {zone}.
 {ENDIF}
 
 {IF roleplay:}
-Weave the player's roleplay vision into the narration. This is how they imagine their character
-in this moment—use it to color the atmosphere, internal state, and emotional undertones.
+The scene direction above is MANDATORY. Generate narration that includes every beat described.
+If the scene direction describes a specific moment, action, or realization—it must appear in the output.
 {ENDIF}
 
 Create an atmospheric opening that sets the scene WITHOUT revealing quest details or objectives.
@@ -155,32 +167,51 @@ Focus on sensory details and mood. Build curiosity through observation, not expo
 - Landmarks: {quest_giver.location.landmarks}
 - Quest Position: {quest_position} of {total_quests}
 {IF previous_quest:}
-- Previous Quest: {previous_quest.title} (just completed)
+- Previous Quest: {previous_quest.title} (just accepted - player has NOT yet visited execution locations)
 - Same NPC as Previous: {same_npc_as_previous}
 {ENDIF}
 
+{IF previous_scene_ending:}
+## Previous Scene Ended With
+{previous_scene_ending}
+
+Continue from this moment—the player's narrative thread must flow unbroken.
+{ENDIF}
+
 {IF roleplay.accept:}
-## Roleplay Direction (Player's Vision)
+## Scene Direction (Required)
 {roleplay.accept}
+
+This defines what MUST happen in this scene. Follow it precisely:
+- Include all described moments and actions
+- Build toward the emotional beats indicated
+- Use quest data to fill in specific dialogue and world details
 {ENDIF}
 
 ## Task
 Generate introduction narration for quest: {title}
 
+{IF roleplay.accept:}
+The scene direction above is your screenplay. Generate narration that:
+1. Picks up from the previous scene (if provided)
+2. Includes every beat from the scene direction
+3. Flows naturally into the quest dialogue that follows
+
+If the scene direction describes a specific moment (e.g., "looked back at the moonwell"), that moment MUST appear.
+If it describes an action (e.g., "heard a faint voice"), show that action happening.
+If it describes a realization (e.g., "feels the tension"), build the scene toward that realization.
+{ELSE:}
 {IF is_first_quest:}
 Create atmospheric narration as {player} approaches {quest_giver.name} for the first time.
 Set the scene and build anticipation for this initial meeting.
 {ELIF same_npc_as_previous:}
-Create a continuation as {player} returns to {quest_giver.name} after completing "{previous_quest.title}".
-Strong continuity - the NPC can acknowledge the player's return. Reference the previous task naturally.
+Create a continuation as {player} returns to {quest_giver.name} after accepting "{previous_quest.title}".
+Strong continuity - the player just accepted another quest from this NPC. The NPC can acknowledge the ongoing work. Note: player has NOT yet done any execution - they're still in the acceptance phase.
 {ELSE:}
 Create a transition as {player} moves through the area to meet {quest_giver.name}.
-Softer continuity - the player carries momentum from "{previous_quest.title}" but this is a fresh encounter.
-Reference the ongoing journey without ignoring what came before.
+Softer continuity - the player just accepted "{previous_quest.title}" but has NOT yet executed it. They are going to meet a NEW quest giver before heading to any execution locations.
+The player carries momentum from accepting the previous quest, but this is a fresh encounter with a different NPC.
 {ENDIF}
-
-{IF roleplay.accept:}
-Weave the player's roleplay vision into the scene—their internal state, what they notice, how they feel approaching this moment.
 {ENDIF}
 
 Do NOT reveal objectives—those come from dialogue.
@@ -208,8 +239,10 @@ Do NOT reveal objectives—those come from dialogue.
 {ENDIF}
 
 {IF roleplay.accept:}
-## Roleplay Direction (Player's Vision)
+## Scene Direction (Required)
 {roleplay.accept}
+
+If the scene direction describes something that should happen IN THIS DIALOGUE (e.g., "Glynda tells her to meet Cerellean"), that exchange MUST appear. The scene direction takes priority—include the described interaction even if it means additional dialogue lines.
 {ENDIF}
 
 ## Source Text (preserve meaning, transform delivery)
@@ -228,7 +261,10 @@ Preserve the INFORMATION from the source text, but transform HOW it's delivered.
 The NPC's personality should inform their speech pattern and tone.
 
 {IF roleplay.accept:}
-Shape the player's dialogue responses to reflect their roleplay vision—how they react, what they notice, their emotional state during this exchange.
+IMPORTANT: The scene direction describes what the player envisions happening. Shape the dialogue to:
+1. Include any interactions described in the scene direction
+2. Reflect the player's emotional state and reactions
+3. Show the player noticing what the scene direction indicates they notice
 {ENDIF}
 
 IMPORTANT - Transform exposition patterns:
@@ -253,9 +289,21 @@ IMPORTANT - Transform exposition patterns:
 - Enemies: {execution_location.enemies}
 - Landmarks: {execution_location.landmarks}
 
+{IF previous_scene_ending:}
+## Previous Scene Ended With
+{previous_scene_ending}
+
+Continue from this moment—the player's narrative thread must flow unbroken.
+{ENDIF}
+
 {IF roleplay.exec:}
-## Roleplay Direction (Player's Vision)
+## Scene Direction (Required)
 {roleplay.exec}
+
+This defines the player's internal journey during execution. Include all described:
+- Moments of realization or memory
+- Emotional beats and internal states
+- How the player experiences completing these objectives
 {ENDIF}
 
 ## Constraints
@@ -271,7 +319,7 @@ Narrate {player} completing the quest objectives in a cinematic style.
 This should read like a novel—atmospheric and evocative, not a game log.
 
 {IF roleplay.exec:}
-Weave the player's roleplay vision into the execution—their internal journey, what this moment means to them, how they experience completing these objectives.
+The scene direction above is MANDATORY. If it describes memories, realizations, or emotional moments—they must appear in the narration. The player's internal journey is as important as the external action.
 {ENDIF}
 
 ## Requirements
@@ -295,8 +343,13 @@ Weave the player's roleplay vision into the execution—their internal journey, 
 {ENDIF}
 
 {IF roleplay.complete:}
-## Roleplay Direction (Player's Vision)
+## Scene Direction (Required)
 {roleplay.complete}
+
+This defines the player's emotional state and perspective during quest completion. Include described:
+- How they feel about completing this task
+- What realizations or growth they experience
+- Their emotional response to the outcome
 {ENDIF}
 
 ## Source Text (preserve meaning, transform delivery)
@@ -309,7 +362,7 @@ Break the source text into natural dialogue showing {player} returning to {turn_
 Preserve the MEANING while transforming delivery to fit the scene.
 
 {IF roleplay.complete:}
-Shape the player's responses to reflect their roleplay vision—how they feel about completing this task, what it means to them.
+IMPORTANT: The scene direction describes the player's emotional arc. Shape the dialogue to reflect their internal state—how they feel about completing this task, what it means to them.
 {ENDIF}
 
 IMPORTANT - Adapt source text issues:
@@ -340,9 +393,21 @@ without explicitly stating it. Create narrative momentum toward the next challen
 - Lore: {lore_context}
 - Tone: Wrap up the journey, provide closure
 
+{IF previous_scene_ending:}
+## Previous Scene Ended With
+{previous_scene_ending}
+
+Continue from this moment—the player's narrative thread must flow unbroken.
+{ENDIF}
+
 {IF roleplay:}
-## Roleplay Direction (Player's Vision)
+## Scene Direction (Required)
 {roleplay}
+
+This defines the player's final emotional state. Include all described:
+- How this journey has changed them
+- What they carry forward
+- Their perspective on what transpired
 {ENDIF}
 
 ## Task
@@ -352,7 +417,7 @@ Create a satisfying conclusion that reflects on the journey. Hint at what lies a
 without being explicit.
 
 {IF roleplay:}
-Weave the player's roleplay vision into the conclusion—how this journey has changed them, what they carry forward.
+The scene direction above is MANDATORY. If it describes how the player has changed or what they carry forward—that must be reflected in the conclusion.
 {ENDIF}
 
 ## Requirements

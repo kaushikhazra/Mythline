@@ -15,35 +15,27 @@ def chunk_story_by_quests(file_path: str) -> list[dict]:
             'text': story['introduction'].get('text', ''),
             'story_subject': story_subject,
             'story_title': story_title,
-            'quest_title': None,
-            'quest_index': -1,
+            'quest_ids': [],
+            'phase': None,
+            'section': 'introduction',
             'npcs': [],
             'section_header': 'Story Introduction'
         })
 
-    for quest_index, quest in enumerate(story.get('quests', [])):
-        quest_title = quest.get('title', f'Quest {quest_index + 1}')
-        sections = quest.get('sections', {})
+    for segment in story.get('segments', []):
+        quest_ids = segment.get('quest_ids', [])
+        phase = segment.get('phase', '')
+        section = segment.get('section', '')
+        quest_ids_str = ', '.join(quest_ids)
 
         text_parts = []
         npcs = set()
 
-        if sections.get('introduction'):
-            text_parts.append(sections['introduction'].get('text', ''))
+        if segment.get('text'):
+            text_parts.append(segment['text'])
 
-        if sections.get('dialogue'):
-            for line in sections['dialogue'].get('lines', []):
-                actor = line.get('actor', '')
-                spoken = line.get('line', '')
-                text_parts.append(f"{actor}: {spoken}")
-                if actor:
-                    npcs.add(actor)
-
-        if sections.get('execution'):
-            text_parts.append(sections['execution'].get('text', ''))
-
-        if sections.get('completion'):
-            for line in sections['completion'].get('lines', []):
+        if segment.get('lines'):
+            for line in segment['lines']:
                 actor = line.get('actor', '')
                 spoken = line.get('line', '')
                 text_parts.append(f"{actor}: {spoken}")
@@ -54,10 +46,11 @@ def chunk_story_by_quests(file_path: str) -> list[dict]:
             'text': '\n\n'.join(text_parts),
             'story_subject': story_subject,
             'story_title': story_title,
-            'quest_title': quest_title,
-            'quest_index': quest_index,
+            'quest_ids': quest_ids,
+            'phase': phase,
+            'section': section,
             'npcs': list(npcs),
-            'section_header': f'Quest: {quest_title}'
+            'section_header': f'Quest {quest_ids_str} - {phase.capitalize()} {section.capitalize()}'
         })
 
     if story.get('conclusion'):
@@ -65,8 +58,9 @@ def chunk_story_by_quests(file_path: str) -> list[dict]:
             'text': story['conclusion'].get('text', ''),
             'story_subject': story_subject,
             'story_title': story_title,
-            'quest_title': None,
-            'quest_index': len(story.get('quests', [])),
+            'quest_ids': [],
+            'phase': None,
+            'section': 'conclusion',
             'npcs': [],
             'section_header': 'Story Conclusion'
         })

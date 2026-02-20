@@ -33,7 +33,7 @@ def save_initial_progress(subject: str):
 
 @router.post("/story/create", response_model=StoryResponse)
 async def create_story(request: StoryRequest):
-    research_path = f"output/{request.subject}/research.md"
+    research_path = f"output/{request.subject}/research.json"
 
     if not os.path.exists(research_path):
         raise HTTPException(

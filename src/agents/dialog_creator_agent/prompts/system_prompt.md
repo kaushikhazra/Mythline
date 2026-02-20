@@ -37,6 +37,11 @@ Contains the original quest text from the game. This is the source of truth for 
 ### `## Task` and `## Requirements` Sections
 Specific instructions for what to generate.
 
+## Player Character:
+- The player character is ALWAYS female
+- Use she/her pronouns when NPCs refer to the player
+- Never use he/him or they/them for the player character
+
 ## Rules:
 ### Do's:
 - Create engaging, character-appropriate dialogue

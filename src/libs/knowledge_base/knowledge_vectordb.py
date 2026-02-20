@@ -224,8 +224,9 @@ def index_story(story_path: str) -> int:
                 'text': chunk['text'],
                 'story_subject': chunk['story_subject'],
                 'story_title': chunk['story_title'],
-                'quest_title': chunk['quest_title'],
-                'quest_index': chunk['quest_index'],
+                'quest_ids': chunk['quest_ids'],
+                'phase': chunk['phase'],
+                'section': chunk['section'],
                 'npcs': chunk['npcs'],
                 'section_header': chunk['section_header']
             }
@@ -264,8 +265,9 @@ def search_story_knowledge(query: str, top_k: int = 3) -> list[dict]:
                 'text': hit.payload['text'],
                 'story_subject': hit.payload['story_subject'],
                 'story_title': hit.payload['story_title'],
-                'quest_title': hit.payload['quest_title'],
-                'quest_index': hit.payload['quest_index'],
+                'quest_ids': hit.payload.get('quest_ids', []),
+                'phase': hit.payload.get('phase'),
+                'section': hit.payload.get('section'),
                 'npcs': hit.payload['npcs'],
                 'section_header': hit.payload['section_header'],
                 'score': hit.score
@@ -287,13 +289,37 @@ def list_all_story_chunks() -> list[dict]:
                 'id': record.id,
                 'story_subject': record.payload['story_subject'],
                 'story_title': record.payload['story_title'],
-                'quest_title': record.payload['quest_title'],
+                'quest_ids': record.payload.get('quest_ids', []),
+                'phase': record.payload.get('phase'),
+                'section': record.payload.get('section'),
                 'npcs': record.payload['npcs'],
                 'section_header': record.payload['section_header'],
                 'text_preview': record.payload['text'][:100] + '...' if len(record.payload['text']) > 100 else record.payload['text']
             }
             for record in records
         ]
+
+
+def delete_story_by_subject(subject: str) -> int:
+    with qdrant_client() as client:
+        collections = client.get_collections().collections
+        if not any(c.name == STORIES_COLLECTION for c in collections):
+            return 0
+
+        records, _ = client.scroll(collection_name=STORIES_COLLECTION, limit=10000)
+
+        ids_to_delete = [
+            record.id for record in records
+            if record.payload.get('story_subject') == subject
+        ]
+
+        if ids_to_delete:
+            client.delete(
+                collection_name=STORIES_COLLECTION,
+                points_selector=ids_to_delete
+            )
+
+        return len(ids_to_delete)
 
 
 def deduplicate_collection(knowledge_dir: str) -> tuple[int, int]:

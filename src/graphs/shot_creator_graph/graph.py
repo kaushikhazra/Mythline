@@ -5,14 +5,10 @@ from src.graphs.shot_creator_graph.nodes import (
     LoadStory,
     InitializeChunking,
     ProcessIntroduction,
-    InitializeQuestIndex,
-    CheckHasMoreQuests,
-    GetNextQuest,
-    ProcessQuestIntroduction,
-    ProcessQuestDialogue,
-    ProcessQuestExecution,
-    ProcessQuestCompletion,
-    IncrementQuestIndex,
+    InitializeSegmentIndex,
+    CheckHasMoreSegments,
+    ProcessSegment,
+    IncrementSegmentIndex,
     ProcessConclusion,
     InitializeShotIndex,
     CheckHasMoreChunks,
@@ -20,11 +16,7 @@ from src.graphs.shot_creator_graph.nodes import (
     CreateShot,
     StoreShot,
     WriteShotsFile,
-    IncrementChunkIndex,
-    InitializeGraphSegments,
-    CheckHasMoreGraphSegments,
-    ProcessGraphSegment,
-    IncrementGraphSegmentIndex
+    IncrementChunkIndex
 )
 
 
@@ -37,14 +29,10 @@ class ShotCreatorGraph:
                 LoadStory,
                 InitializeChunking,
                 ProcessIntroduction,
-                InitializeQuestIndex,
-                CheckHasMoreQuests,
-                GetNextQuest,
-                ProcessQuestIntroduction,
-                ProcessQuestDialogue,
-                ProcessQuestExecution,
-                ProcessQuestCompletion,
-                IncrementQuestIndex,
+                InitializeSegmentIndex,
+                CheckHasMoreSegments,
+                ProcessSegment,
+                IncrementSegmentIndex,
                 ProcessConclusion,
                 InitializeShotIndex,
                 CheckHasMoreChunks,
@@ -52,11 +40,7 @@ class ShotCreatorGraph:
                 CreateShot,
                 StoreShot,
                 WriteShotsFile,
-                IncrementChunkIndex,
-                InitializeGraphSegments,
-                CheckHasMoreGraphSegments,
-                ProcessGraphSegment,
-                IncrementGraphSegmentIndex
+                IncrementChunkIndex
             ]
         )
 

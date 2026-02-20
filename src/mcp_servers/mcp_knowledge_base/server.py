@@ -136,8 +136,11 @@ def search_past_story_knowledge(query: str, top_k: int = 3) -> str:
     for i, result in enumerate(results, 1):
         output += f"--- Result {i} (Score: {result['score']:.3f}) ---\n"
         output += f"Story: {result['story_title']} ({result['story_subject']})\n"
-        if result['quest_title']:
-            output += f"Quest: {result['quest_title']}\n"
+        quest_ids = result.get('quest_ids', [])
+        if quest_ids:
+            phase = result.get('phase') or ''
+            section = result.get('section') or ''
+            output += f"Segment: [{', '.join(quest_ids)}] {phase}.{section}\n"
         if result['npcs']:
             output += f"NPCs: {', '.join(result['npcs'])}\n"
         output += f"\n{result['text']}\n\n"

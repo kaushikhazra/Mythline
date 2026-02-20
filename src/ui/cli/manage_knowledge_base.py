@@ -12,7 +12,8 @@ from src.libs.knowledge_base.knowledge_vectordb import (
     collection_exists,
     index_story,
     search_story_knowledge,
-    deduplicate_collection
+    deduplicate_collection,
+    delete_story_by_subject
 )
 
 
@@ -115,9 +116,12 @@ def list_stories_command(args):
         print(colored(f"\nTotal story chunks: {len(chunks)}\n", "green"))
 
         for chunk in chunks:
-            quest = chunk['quest_title'] or 'Intro/Conclusion'
+            quest_ids = chunk.get('quest_ids', [])
+            phase = chunk.get('phase') or ''
+            section = chunk.get('section') or ''
+            segment_label = f"[{', '.join(quest_ids)}] {phase}.{section}" if quest_ids else 'Intro/Conclusion'
             npcs = ', '.join(chunk['npcs']) if chunk['npcs'] else 'None'
-            print(colored(f"[{chunk['id']}] {chunk['story_subject']} - {quest}", "cyan"))
+            print(colored(f"[{chunk['id']}] {chunk['story_subject']} - {segment_label}", "cyan"))
             print(f"    NPCs: {npcs}")
             print(f"    {chunk['text_preview']}\n")
 
@@ -185,8 +189,11 @@ def search_stories_command(args):
         for i, result in enumerate(results, 1):
             print(colored(f"--- Result {i} (Score: {result['score']:.3f}) ---", "cyan"))
             print(f"Story: {result['story_title']} ({result['story_subject']})")
-            if result['quest_title']:
-                print(f"Quest: {result['quest_title']}")
+            quest_ids = result.get('quest_ids', [])
+            if quest_ids:
+                phase = result.get('phase') or ''
+                section = result.get('section') or ''
+                print(f"Segment: [{', '.join(quest_ids)}] {phase}.{section}")
             if result['npcs']:
                 print(f"NPCs: {', '.join(result['npcs'])}")
             print(f"\n{result['text']}")
@@ -210,6 +217,26 @@ def deduplicate_command(args):
             print(colored("No duplicates found.", "green"))
         else:
             print(colored(f"Removed {removed} duplicate entries (kept {total - removed} unique)", "green"))
+
+    except Exception as e:
+        print(colored(f"Error: {str(e)}", "red"))
+
+
+def delete_story_command(args):
+    print(colored(f"Deleting story '{args.subject}' from knowledge base...", "yellow"))
+
+    response = input(f"Are you sure you want to delete all chunks for '{args.subject}'? (y/n): ")
+    if response.lower() != 'y':
+        print("Cancelled.")
+        return
+
+    try:
+        deleted = delete_story_by_subject(args.subject)
+
+        if deleted == 0:
+            print(colored(f"No chunks found for subject '{args.subject}'.", "yellow"))
+        else:
+            print(colored(f"Deleted {deleted} chunks for '{args.subject}'.", "green"))
 
     except Exception as e:
         print(colored(f"Error: {str(e)}", "red"))
@@ -244,6 +271,9 @@ def main():
     deduplicate_parser = subparsers.add_parser('deduplicate', help='Remove duplicate entries from a knowledge base')
     deduplicate_parser.add_argument('--knowledge-dir', default='guides', help='Directory to deduplicate (default: guides)')
 
+    delete_story_parser = subparsers.add_parser('delete-story', help='Delete a specific story from the knowledge base')
+    delete_story_parser.add_argument('subject', help='Story subject to delete (e.g., test3)')
+
     args = parser.parse_args()
 
     if not args.command:
@@ -259,7 +289,8 @@ def main():
         'clear': clear_command,
         'load-stories': load_stories_command,
         'search-stories': search_stories_command,
-        'deduplicate': deduplicate_command
+        'deduplicate': deduplicate_command,
+        'delete-story': delete_story_command
     }
 
     commands[args.command](args)

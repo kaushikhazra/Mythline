@@ -15,4 +15,4 @@ if "%1"=="" (
 )
 
 python -m src.ui.cli.create_shots --subject %1
-pause
+@REM pause

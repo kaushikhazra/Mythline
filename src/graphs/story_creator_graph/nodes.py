@@ -12,12 +12,11 @@ from pydantic_graph import BaseNode, End, GraphRunContext
 from src.agents.story_creator_agent.models.state_models import (
     StorySession,
     Todo,
-    StorySegment
+    TodoItem
 )
 from src.agents.story_creator_agent.models.story_models import (
     Story,
-    Quest,
-    QuestSection,
+    StorySegment,
     Narration,
     DialogueLines
 )
@@ -96,7 +95,7 @@ class GetStoryResearch(BaseNode[StorySession]):
         quest_titles = [q.get('title', 'Unknown') for q in quests]
         return f"Chain: {research_data.get('chain_title', 'Unknown')} | Zone: {setting.get('zone', 'Unknown')} | Quests: {', '.join(quest_titles)}"
 
-    def _get_settings_segment(self, research_data: dict, segment_type: str) -> dict:
+    def _get_settings_segment(self, research_data: dict, segment_type: str, previous_scene_ending: str = None) -> dict:
         setting = research_data.get('setting', {})
         roleplay = research_data.get('roleplay', {})
         roleplay_key = segment_type.title()
@@ -115,9 +114,12 @@ class GetStoryResearch(BaseNode[StorySession]):
         if roleplay_text:
             segment["roleplay"] = roleplay_text
 
+        if previous_scene_ending:
+            segment["previous_scene_ending"] = previous_scene_ending
+
         return segment
 
-    def _get_quest_segment(self, research_data: dict, quest_index: int) -> dict:
+    def _get_quest_segment(self, research_data: dict, quest_index: int, previous_scene_ending: str = None) -> dict:
         quest = research_data.get('quests', [])[quest_index]
         quest_giver = quest.get('quest_giver', {})
         turn_in_npc = quest.get('turn_in_npc', {})
@@ -174,6 +176,9 @@ class GetStoryResearch(BaseNode[StorySession]):
         if quest_roleplay:
             segment["roleplay"] = quest_roleplay
 
+        if previous_scene_ending:
+            segment["previous_scene_ending"] = previous_scene_ending
+
         return segment
 
 
@@ -195,6 +200,7 @@ class CreateTODO(BaseNode[StorySession]):
         todos = []
 
         print(colored("[*] Processing introduction segment...", "cyan"))
+        save_progress(ctx.state.subject, "planning", "Planning Introduction", 0, 0, {"phase": "planning", "segment": "Introduction"})
         intro_segment = self.research_node._get_settings_segment(research_data, "introduction")
         intro_todos = await self.planner_agent.run(intro_segment, ctx.state.player)
         todos.extend(intro_todos)
@@ -205,15 +211,19 @@ class CreateTODO(BaseNode[StorySession]):
         quest_by_id = {q.get('id'): q for q in quests}
         quest_index_by_id = {q.get('id'): i for i, q in enumerate(quests)}
 
+        last_scene_ending = None
         if execution_order:
-            todos.extend(await self._generate_todos_by_flow(
+            quest_todos, last_scene_ending = await self._generate_todos_by_flow(
                 ctx, execution_order, quests, quest_by_id, quest_index_by_id
-            ))
+            )
+            todos.extend(quest_todos)
         else:
-            todos.extend(await self._generate_todos_sequential(ctx, quests))
+            quest_todos, last_scene_ending = await self._generate_todos_sequential(ctx, quests)
+            todos.extend(quest_todos)
 
         print(colored("[*] Processing conclusion segment...", "cyan"))
-        conclusion_segment = self.research_node._get_settings_segment(research_data, "conclusion")
+        save_progress(ctx.state.subject, "planning", "Planning Conclusion", 0, 0, {"phase": "planning", "segment": "Conclusion"})
+        conclusion_segment = self.research_node._get_settings_segment(research_data, "conclusion", last_scene_ending)
         conclusion_todos = await self.planner_agent.run(conclusion_segment, ctx.state.player)
         todos.extend(conclusion_todos)
         print(colored(f"[+] Conclusion: {len(conclusion_todos)} todos", "green"))
@@ -237,6 +247,7 @@ class CreateTODO(BaseNode[StorySession]):
     async def _generate_todos_by_flow(self, ctx, execution_order, quests, quest_by_id, quest_index_by_id):
         todos = []
         research_data = ctx.state.research_data
+        roleplay = research_data.get('roleplay', {})
         total_quests = len(quests)
 
         accept_order = []
@@ -250,11 +261,14 @@ class CreateTODO(BaseNode[StorySession]):
                 complete_order.extend([n.split('.')[0] for n in nodes])
 
         previous_accept_quest = None
+        previous_scene_ending = roleplay.get('Introduction')
 
         for seg in execution_order:
             phase = seg.get('phase') if isinstance(seg, dict) else seg.phase
             nodes = seg.get('nodes') if isinstance(seg, dict) else seg.nodes
             is_parallel = seg.get('is_parallel') if isinstance(seg, dict) else seg.is_parallel
+
+            batch_previous_scene = previous_scene_ending if phase == 'accept' else None
 
             for node in sorted(nodes):
                 quest_id = node.split('.')[0]
@@ -264,7 +278,7 @@ class CreateTODO(BaseNode[StorySession]):
 
                 quest_index = quest_index_by_id.get(quest_id, 0)
                 quest_title = quest.get('title', f'Quest {quest_id}')
-                quest_segment = self.research_node._get_quest_segment(research_data, quest_index)
+                quest_segment = self.research_node._get_quest_segment(research_data, quest_index, batch_previous_scene)
 
                 quest_segment['quest_position'] = accept_order.index(quest_id) + 1 if quest_id in accept_order else quest_index + 1
                 quest_segment['total_quests'] = total_quests
@@ -298,20 +312,29 @@ class CreateTODO(BaseNode[StorySession]):
                             }
 
                 print(colored(f"[*] Processing {quest_title} ({phase})...", "cyan"))
+                save_progress(ctx.state.subject, "planning", f"Planning {quest_title} ({phase})", 0, 0, {"phase": "planning", "segment": quest_title, "quest_phase": phase})
                 phase_todos = await self.planner_agent.run(quest_segment, ctx.state.player)
                 todos.extend(phase_todos)
                 print(colored(f"[+] {quest_title} ({phase}): {len(phase_todos)} todos", "green"))
 
-        return todos
+                current_roleplay_key = f"{quest_id}.{phase}"
+                if roleplay.get(current_roleplay_key):
+                    previous_scene_ending = roleplay[current_roleplay_key]
+
+        return todos, previous_scene_ending
 
     async def _generate_todos_sequential(self, ctx, quests):
         todos = []
         research_data = ctx.state.research_data
+        roleplay = research_data.get('roleplay', {})
+        previous_scene_ending = roleplay.get('Introduction')
 
         for i, quest in enumerate(quests):
+            quest_id = quest.get('id', '')
             quest_title = quest.get('title', f'Quest {i+1}')
             print(colored(f"[*] Processing quest segment: {quest_title}...", "cyan"))
-            quest_segment = self.research_node._get_quest_segment(research_data, i)
+            save_progress(ctx.state.subject, "planning", f"Planning {quest_title}", 0, 0, {"phase": "planning", "segment": quest_title})
+            quest_segment = self.research_node._get_quest_segment(research_data, i, previous_scene_ending)
 
             quest_segment['quest_position'] = i + 1
             quest_segment['total_quests'] = len(quests)
@@ -341,7 +364,12 @@ class CreateTODO(BaseNode[StorySession]):
             todos.extend(quest_todos)
             print(colored(f"[+] {quest_title}: {len(quest_todos)} todos", "green"))
 
-        return todos
+            for phase in ['accept', 'exec', 'complete']:
+                roleplay_key = f"{quest_id}.{phase}"
+                if roleplay.get(roleplay_key):
+                    previous_scene_ending = roleplay[roleplay_key]
+
+        return todos, previous_scene_ending
 
 
 @dataclass
@@ -365,7 +393,7 @@ class GetNextTODO(BaseNode[StorySession]):
                 f"Processing {current_todo.item.type}{sub_type_info}{quest_info}",
                 ctx.state.current_todo_index + 1,
                 len(ctx.state.todo_list),
-                {"segment_type": current_todo.item.type, "quest_name": current_todo.item.quest_name}
+                {"segment_type": current_todo.item.type, "sub_type": current_todo.item.sub_type, "quest_name": current_todo.item.quest_name}
             )
 
             return CreateStorySegment()
@@ -443,7 +471,7 @@ class CreateStorySegment(BaseNode[StorySession]):
         result = await self.dialog_creator_agent.run(prompt)
         return result.output
 
-    async def _review_content(self, output, content_type: str, segment: StorySegment, state: StorySession):
+    async def _review_content(self, output, content_type: str, segment: TodoItem, state: StorySession):
         if self.reviewer_agent is None:
             self.reviewer_agent = StoryReviewerAgent()
 
@@ -462,12 +490,12 @@ class CreateStorySegment(BaseNode[StorySession]):
         )
         return result.output
 
-    def _build_prompt(self, segment: StorySegment, state: StorySession) -> str:
+    def _build_prompt(self, segment: TodoItem, state: StorySession) -> str:
         player = state.player
         prompt = segment.prompt.replace("{player}", player)
         return prompt
 
-    def _build_prompt_with_feedback(self, segment: StorySegment, state: StorySession, feedback: str) -> str:
+    def _build_prompt_with_feedback(self, segment: TodoItem, state: StorySession, feedback: str) -> str:
         base_prompt = self._build_prompt(segment, state)
         return f"{base_prompt}\n\n## Reviewer Feedback (Please Address)\n\n{feedback}"
 
@@ -493,7 +521,10 @@ class WriteToFile(BaseNode[StorySession]):
             story = Story.model_validate_json(existing_content)
         else:
             print(colored(f"[+] Creating {file_path}", "grey"))
-            story = Story(title=f"The {subject.title()} Chronicles", subject=subject)
+            display_name = subject.replace('_', ' ').title()
+            if display_name.lower().startswith('the '):
+                display_name = display_name[4:]
+            story = Story(title=f"The {display_name} Chronicles", subject=subject)
 
         story = self._add_segment_to_story(story, segment)
 
@@ -512,49 +543,50 @@ class WriteToFile(BaseNode[StorySession]):
 
         return GetNextTODO()
 
-    def _add_segment_to_story(self, story: Story, segment: StorySegment) -> Story:
+    def _add_segment_to_story(self, story: Story, segment: TodoItem) -> Story:
         if segment.type == "introduction":
-            story.introduction = segment.output # type: ignore
+            story.introduction = segment.output  # type: ignore
 
         elif segment.type == "conclusion":
-            story.conclusion = segment.output # type: ignore
+            story.conclusion = segment.output  # type: ignore
 
-        elif segment.sub_type == "quest_introduction":
-            quest = Quest(id=segment.quest_id or "", title=segment.quest_name, sections=QuestSection())  # type: ignore
-            quest.sections.introduction = segment.output # type: ignore
-            story.quests.append(quest)
+        elif segment.type == "quest":
+            section = self._map_sub_type_to_section(segment.sub_type)
+            phase = segment.phase or self._infer_phase_from_sub_type(segment.sub_type)
 
-        elif segment.sub_type == "quest_dialogue":
-            quest_found = None
-            for quest in story.quests:
-                if quest.title == segment.quest_name:
-                    quest_found = quest
-                    break
+            story_segment = StorySegment(
+                quest_ids=segment.quest_ids,
+                phase=phase,
+                section=section
+            )
 
-            if quest_found:
-                quest_found.sections.dialogue = segment.output # type: ignore
-            else:
-                quest = Quest(id=segment.quest_id or "", title=segment.quest_name, sections=QuestSection())  # type: ignore
-                quest.sections.dialogue = segment.output # type: ignore
-                story.quests.append(quest)
+            if isinstance(segment.output, Narration):
+                story_segment.text = segment.output.text
+                story_segment.word_count = segment.output.word_count
+            elif isinstance(segment.output, DialogueLines):
+                story_segment.lines = segment.output.lines
 
-        elif segment.sub_type == "quest_execution":
-            for quest in story.quests:
-                if quest.title == segment.quest_name:
-                    quest.sections.execution = segment.output # type: ignore
-                    break
-            else:
-                raise ValueError(f"Quest not found: {segment.quest_name}")
-
-        elif segment.sub_type == "quest_conclusion":
-            for quest in story.quests:
-                if quest.title == segment.quest_name:
-                    quest.sections.completion = segment.output # type: ignore
-                    break
-            else:
-                raise ValueError(f"Quest not found: {segment.quest_name}")
+            story.segments.append(story_segment)
 
         return story
+
+    def _map_sub_type_to_section(self, sub_type: str | None) -> str:
+        mapping = {
+            "quest_introduction": "intro",
+            "quest_dialogue": "dialogue",
+            "quest_execution": "narration",
+            "quest_conclusion": "dialogue"
+        }
+        return mapping.get(sub_type or "", "intro")
+
+    def _infer_phase_from_sub_type(self, sub_type: str | None) -> str:
+        mapping = {
+            "quest_introduction": "accept",
+            "quest_dialogue": "accept",
+            "quest_execution": "exec",
+            "quest_conclusion": "complete"
+        }
+        return mapping.get(sub_type or "", "accept")
 
 
 @dataclass

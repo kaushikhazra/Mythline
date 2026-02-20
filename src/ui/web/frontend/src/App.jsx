@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import SimpleResearch from './pages/SimpleResearch'
 import SimpleStoryCreator from './pages/SimpleStoryCreator'
 import SimpleStoryViewer from './pages/SimpleStoryViewer'
+import ResearchValidator from './pages/ResearchValidator'
 
 function App() {
   const [page, setPage] = useState('research')
@@ -14,6 +15,12 @@ function App() {
           onClick={() => setPage('research')}
         >
           Research
+        </button>
+        <button
+          className={page === 'validator' ? 'active' : ''}
+          onClick={() => setPage('validator')}
+        >
+          Validate Research
         </button>
         <button
           className={page === 'story' ? 'active' : ''}
@@ -29,6 +36,7 @@ function App() {
         </button>
       </div>
       {page === 'research' && <SimpleResearch />}
+      {page === 'validator' && <ResearchValidator />}
       {page === 'story' && <SimpleStoryCreator />}
       {page === 'viewer' && <SimpleStoryViewer />}
     </div>

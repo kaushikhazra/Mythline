@@ -8,7 +8,9 @@ from .knowledge_vectordb import (
     search_knowledge,
     list_all_chunks,
     index_story,
-    search_story_knowledge
+    search_story_knowledge,
+    list_all_story_chunks,
+    delete_story_by_subject
 )
 
 __all__ = [
@@ -21,5 +23,7 @@ __all__ = [
     'search_knowledge',
     'list_all_chunks',
     'index_story',
-    'search_story_knowledge'
+    'search_story_knowledge',
+    'list_all_story_chunks',
+    'delete_story_by_subject'
 ]

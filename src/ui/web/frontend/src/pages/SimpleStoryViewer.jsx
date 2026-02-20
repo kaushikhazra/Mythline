@@ -51,39 +51,28 @@ function SimpleStoryViewer() {
     )
   }
 
-  const renderQuest = (quest, index) => {
+  const renderSegment = (segment, index) => {
+    const questIds = segment.quest_ids?.join(', ') || ''
+    const phase = segment.phase || ''
+    const section = segment.section || ''
+    const sectionLabel = `${phase.charAt(0).toUpperCase() + phase.slice(1)} - ${section.charAt(0).toUpperCase() + section.slice(1)}`
+
     return (
       <div key={index} className="quest-section">
-        <h2 className="quest-title">
-          <span className="quest-number">Quest {index + 1}</span>
-          {quest.title}
-        </h2>
+        <h3 className="segment-header">
+          <span className="quest-ids">[{questIds}]</span>
+          {sectionLabel}
+        </h3>
 
-        {quest.sections.introduction && (
+        {segment.text && (
           <div className="narrative-section">
-            <h3>Introduction</h3>
-            <p className="narrative-text">{quest.sections.introduction.text}</p>
+            <p className="narrative-text">{segment.text}</p>
           </div>
         )}
 
-        {quest.sections.dialogue && (
+        {segment.lines && segment.lines.length > 0 && (
           <div className="dialogue-container">
-            <h3>Dialogue</h3>
-            {renderDialogue(quest.sections.dialogue.lines)}
-          </div>
-        )}
-
-        {quest.sections.execution && (
-          <div className="narrative-section">
-            <h3>Execution</h3>
-            <p className="narrative-text">{quest.sections.execution.text}</p>
-          </div>
-        )}
-
-        {quest.sections.completion && (
-          <div className="dialogue-container">
-            <h3>Completion</h3>
-            {renderDialogue(quest.sections.completion.lines)}
+            {renderDialogue(segment.lines)}
           </div>
         )}
       </div>
@@ -122,8 +111,8 @@ function SimpleStoryViewer() {
               </div>
             )}
 
-            {storyContent.quests && storyContent.quests.map((quest, index) =>
-              renderQuest(quest, index)
+            {storyContent.segments && storyContent.segments.map((segment, index) =>
+              renderSegment(segment, index)
             )}
 
             {storyContent.conclusion && (

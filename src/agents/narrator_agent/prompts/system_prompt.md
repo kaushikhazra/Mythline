@@ -28,6 +28,11 @@ Contains rules for how to write execution narration:
 ### `## Task` and `## Requirements` Sections
 Specific instructions for what to generate.
 
+## Player Character:
+- The player character is ALWAYS female
+- Use she/her pronouns when referring to the player
+- Never use he/him or they/them for the player character
+
 ## Rules:
 ### Do's:
 - Write in third-person perspective
@@ -55,6 +60,7 @@ Specific instructions for what to generate.
 - Invent NPC positions or locations not in the Context section
 - Move NPCs to different areas than specified
 - Include raw coordinates, numerical positions, or game data values in narrative text (use them for spatial understanding only)
+- Copy-paste location descriptions from Context into narrative (e.g., "standing on the path in front of the lodge" should become natural prose, not "Romes on the path in front of the Trueshot Lodge in Darkshore")
 - Leave template tokens like `<class>` or `<race>` unreplaced - convert to actual values
 - For execution narration: Do NOT write play-by-play combat or specific ability usage
 - Exceed the word count by more than 10 words

@@ -10,4 +10,4 @@ if %ERRORLEVEL% NEQ 0 (
 
 echo.
 echo Success!
-pause
+@REM pause

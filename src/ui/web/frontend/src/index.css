@@ -32,7 +32,7 @@ h3 {
   font-size: 20px;
 }
 
-input, textarea {
+input, textarea, select {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Helvetica", "Arial", sans-serif;
   background-color: #161b22;
   color: #c9d1d9;
@@ -44,13 +44,13 @@ input, textarea {
   width: 300px;
 }
 
-input:focus, textarea:focus {
+input:focus, textarea:focus, select:focus {
   outline: none;
   border-color: #58a6ff;
   box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.3);
 }
 
-input:disabled {
+input:disabled, select:disabled {
   background-color: #0d1117;
   color: #8b949e;
   cursor: not-allowed;
@@ -527,4 +527,413 @@ form > div {
   color: #c9d1d9;
   line-height: 1.6;
   padding-left: 8px;
+}
+
+.validator-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.validator-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.validator-header h1 {
+  margin: 0;
+  border: none;
+  padding: 0;
+}
+
+.header-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.header-controls select {
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid #30363d;
+  background-color: #161b22;
+  color: #c9d1d9;
+  font-size: 14px;
+  min-width: 200px;
+}
+
+.validator-tabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 16px;
+  border-bottom: 1px solid #30363d;
+  padding-bottom: 0;
+}
+
+.validator-tabs button {
+  background-color: transparent;
+  color: #8b949e;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 6px 6px 0 0;
+  margin: 0;
+  font-size: 14px;
+}
+
+.validator-tabs button:hover {
+  background-color: #161b22;
+  color: #c9d1d9;
+}
+
+.validator-tabs button.active {
+  background-color: #161b22;
+  color: #58a6ff;
+  border-bottom: 2px solid #58a6ff;
+}
+
+.validator-content {
+  background-color: #161b22;
+  border: 1px solid #30363d;
+  border-radius: 6px;
+  padding: 24px;
+  min-height: 500px;
+}
+
+.validator-form .form-group {
+  margin-bottom: 16px;
+}
+
+.validator-form label {
+  display: block;
+  margin-bottom: 6px;
+  width: auto;
+}
+
+.validator-form input[type="text"],
+.validator-form input[type="number"] {
+  width: 100%;
+  max-width: 600px;
+}
+
+.validator-form textarea {
+  width: 100%;
+  max-width: 100%;
+}
+
+.quests-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.quest-card {
+  background-color: #0d1117;
+  border: 1px solid #30363d;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.quest-card-header {
+  display: flex;
+  align-items: center;
+  padding: 14px 16px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.quest-card-header:hover {
+  background-color: #161b22;
+}
+
+.quest-id {
+  color: #58a6ff;
+  font-family: 'Courier New', monospace;
+  font-size: 13px;
+  margin-right: 12px;
+  font-weight: 600;
+}
+
+.quest-title-text {
+  flex: 1;
+  font-weight: 500;
+  color: #c9d1d9;
+}
+
+.expand-icon {
+  color: #8b949e;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.quest-card-body {
+  border-top: 1px solid #30363d;
+  padding: 20px;
+}
+
+.form-section {
+  margin-bottom: 24px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid #21262d;
+}
+
+.form-section:last-child {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.form-section h4 {
+  color: #c9d1d9;
+  font-size: 16px;
+  margin-top: 0;
+  margin-bottom: 16px;
+}
+
+.form-group {
+  margin-bottom: 14px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 6px;
+  width: auto;
+  color: #8b949e;
+  font-size: 13px;
+}
+
+.form-group input,
+.form-group textarea {
+  width: 100%;
+  max-width: 100%;
+}
+
+.form-row {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.form-row .form-group {
+  flex: 1;
+  min-width: 200px;
+}
+
+.npc-section {
+  background-color: #161b22;
+  border: 1px solid #30363d;
+  border-radius: 6px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.npc-section h4 {
+  margin-top: 0;
+  color: #58a6ff;
+}
+
+.location-section {
+  background-color: #1a2233;
+  border: 1px solid #3d5a80;
+  border-radius: 6px;
+  padding: 16px;
+  margin-top: 12px;
+}
+
+.location-section h5 {
+  color: #7ec8e3;
+  font-size: 14px;
+  margin-top: 0;
+  margin-bottom: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.location-grid {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.location-grid .form-group:first-child {
+  flex: 2;
+  min-width: 200px;
+}
+
+.coord-group {
+  flex: 0 0 80px !important;
+  min-width: 80px !important;
+}
+
+.coord-group input {
+  width: 80px !important;
+}
+
+.execution-location .location-section {
+  background-color: #1a2a1a;
+  border-color: #3d8050;
+}
+
+.execution-location .location-section h5 {
+  color: #7ec87e;
+}
+
+.roleplay-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.roleplay-entry {
+  background-color: #0d1117;
+  border: 1px solid #30363d;
+  border-radius: 6px;
+  padding: 16px;
+}
+
+.roleplay-header {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 12px;
+  align-items: center;
+}
+
+.roleplay-key {
+  flex: 1;
+  font-family: 'Courier New', monospace;
+  font-weight: 600;
+}
+
+.delete-btn {
+  background-color: #f85149;
+  padding: 6px 12px;
+  font-size: 12px;
+}
+
+.delete-btn:hover {
+  background-color: #da3633;
+}
+
+.add-btn {
+  align-self: flex-start;
+}
+
+.no-data {
+  color: #8b949e;
+  text-align: center;
+  padding: 40px 0;
+}
+
+.segment-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #c9d1d9;
+}
+
+.segment-header .quest-ids {
+  color: #58a6ff;
+  font-family: 'Courier New', monospace;
+  font-size: 13px;
+}
+
+.npcs-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.tab-description {
+  color: #8b949e;
+  font-size: 14px;
+  margin-bottom: 16px;
+  padding: 12px;
+  background-color: #0d1117;
+  border-radius: 6px;
+  border-left: 3px solid #58a6ff;
+}
+
+.npc-card {
+  background-color: #0d1117;
+  border: 1px solid #30363d;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.npc-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 16px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.npc-card-header:hover {
+  background-color: #161b22;
+}
+
+.npc-header-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.npc-name {
+  font-weight: 600;
+  color: #c9d1d9;
+  font-size: 15px;
+}
+
+.npc-title-badge {
+  background-color: rgba(88, 166, 255, 0.15);
+  color: #58a6ff;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+}
+
+.npc-usage-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.usage-count {
+  color: #8b949e;
+  font-size: 13px;
+}
+
+.npc-card-body {
+  border-top: 1px solid #30363d;
+  padding: 20px;
+}
+
+.npc-usages {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 20px;
+  padding: 12px;
+  background-color: #161b22;
+  border-radius: 6px;
+}
+
+.usages-label {
+  color: #8b949e;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.usage-badge {
+  background-color: #21262d;
+  color: #c9d1d9;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-family: 'Courier New', monospace;
 }

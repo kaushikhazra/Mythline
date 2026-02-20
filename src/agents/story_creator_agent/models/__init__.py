@@ -1,5 +1,5 @@
-from .story_models import Narration, DialogueLine, DialogueLines, QuestSection, Quest, Story
-from .state_models import StorySegment, Todo, StorySession
+from .story_models import Narration, DialogueLine, DialogueLines, QuestSection, Quest, Story, StorySegment
+from .state_models import TodoItem, Todo, StorySession
 
 __all__ = [
     "Narration",
@@ -9,6 +9,7 @@ __all__ = [
     "Quest",
     "Story",
     "StorySegment",
+    "TodoItem",
     "Todo",
     "StorySession"
 ]

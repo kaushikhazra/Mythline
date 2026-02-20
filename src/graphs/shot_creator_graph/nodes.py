@@ -1,18 +1,16 @@
 from __future__ import annotations
 import json
-from pathlib import Path
 from dataclasses import dataclass
 from termcolor import colored
 
 from pydantic_graph import BaseNode, End, GraphRunContext
 
-from src.graphs.shot_creator_graph.models.state_models import ShotCreatorSession, GraphSegment
+from src.graphs.shot_creator_graph.models.state_models import ShotCreatorSession
 from src.agents.story_creator_agent.models.story_models import Story
 from src.agents.chunker_agent import ChunkerAgent
 from src.agents.shot_creator_agent import ShotCreatorAgent
 from src.agents.shot_reviewer_agent import ShotReviewerAgent
 from src.libs.filesystem.file_operations import read_file, write_file, file_exists
-from src.libs.parsers import parse_quest_chain, get_execution_order, get_node_info
 
 MAX_REVIEW_RETRIES = 3
 QUALITY_THRESHOLD = 0.75
@@ -38,7 +36,6 @@ class LoadStory(BaseNode[ShotCreatorSession]):
     async def run(self, ctx: GraphRunContext[ShotCreatorSession]) -> InitializeChunking | End[str]:
         subject = ctx.state.subject
         story_file = f"output/{subject}/story.json"
-        quest_chain_file = f"output/{subject}/quest-chain.md"
 
         print(colored(f"\n[*] Loading story for {subject}...", "cyan"))
 
@@ -50,48 +47,14 @@ class LoadStory(BaseNode[ShotCreatorSession]):
         story_content = read_file(story_file)
         ctx.state.story = Story.model_validate_json(story_content)
 
-        ctx.state.quests_by_id = {q.id: q for q in ctx.state.story.quests if q.id}
-
-        if Path(quest_chain_file).exists():
-            print(colored(f"[*] Loading quest chain graph...", "cyan"))
-            ctx.state.quest_chain = parse_quest_chain(quest_chain_file)
-            segments = get_execution_order(ctx.state.quest_chain)
-
-            for seg in segments:
-                phase = seg['phase']
-                nodes = seg['nodes']
-                is_parallel = seg['is_parallel']
-
-                if is_parallel and phase == 'exec':
-                    quest_ids = sorted([get_node_info(n)[0] for n in nodes])
-                    ctx.state.graph_segments.append(GraphSegment(
-                        quest_id=quest_ids[0],
-                        phase=phase,
-                        is_parallel_group=True,
-                        parallel_quest_ids=quest_ids
-                    ))
-                else:
-                    for node in nodes:
-                        quest_id, node_phase = get_node_info(node)
-                        if quest_id:
-                            ctx.state.graph_segments.append(GraphSegment(
-                                quest_id=quest_id,
-                                phase=node_phase
-                            ))
-
-            print(colored(f"[+] Graph loaded: {len(ctx.state.graph_segments)} segments", "green"))
-        else:
-            print(colored(f"[*] No quest chain graph found, using sequential flow", "yellow"))
-
-        print(colored(f"[+] Story loaded ({len(ctx.state.story.quests)} quests)", "green"))
+        print(colored(f"[+] Story loaded ({len(ctx.state.story.segments)} segments)", "green"))
         return InitializeChunking()
 
 
 @dataclass
 class InitializeChunking(BaseNode[ShotCreatorSession]):
-    async def run(self, ctx: GraphRunContext[ShotCreatorSession]) -> ProcessIntroduction | InitializeGraphSegments | InitializeShotIndex:
+    async def run(self, ctx: GraphRunContext[ShotCreatorSession]) -> ProcessIntroduction | InitializeShotIndex:
         subject = ctx.state.subject
-        shots_file = f"output/{subject}/shots.json"
         chunks_file = f"output/{subject}/chunks.json"
 
         ctx.state.chunks = []
@@ -111,16 +74,8 @@ class InitializeChunking(BaseNode[ShotCreatorSession]):
             except (json.JSONDecodeError, ValueError, TypeError) as e:
                 print(colored(f"[!] Invalid chunks.json ({str(e)}), regenerating chunks...", "yellow"))
 
-        if file_exists(shots_file):
-            write_file(shots_file, "[]")
-
         print(colored("\n[*] Starting chunking phase...", "cyan"))
-
-        if ctx.state.graph_segments:
-            print(colored("[*] Using graph-based flow", "cyan"))
-            return ProcessIntroduction()
-        else:
-            return ProcessIntroduction()
+        return ProcessIntroduction()
 
 
 @dataclass
@@ -128,7 +83,7 @@ class ProcessIntroduction(BaseNode[ShotCreatorSession]):
     def __post_init__(self):
         self.chunker_agent = None
 
-    async def run(self, ctx: GraphRunContext[ShotCreatorSession]) -> InitializeQuestIndex | InitializeGraphSegments:
+    async def run(self, ctx: GraphRunContext[ShotCreatorSession]) -> InitializeSegmentIndex:
         if ctx.state.story.introduction is None:
             print(colored("[*] No introduction to process", "yellow"))
         else:
@@ -147,164 +102,75 @@ class ProcessIntroduction(BaseNode[ShotCreatorSession]):
             ctx.state.chunks.extend(result.output)
             print(colored(f"[+] Created {len(result.output)} chunk(s) from introduction", "green"))
 
-        if ctx.state.graph_segments:
-            return InitializeGraphSegments()
-        else:
-            return InitializeQuestIndex()
+        return InitializeSegmentIndex()
 
 
 @dataclass
-class InitializeQuestIndex(BaseNode[ShotCreatorSession]):
-    async def run(self, ctx: GraphRunContext[ShotCreatorSession]) -> CheckHasMoreQuests:
-        ctx.state.quest_index = 0
-        return CheckHasMoreQuests()
+class InitializeSegmentIndex(BaseNode[ShotCreatorSession]):
+    async def run(self, ctx: GraphRunContext[ShotCreatorSession]) -> CheckHasMoreSegments:
+        ctx.state.segment_index = 0
+        print(colored(f"[*] Processing {len(ctx.state.story.segments)} story segments", "cyan"))
+        return CheckHasMoreSegments()
 
 
 @dataclass
-class CheckHasMoreQuests(BaseNode[ShotCreatorSession]):
-    async def run(self, ctx: GraphRunContext[ShotCreatorSession]) -> GetNextQuest | ProcessConclusion:
-        if ctx.state.quest_index < len(ctx.state.story.quests):
-            return GetNextQuest()
+class CheckHasMoreSegments(BaseNode[ShotCreatorSession]):
+    async def run(self, ctx: GraphRunContext[ShotCreatorSession]) -> ProcessSegment | ProcessConclusion:
+        if ctx.state.segment_index < len(ctx.state.story.segments):
+            return ProcessSegment()
         else:
             return ProcessConclusion()
 
 
 @dataclass
-class GetNextQuest(BaseNode[ShotCreatorSession]):
-    async def run(self, ctx: GraphRunContext[ShotCreatorSession]) -> ProcessQuestIntroduction:
-        ctx.state.current_quest = ctx.state.story.quests[ctx.state.quest_index]
-        quest_num = ctx.state.quest_index + 1
-        print(colored(f"\n[*] Processing quest {quest_num}: {ctx.state.current_quest.title}", "cyan"))
-        return ProcessQuestIntroduction()
-
-
-@dataclass
-class ProcessQuestIntroduction(BaseNode[ShotCreatorSession]):
+class ProcessSegment(BaseNode[ShotCreatorSession]):
     def __post_init__(self):
         self.chunker_agent = None
 
-    async def run(self, ctx: GraphRunContext[ShotCreatorSession]) -> ProcessQuestDialogue:
-        if ctx.state.current_quest.sections.introduction is None:
-            return ProcessQuestDialogue()
-
+    async def run(self, ctx: GraphRunContext[ShotCreatorSession]) -> IncrementSegmentIndex:
         if self.chunker_agent is None:
             self.chunker_agent = ChunkerAgent()
 
-        quest_title = ctx.state.current_quest.title
-        reference = f"{quest_title} - Introduction"
+        segment = ctx.state.story.segments[ctx.state.segment_index]
+        ctx.state.current_segment = segment
 
-        result = await self.chunker_agent.run(
-            text=ctx.state.current_quest.sections.introduction.text,
-            chunk_type="narration",
-            actor="aaryan",
-            reference=reference
-        )
+        quest_ids_str = ", ".join(segment.quest_ids)
+        print(colored(f"\n[*] Processing segment: [{quest_ids_str}] {segment.phase}.{segment.section}", "cyan"))
 
-        ctx.state.chunks.extend(result.output)
-        print(colored(f"[+] Created {len(result.output)} chunk(s) from quest introduction", "green"))
+        reference = f"Quest {quest_ids_str} - {segment.phase.capitalize()} {segment.section.capitalize()}"
 
-        return ProcessQuestDialogue()
+        if segment.section == "dialogue" and segment.lines:
+            chunk_count = 0
+            for line in segment.lines:
+                actor_first_name = extract_first_name(line.actor)
+                result = await self.chunker_agent.run(
+                    text=line.line,
+                    chunk_type="dialogue",
+                    actor=actor_first_name,
+                    reference=reference
+                )
+                ctx.state.chunks.extend(result.output)
+                chunk_count += len(result.output)
+            print(colored(f"[+] Created {chunk_count} chunk(s) from dialogue", "green"))
 
-
-@dataclass
-class ProcessQuestDialogue(BaseNode[ShotCreatorSession]):
-    def __post_init__(self):
-        self.chunker_agent = None
-
-    async def run(self, ctx: GraphRunContext[ShotCreatorSession]) -> ProcessQuestExecution:
-        if ctx.state.current_quest.sections.dialogue is None:
-            return ProcessQuestExecution()
-
-        if self.chunker_agent is None:
-            self.chunker_agent = ChunkerAgent()
-
-        quest_title = ctx.state.current_quest.title
-        reference = f"{quest_title} - Dialogue"
-        chunk_count = 0
-
-        for line in ctx.state.current_quest.sections.dialogue.lines:
-            actor_first_name = extract_first_name(line.actor)
-
+        elif segment.text:
             result = await self.chunker_agent.run(
-                text=line.line,
-                chunk_type="dialogue",
-                actor=actor_first_name,
+                text=segment.text,
+                chunk_type="narration",
+                actor="aaryan",
                 reference=reference
             )
-
             ctx.state.chunks.extend(result.output)
-            chunk_count += len(result.output)
+            print(colored(f"[+] Created {len(result.output)} chunk(s) from narration", "green"))
 
-        print(colored(f"[+] Created {chunk_count} chunk(s) from quest dialogue", "green"))
-        return ProcessQuestExecution()
-
-
-@dataclass
-class ProcessQuestExecution(BaseNode[ShotCreatorSession]):
-    def __post_init__(self):
-        self.chunker_agent = None
-
-    async def run(self, ctx: GraphRunContext[ShotCreatorSession]) -> ProcessQuestCompletion:
-        if ctx.state.current_quest.sections.execution is None:
-            return ProcessQuestCompletion()
-
-        if self.chunker_agent is None:
-            self.chunker_agent = ChunkerAgent()
-
-        quest_title = ctx.state.current_quest.title
-        reference = f"{quest_title} - Execution"
-
-        result = await self.chunker_agent.run(
-            text=ctx.state.current_quest.sections.execution.text,
-            chunk_type="narration",
-            actor="aaryan",
-            reference=reference
-        )
-
-        ctx.state.chunks.extend(result.output)
-        print(colored(f"[+] Created {len(result.output)} chunk(s) from quest execution", "green"))
-
-        return ProcessQuestCompletion()
+        return IncrementSegmentIndex()
 
 
 @dataclass
-class ProcessQuestCompletion(BaseNode[ShotCreatorSession]):
-    def __post_init__(self):
-        self.chunker_agent = None
-
-    async def run(self, ctx: GraphRunContext[ShotCreatorSession]) -> IncrementQuestIndex:
-        if ctx.state.current_quest.sections.completion is None:
-            return IncrementQuestIndex()
-
-        if self.chunker_agent is None:
-            self.chunker_agent = ChunkerAgent()
-
-        quest_title = ctx.state.current_quest.title
-        reference = f"{quest_title} - Completion"
-        chunk_count = 0
-
-        for line in ctx.state.current_quest.sections.completion.lines:
-            actor_first_name = extract_first_name(line.actor)
-
-            result = await self.chunker_agent.run(
-                text=line.line,
-                chunk_type="dialogue",
-                actor=actor_first_name,
-                reference=reference
-            )
-
-            ctx.state.chunks.extend(result.output)
-            chunk_count += len(result.output)
-
-        print(colored(f"[+] Created {chunk_count} chunk(s) from quest completion", "green"))
-        return IncrementQuestIndex()
-
-
-@dataclass
-class IncrementQuestIndex(BaseNode[ShotCreatorSession]):
-    async def run(self, ctx: GraphRunContext[ShotCreatorSession]) -> CheckHasMoreQuests:
-        ctx.state.quest_index += 1
-        return CheckHasMoreQuests()
+class IncrementSegmentIndex(BaseNode[ShotCreatorSession]):
+    async def run(self, ctx: GraphRunContext[ShotCreatorSession]) -> CheckHasMoreSegments:
+        ctx.state.segment_index += 1
+        return CheckHasMoreSegments()
 
 
 @dataclass
@@ -523,154 +389,3 @@ class IncrementChunkIndex(BaseNode[ShotCreatorSession]):
             print(colored(f"[*] Progress: {ctx.state.current_index}/{len(ctx.state.chunks)} shots created", "cyan"))
 
         return CheckHasMoreChunks()
-
-
-@dataclass
-class InitializeGraphSegments(BaseNode[ShotCreatorSession]):
-    async def run(self, ctx: GraphRunContext[ShotCreatorSession]) -> CheckHasMoreGraphSegments:
-        ctx.state.segment_index = 0
-        print(colored(f"[*] Processing {len(ctx.state.graph_segments)} graph segments", "cyan"))
-        return CheckHasMoreGraphSegments()
-
-
-@dataclass
-class CheckHasMoreGraphSegments(BaseNode[ShotCreatorSession]):
-    async def run(self, ctx: GraphRunContext[ShotCreatorSession]) -> ProcessGraphSegment | ProcessConclusion:
-        if ctx.state.segment_index < len(ctx.state.graph_segments):
-            return ProcessGraphSegment()
-        else:
-            return ProcessConclusion()
-
-
-@dataclass
-class ProcessGraphSegment(BaseNode[ShotCreatorSession]):
-    def __post_init__(self):
-        self.chunker_agent = None
-
-    async def run(self, ctx: GraphRunContext[ShotCreatorSession]) -> IncrementGraphSegmentIndex:
-        if self.chunker_agent is None:
-            self.chunker_agent = ChunkerAgent()
-
-        segment = ctx.state.graph_segments[ctx.state.segment_index]
-        phase = segment.phase
-
-        if segment.is_parallel_group:
-            print(colored(f"\n[*] Processing parallel {phase} group: {segment.parallel_quest_ids}", "cyan"))
-            await self._process_parallel_executions(ctx, segment)
-        else:
-            quest = ctx.state.quests_by_id.get(segment.quest_id)
-            if not quest:
-                print(colored(f"[!] Quest not found for ID: {segment.quest_id}", "yellow"))
-                return IncrementGraphSegmentIndex()
-
-            print(colored(f"\n[*] Processing {segment.quest_id}.{phase}: {quest.title}", "cyan"))
-
-            if phase == 'accept':
-                await self._process_accept(ctx, quest)
-            elif phase == 'exec':
-                await self._process_execution(ctx, quest)
-            elif phase == 'complete':
-                await self._process_completion(ctx, quest)
-
-        return IncrementGraphSegmentIndex()
-
-    async def _process_accept(self, ctx, quest):
-        if quest.sections.introduction:
-            reference = f"{quest.title} - Introduction"
-            result = await self.chunker_agent.run(
-                text=quest.sections.introduction.text,
-                chunk_type="narration",
-                actor="aaryan",
-                reference=reference
-            )
-            ctx.state.chunks.extend(result.output)
-            print(colored(f"[+] Created {len(result.output)} chunk(s) from quest introduction", "green"))
-
-        if quest.sections.dialogue:
-            reference = f"{quest.title} - Dialogue"
-            chunk_count = 0
-            for line in quest.sections.dialogue.lines:
-                actor_first_name = extract_first_name(line.actor)
-                result = await self.chunker_agent.run(
-                    text=line.line,
-                    chunk_type="dialogue",
-                    actor=actor_first_name,
-                    reference=reference
-                )
-                ctx.state.chunks.extend(result.output)
-                chunk_count += len(result.output)
-            print(colored(f"[+] Created {chunk_count} chunk(s) from quest dialogue", "green"))
-
-    async def _process_execution(self, ctx, quest):
-        if quest.sections.execution:
-            reference = f"{quest.title} - Execution"
-            result = await self.chunker_agent.run(
-                text=quest.sections.execution.text,
-                chunk_type="narration",
-                actor="aaryan",
-                reference=reference
-            )
-            ctx.state.chunks.extend(result.output)
-            print(colored(f"[+] Created {len(result.output)} chunk(s) from quest execution", "green"))
-
-    async def _process_completion(self, ctx, quest):
-        if quest.sections.completion:
-            reference = f"{quest.title} - Completion"
-            chunk_count = 0
-            for line in quest.sections.completion.lines:
-                actor_first_name = extract_first_name(line.actor)
-                result = await self.chunker_agent.run(
-                    text=line.line,
-                    chunk_type="dialogue",
-                    actor=actor_first_name,
-                    reference=reference
-                )
-                ctx.state.chunks.extend(result.output)
-                chunk_count += len(result.output)
-            print(colored(f"[+] Created {chunk_count} chunk(s) from quest completion", "green"))
-
-    async def _process_parallel_executions(self, ctx, segment):
-        quests = [ctx.state.quests_by_id.get(qid) for qid in segment.parallel_quest_ids]
-        quests = [q for q in quests if q]
-
-        if not quests:
-            return
-
-        same_area = self._check_same_area(quests)
-
-        if same_area:
-            print(colored(f"[*] Baking parallel executions (same area)", "yellow"))
-            await self._bake_executions(ctx, quests)
-        else:
-            for quest in quests:
-                await self._process_execution(ctx, quest)
-
-    def _check_same_area(self, quests) -> bool:
-        return False
-
-    async def _bake_executions(self, ctx, quests):
-        combined_text = ""
-        quest_titles = []
-
-        for quest in quests:
-            if quest.sections.execution:
-                combined_text += quest.sections.execution.text + "\n\n"
-                quest_titles.append(quest.title)
-
-        if combined_text:
-            reference = f"Combined Execution - {', '.join(quest_titles)}"
-            result = await self.chunker_agent.run(
-                text=combined_text.strip(),
-                chunk_type="narration",
-                actor="aaryan",
-                reference=reference
-            )
-            ctx.state.chunks.extend(result.output)
-            print(colored(f"[+] Created {len(result.output)} chunk(s) from baked executions", "green"))
-
-
-@dataclass
-class IncrementGraphSegmentIndex(BaseNode[ShotCreatorSession]):
-    async def run(self, ctx: GraphRunContext[ShotCreatorSession]) -> CheckHasMoreGraphSegments:
-        ctx.state.segment_index += 1
-        return CheckHasMoreGraphSegments()

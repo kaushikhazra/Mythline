@@ -4,10 +4,11 @@ from pydantic import BaseModel
 from src.agents.story_creator_agent.models.story_models import Narration, DialogueLines
 
 
-class StorySegment(BaseModel):
+class TodoItem(BaseModel):
     type: Literal['introduction', 'quest', 'conclusion']
     sub_type: Optional[Literal['quest_introduction', 'quest_dialogue', 'quest_execution', 'quest_conclusion']] = None
-    quest_id: Optional[str] = None
+    quest_ids: list[str] = []
+    phase: Optional[Literal['accept', 'exec', 'complete']] = None
     quest_name: Optional[str] = None
     description: str = ""
     prompt: str = ""
@@ -15,7 +16,7 @@ class StorySegment(BaseModel):
 
 
 class Todo(BaseModel):
-    item: StorySegment
+    item: TodoItem
     status: Literal['pending', 'in_progress', 'done'] = 'pending'
 
 
