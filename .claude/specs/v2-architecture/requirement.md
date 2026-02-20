@@ -8,31 +8,31 @@ Mythline is a multi-agent AI storytelling system built ~6 months ago. The AI/age
 ### What We're Keeping
 - **Pydantic AI** as the agent framework
 - **Core domain** — MMORPG narrative generation (generic, not WoW-specific)
-- **MCP protocol** — but expanding its role significantly
+- **MCP protocol** — expanded as the data microservice layer
 
-### What Needs to Change
-- [ ] **MCP as microservices** — each capability as a discoverable MCP service
-- [ ] **Intelligent orchestration** — agents that reason and decide, not fixed pipelines
-- [ ] **Memory & context management** — complete overhaul of how agents remember and share knowledge
+### What's Changing
+- [x] **MCP as data microservices** — 5 MCP stores, one per knowledge domain. MCP stores and serves, agents think.
+- [x] **No orchestrator, no graphs** — Knowledge agents are autonomous daemons. Drama agents collaborate via message queue.
+- [x] **Five knowledge domains** — World Lore, Quest Lore, Character, Dynamics, Narrative History
 
 ---
 
-## Open Questions (Discovery)
+## Discovery Questions — All Answered
 
 ### MCP Architecture
-- Q1: Should agents themselves become MCP servers, making them discoverable/callable by other agents?
-- Q2: What granularity for MCP services? (per-capability vs per-domain)
-- Q3: How do agents discover available MCP tools dynamically?
+- ~~Q1: Should agents themselves become MCP servers?~~ **ANSWERED** — No. Agents are intelligence. MCP is data. Clear separation: Research Agent → Validator Agent → MCP Store.
+- ~~Q2: What granularity for MCP services?~~ **ANSWERED** — One MCP per knowledge domain (5 total).
+- ~~Q3: How do agents discover available MCP tools?~~ **ANSWERED** — Still open for implementation details, but architecture is: Knowledge agents write to MCP, Drama agents read from MCP.
 
 ### Orchestration
-- Q4: Orchestrator agent that decides which agents/tools to call based on situation vs fixed graph?
-- Q5: Should agents be able to loop, backtrack, ask for more info, change strategy mid-task?
-- Q6: What role do graphs still play? (guardrails vs full control)
+- ~~Q4: Reasoning orchestrator vs fixed graph?~~ **ANSWERED** — Neither. Knowledge Acquisition = autonomous daemons, no orchestrator. Drama Production = agent swarm with message queue, no orchestrator.
+- ~~Q5: Can agents loop, backtrack, change strategy?~~ **ANSWERED** — Yes, naturally via message queue. Any agent posts feedback to any other agent's channel. Quality-gated convergence (score >= 0.8, iteration cap).
+- ~~Q6: What role do graphs still play?~~ **ANSWERED** — None. Graphs eliminated entirely. Well-structured prompts + agentic autonomy.
 
 ### Memory & Context
-- ~~Q7: What specific pain was felt?~~ **ANSWERED** — All of it: cross-session loss, no shared knowledge, context window bloat. Plus the information model itself is wrong — it's not one kind of information.
-- ~~Q8: What memory tiers are needed?~~ **ANSWERED** — See five knowledge domains below.
-- Q9: How should context be managed to avoid blowing up token windows?
+- ~~Q7: What specific pain was felt?~~ **ANSWERED** — All of it: cross-session loss, no shared knowledge, context window bloat. Plus the information model itself is wrong — it's not one kind of information, it's five distinct domains.
+- ~~Q8: What memory tiers are needed?~~ **ANSWERED** — Five knowledge domains as MCP stores.
+- Q9: How should context be managed to avoid blowing up token windows? — **Deferred to implementation phase.**
 
 ---
 
@@ -101,6 +101,6 @@ Full research: `.claude/research/wow-systems-for-roleplay-storytelling.md`
 
 ---
 
-## User Stories (to be filled as discovery progresses)
+## User Stories (to be derived during design/implementation phases)
 
-_Pending — will derive from finalized knowledge domains and architecture decisions_
+_Discovery complete. User stories will be created per-spec when implementation begins._
