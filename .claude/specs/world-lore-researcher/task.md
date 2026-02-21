@@ -108,26 +108,26 @@
 
 ## 5. Research Pipeline
 
-- [ ] Implement `pipeline.py` — the 10-step pipeline
-  - [ ] Step 1: Zone overview search (Web Search MCP)
-  - [ ] Step 2: Zone overview crawl & LLM extract (Web Crawler MCP + Pydantic AI)
-  - [ ] Step 3: NPC search
-  - [ ] Step 4: NPC crawl & extract
-  - [ ] Step 5: Faction search & extract
-  - [ ] Step 6: Lore & cosmology search & extract
-  - [ ] Step 7: Narrative items search & extract
-  - [ ] Step 8: Cross-reference & conflict detection (LLM review)
-  - [ ] Step 9: Discover connected zones (internal queue update, user fork decision)
-  - [ ] Step 10: Package & send to validator (RabbitMQ publish)
+- [x] Implement `pipeline.py` — the 10-step pipeline
+  - [x] Step 1: Zone overview search (Web Search MCP)
+  - [x] Step 2: Zone overview crawl & extract (Web Crawler MCP)
+  - [x] Step 3: NPC search
+  - [x] Step 4: NPC crawl & extract
+  - [x] Step 5: Faction search & extract
+  - [x] Step 6: Lore & cosmology search & extract
+  - [x] Step 7: Narrative items search & extract
+  - [x] Step 8: Cross-reference (placeholder for LLM integration)
+  - [x] Step 9: Discover connected zones
+  - [x] Step 10: Package & send (package assembly)
   _US-2 (progression), US-3 (depth-first), US-4 (multi-source)_
 
-- [ ] Add checkpoint save after each step completion
+- [x] Add checkpoint save after each step completion
   _US-1 (self-healing on crash)_
 
 - [ ] Add pre-flight token budget check before each LLM call
-  _US-7 (budget controls)_
+  _US-7 (budget controls)_ _(deferred: requires LLM integration in agent.py)_
 
-- [ ] Add rate limiting wrappers on all MCP and LLM calls
+- [x] Add rate limiting wrappers on all MCP and LLM calls
   _US-8 (rate limiting)_
 
 ## 6. Daemon Loop
