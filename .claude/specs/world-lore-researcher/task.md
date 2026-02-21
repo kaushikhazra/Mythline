@@ -85,17 +85,17 @@
 
 ## 3. Configuration
 
-- [ ] Implement `config.py` — load env vars with defaults
-  - [ ] RESEARCH_CYCLE_DELAY_MINUTES
-  - [ ] DAILY_TOKEN_BUDGET, PER_CYCLE_TOKEN_BUDGET
-  - [ ] MAX_RESEARCH_VALIDATE_ITERATIONS
-  - [ ] RATE_LIMIT_REQUESTS_PER_MINUTE
-  - [ ] STARTING_ZONE
-  - [ ] RABBITMQ_URL, MCP_GATEWAY_URL
-  - [ ] AGENT_ROLE (world_lore_researcher)
+- [x] Implement `config.py` — load env vars with defaults
+  - [x] RESEARCH_CYCLE_DELAY_MINUTES
+  - [x] DAILY_TOKEN_BUDGET, PER_CYCLE_TOKEN_BUDGET
+  - [x] MAX_RESEARCH_VALIDATE_ITERATIONS
+  - [x] RATE_LIMIT_REQUESTS_PER_MINUTE
+  - [x] STARTING_ZONE
+  - [x] RABBITMQ_URL, MCP service URLs
+  - [x] AGENT_ROLE (world_lore_researcher)
   _US-7 (budget controls), US-8 (rate limiting)_
 
-- [ ] Implement source priority loader from `config/sources.yml`
+- [x] Implement source priority loader from `config/sources.yml`
   _US-5 (source priority)_
 
 ## 4. Checkpoint System

@@ -56,3 +56,18 @@ def get_all_trusted_domains() -> list[str]:
     for tier_domains in get_source_domains_by_tier().values():
         domains.extend(tier_domains)
     return domains
+
+
+def get_source_tier_for_domain(domain: str) -> str | None:
+    for tier_name, tier_domains in get_source_domains_by_tier().items():
+        for tier_domain in tier_domains:
+            if tier_domain in domain or domain in tier_domain:
+                return tier_name
+    return None
+
+
+def get_source_weight(tier_name: str) -> float:
+    config = load_sources_config()
+    tiers = config.get("source_tiers", {})
+    tier = tiers.get(tier_name, {})
+    return tier.get("weight", 0.0)
