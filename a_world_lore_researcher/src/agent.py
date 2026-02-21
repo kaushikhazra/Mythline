@@ -6,7 +6,6 @@ and cross-reference validation for consistency checking.
 
 from __future__ import annotations
 
-import logging
 from pathlib import Path
 
 from pydantic import BaseModel, Field
@@ -18,7 +17,6 @@ from src.config import (
     LLM_MODEL,
     MCP_WEB_CRAWLER_URL,
     MCP_WEB_SEARCH_URL,
-    OPENROUTER_API_KEY,
     PER_CYCLE_TOKEN_BUDGET,
 )
 from src.models import (
@@ -30,8 +28,6 @@ from src.models import (
     SourceReference,
     ZoneData,
 )
-
-logger = logging.getLogger(__name__)
 
 PROMPTS_DIR = Path(__file__).parent.parent / "prompts"
 

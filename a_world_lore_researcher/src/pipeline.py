@@ -12,7 +12,7 @@ from urllib.parse import urlparse
 from aiolimiter import AsyncLimiter
 from tenacity import retry, stop_after_attempt, wait_exponential_jitter
 
-from src.checkpoint import save_checkpoint, add_tokens_used
+from src.checkpoint import save_checkpoint
 from src.config import (
     GAME_NAME,
     RATE_LIMIT_REQUESTS_PER_MINUTE,
@@ -49,7 +49,10 @@ PIPELINE_STEPS = [
 def _make_source_ref(url: str) -> SourceReference:
     domain = urlparse(url).netloc
     tier_name = get_source_tier_for_domain(domain)
-    tier = SourceTier(tier_name) if tier_name and tier_name in SourceTier.__members__.values() else SourceTier.TERTIARY
+    try:
+        tier = SourceTier(tier_name) if tier_name else SourceTier.TERTIARY
+    except ValueError:
+        tier = SourceTier.TERTIARY
     return SourceReference(url=url, domain=domain, tier=tier)
 
 
