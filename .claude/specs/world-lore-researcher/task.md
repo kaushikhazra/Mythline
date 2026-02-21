@@ -57,13 +57,13 @@
 
 ## 1. Agent Scaffold
 
-- [ ] Create `a_world_lore_researcher/` folder structure
-  - [ ] Dockerfile
-  - [ ] .env with all config variables (parameterized defaults)
-  - [ ] pyproject.toml with dependencies (pydantic-ai, aio-pika, tenacity, aiolimiter, tokencost, apscheduler)
-  - [ ] config/sources.yml with WoW source priority tiers
-  - [ ] prompts/system_prompt.md
-  - [ ] src/__init__.py, agent.py, daemon.py, pipeline.py, checkpoint.py, models.py, config.py
+- [x] Create `a_world_lore_researcher/` folder structure
+  - [x] Dockerfile
+  - [x] .env with all config variables (parameterized defaults)
+  - [x] pyproject.toml with dependencies (pydantic-ai, aio-pika, tenacity, aiolimiter, httpx, pyyaml, mcp)
+  - [x] config/sources.yml with WoW source priority tiers
+  - [x] prompts/system_prompt.md
+  - [x] src/__init__.py, agent.py, daemon.py, pipeline.py, checkpoint.py, models.py, config.py
   _US-1 (daemon structure)_
 
 ## 2. Pydantic Models
