@@ -24,7 +24,7 @@ Research game zones depth-first. For each zone, extract structured data covering
 ### Source Preference
 Sources are ranked by trust tier:
 - **Official**: Game publisher wikis (e.g., Wowpedia, official game sites). Highest authority.
-- **Primary**: Major community databases (e.g., Wowhead). Well-maintained, data-mined content.
+- **Primary**: Major community databases (e.g., Warcraft Wiki). Well-maintained, data-mined content.
 - **Secondary**: Community guides and analysis sites. Useful but may contain interpretation.
 - **Tertiary**: Forums, Reddit, personal blogs. Use only to supplement, never as sole source.
 

@@ -5,7 +5,9 @@ from unittest.mock import AsyncMock, patch, MagicMock
 
 import pytest
 
-from src.agent import ZoneExtraction, CrossReferenceResult, _load_prompt
+import src.agent as agent_module
+from src.agent import ZoneExtraction, CrossReferenceResult
+from shared.prompt_loader import load_prompt
 from src.models import (
     ZoneData,
     NPCData,
@@ -19,8 +21,10 @@ from src.models import (
 
 
 @pytest.fixture(autouse=True)
-def set_api_key(monkeypatch):
+def set_env_vars(monkeypatch):
     monkeypatch.setenv("OPENROUTER_API_KEY", "test-key-for-tests")
+    monkeypatch.setenv("MCP_WEB_SEARCH_URL", "http://localhost:8006/mcp")
+    monkeypatch.setenv("MCP_WEB_CRAWLER_URL", "http://localhost:8007/mcp")
 
 
 def _make_researcher():
@@ -30,12 +34,12 @@ def _make_researcher():
 
 class TestLoadPrompt:
     def test_loads_system_prompt(self):
-        prompt = _load_prompt("system_prompt")
+        prompt = load_prompt(agent_module.__file__, "system_prompt")
         assert isinstance(prompt, str)
         assert len(prompt) > 0
 
     def test_loads_cross_reference_prompt(self):
-        prompt = _load_prompt("cross_reference")
+        prompt = load_prompt(agent_module.__file__, "cross_reference")
         assert isinstance(prompt, str)
         assert "consistency" in prompt.lower()
         assert "confidence" in prompt.lower()

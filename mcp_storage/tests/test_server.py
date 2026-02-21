@@ -5,7 +5,7 @@ Start via: cd poc/surrealdb && docker compose up -d
 """
 
 import json
-from unittest.mock import patch, AsyncMock
+from unittest.mock import patch, AsyncMock, MagicMock
 
 import pytest
 
@@ -28,11 +28,22 @@ from src.server import (
 )
 
 
+class _FailingProvider:
+    """Stub provider that always fails — used to disable embedding in tests."""
+
+    async def embed(self, text):
+        raise RuntimeError("Embedding disabled in tests")
+
+    async def embed_batch(self, texts):
+        raise RuntimeError("Embedding disabled in tests")
+
+
 @pytest.fixture(autouse=True)
 def disable_embedding():
     """Disable embedding API calls for all tests."""
-    with patch.object(emb_module, "OPENROUTER_API_KEY", ""):
-        yield
+    emb_module._provider = _FailingProvider()
+    yield
+    emb_module._provider = None
 
 
 @pytest.fixture(autouse=True)
@@ -255,23 +266,26 @@ class TestEmbeddingOnWrite:
 
     async def test_create_record_calls_embedding(self):
         mock_embedding = [0.1] * 1536
-        with patch.object(emb_module, "OPENROUTER_API_KEY", "fake-key"), \
-             patch.object(emb_module, "generate_embedding", new_callable=AsyncMock, return_value=mock_embedding):
-            zone_data = {
-                "name": "Elwynn Forest",
-                "narrative_arc": "Alliance starting zone",
-                "political_climate": "Stable",
-                "era": "Classic",
-            }
-            await create_record("zone", "elwynn_emb", json.dumps(zone_data))
+        mock_provider = MagicMock()
+        mock_provider.embed = AsyncMock(return_value=mock_embedding)
+        emb_module._provider = mock_provider
 
-            result = await get_record("zone", "elwynn_emb")
-            record = json.loads(result)
-            assert record is not None
-            assert record["name"] == "Elwynn Forest"
+        zone_data = {
+            "name": "Elwynn Forest",
+            "narrative_arc": "Alliance starting zone",
+            "political_climate": "Stable",
+            "era": "Classic",
+        }
+        await create_record("zone", "elwynn_emb", json.dumps(zone_data))
 
-    async def test_no_embedding_when_key_missing(self):
-        """Without API key, record is created without embedding."""
+        result = await get_record("zone", "elwynn_emb")
+        record = json.loads(result)
+        assert record is not None
+        assert record["name"] == "Elwynn Forest"
+        mock_provider.embed.assert_called_once()
+
+    async def test_no_embedding_when_provider_fails(self):
+        """When provider fails, record is created without embedding."""
         zone_data = {"name": "Test Zone", "narrative_arc": "Test"}
         await create_record("zone", "no_emb", json.dumps(zone_data))
 
@@ -282,7 +296,9 @@ class TestEmbeddingOnWrite:
 
     async def test_research_state_not_embedded(self):
         """Checkpoint records should never get embeddings."""
-        with patch.object(emb_module, "OPENROUTER_API_KEY", "fake-key"), \
-             patch.object(emb_module, "generate_embedding", new_callable=AsyncMock) as mock_gen:
-            await save_checkpoint("test", json.dumps({"zone_name": "Test"}))
-            mock_gen.assert_not_called()
+        mock_provider = MagicMock()
+        mock_provider.embed = AsyncMock()
+        emb_module._provider = mock_provider
+
+        await save_checkpoint("test", json.dumps({"zone_name": "Test"}))
+        mock_provider.embed.assert_not_called()

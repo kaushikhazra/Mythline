@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "search": {
+      "url": "${MCP_WEB_SEARCH_URL}",
+      "timeout": 30
+    },
+    "crawler": {
+      "url": "${MCP_WEB_CRAWLER_URL}",
+      "timeout": 60
+    }
+  }
+}

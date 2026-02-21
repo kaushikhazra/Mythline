@@ -169,7 +169,7 @@ class TestResearchPackage:
                     data_point="Hogger level",
                     source_a=source,
                     claim_a="Level 11",
-                    source_b=SourceReference(url="https://wowhead.com/npc/448", domain="wowhead.com", tier=SourceTier.PRIMARY),
+                    source_b=SourceReference(url="https://warcraft.wiki.gg/wiki/Hogger", domain="warcraft.wiki.gg", tier=SourceTier.PRIMARY),
                     claim_b="Level 10",
                 ),
             ],

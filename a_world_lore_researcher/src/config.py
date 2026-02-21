@@ -31,9 +31,7 @@ MCP_STORAGE_URL = os.getenv("MCP_STORAGE_URL", "http://localhost:8005/mcp")
 MCP_WEB_SEARCH_URL = os.getenv("MCP_WEB_SEARCH_URL", "http://localhost:8006/mcp")
 MCP_WEB_CRAWLER_URL = os.getenv("MCP_WEB_CRAWLER_URL", "http://localhost:8007/mcp")
 
-OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY", "")
-LLM_MODEL = os.getenv("LLM_MODEL", "openai/gpt-4o-mini")
-OPENROUTER_BASE_URL = os.getenv("OPENROUTER_BASE_URL", "https://openrouter.ai/api/v1")
+LLM_MODEL = os.getenv("LLM_MODEL", "openrouter:openai/gpt-4o-mini")
 
 
 def load_sources_config() -> dict:

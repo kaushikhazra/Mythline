@@ -13,9 +13,8 @@ source_tiers:
   primary:
     description: Major community wikis and databases
     domains:
-      - wowhead.com
-      - wow.tools
       - warcraft.wiki.gg
+      - wow.tools
     weight: 0.8
 
   secondary:

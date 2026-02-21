@@ -64,21 +64,21 @@ class TestSourcesConfig:
         assert "secondary" in tiers
         assert "tertiary" in tiers
         assert "wowpedia.fandom.com" in tiers["official"]
-        assert "wowhead.com" in tiers["primary"]
+        assert "warcraft.wiki.gg" in tiers["primary"]
 
     def test_get_all_trusted_domains(self):
         domains = get_all_trusted_domains()
         assert len(domains) > 0
         assert "wowpedia.fandom.com" in domains
-        assert "wowhead.com" in domains
+        assert "warcraft.wiki.gg" in domains
 
     def test_get_source_tier_for_known_domain(self):
         assert get_source_tier_for_domain("wowpedia.fandom.com") == "official"
-        assert get_source_tier_for_domain("wowhead.com") == "primary"
+        assert get_source_tier_for_domain("warcraft.wiki.gg") == "primary"
         assert get_source_tier_for_domain("icy-veins.com") == "secondary"
 
     def test_get_source_tier_for_subdomain(self):
-        assert get_source_tier_for_domain("www.wowhead.com") == "primary"
+        assert get_source_tier_for_domain("www.warcraft.wiki.gg") == "primary"
 
     def test_get_source_tier_for_unknown_domain(self):
         assert get_source_tier_for_domain("randomsite.com") is None

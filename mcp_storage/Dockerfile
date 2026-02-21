@@ -4,10 +4,11 @@ WORKDIR /app
 
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
 
-COPY pyproject.toml .
+COPY mcp_storage/pyproject.toml .
 RUN uv pip install --system --no-cache .
 
-COPY src/ src/
+COPY shared/ shared/
+COPY mcp_storage/src/ src/
 
 EXPOSE 8005
 

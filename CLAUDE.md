@@ -127,11 +127,10 @@ Next Story = World Lore + Quest Lore + Character + Dynamics + Narrative History
 
 | Service | Purpose |
 |---------|---------|
-| Storage MCP | Single service with 5 domain collections (SurrealDB backend) |
+| Storage MCP | Single service with 5 domain collections (SurrealDB backend). Embedding on write via shared provider. |
 | Web Search MCP | Search the open web (DuckDuckGo) |
 | Web Crawler MCP | Extract content from URLs |
 | Filesystem MCP | Read/write file operations |
-| Embedding MCP | Vector embedding generation |
 
 ### Infrastructure Services
 
@@ -182,7 +181,6 @@ mythline/
 +-- mcp_web_search/
 +-- mcp_web_crawler/
 +-- mcp_filesystem/
-+-- mcp_embedding/
 |
 +-- s_rabbitmq/                     # Infrastructure services
 +-- s_surrealdb/
@@ -442,7 +440,7 @@ We build vertically by functional unit, not horizontally by tech layer. Infrastr
 1. Knowledge Acquisition — one researcher-validator pair at a time (World Lore first, then Quest, Character, Dynamics, Narrative History)
 2. Drama Production — following the natural flow (Story Architect → Scene Director → Character Director → Narrator → Dialogist → Shot Composer → Quality Assessor → Continuity Service)
 
-The first researcher (World Lore) naturally forces us to build most infrastructure (SurrealDB, Storage MCP, Web Search MCP, Web Crawler MCP, Embedding MCP, RabbitMQ, Docker). Each subsequent unit is incremental.
+The first researcher (World Lore) naturally forces us to build most infrastructure (SurrealDB, Storage MCP, Web Search MCP, Web Crawler MCP, RabbitMQ, Docker). Each subsequent unit is incremental.
 
 ---
 

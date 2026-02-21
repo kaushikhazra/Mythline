@@ -24,7 +24,7 @@ from src.pipeline import (
 
 MOCK_SEARCH_RESULTS = [
     {"title": "Elwynn Forest - Wowpedia", "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest", "snippet": "Elwynn Forest..."},
-    {"title": "Elwynn Forest - Wowhead", "url": "https://www.wowhead.com/zone=12/elwynn-forest", "snippet": "Zone guide..."},
+    {"title": "Elwynn Forest - Warcraft Wiki", "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest", "snippet": "Zone guide..."},
 ]
 
 MOCK_CRAWL_RESULT = {

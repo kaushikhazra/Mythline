@@ -35,27 +35,10 @@ services:
 
   # --- MCP Services ---
 
-  mcp-embedding:
-    build:
-      context: ./mcp_embedding
-    ports:
-      - "${MCP_EMBEDDING_PORT:-8004}:8004"
-    environment:
-      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY}
-      EMBEDDING_MODEL: ${EMBEDDING_MODEL:-openai/text-embedding-3-small}
-      OPENROUTER_BASE_URL: ${OPENROUTER_BASE_URL:-https://openrouter.ai/api/v1}
-      MCP_EMBEDDING_PORT: "8004"
-    healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request,urllib.error;exec('try:\\n urllib.request.urlopen(\"http://localhost:8004/mcp\")\\nexcept urllib.error.HTTPError as e:\\n exit(0 if e.code==406 else 1)')"]
-      interval: 15s
-      timeout: 5s
-      retries: 3
-      start_period: 10s
-    restart: unless-stopped
-
   mcp-storage:
     build:
-      context: ./mcp_storage
+      context: .
+      dockerfile: mcp_storage/Dockerfile
     ports:
       - "${MCP_STORAGE_PORT:-8005}:8005"
     environment:
@@ -65,9 +48,10 @@ services:
       SURREALDB_NAMESPACE: ${SURREALDB_NAMESPACE:-mythline}
       SURREALDB_DATABASE: ${SURREALDB_DATABASE:-world_lore}
       MCP_STORAGE_PORT: "8005"
-      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY}
+      EMBEDDING_PROVIDER: ${EMBEDDING_PROVIDER:-openai_compatible}
       EMBEDDING_MODEL: ${EMBEDDING_MODEL:-openai/text-embedding-3-small}
-      OPENROUTER_BASE_URL: ${OPENROUTER_BASE_URL:-https://openrouter.ai/api/v1}
+      EMBEDDING_API_URL: ${EMBEDDING_API_URL:-https://openrouter.ai/api/v1/embeddings}
+      EMBEDDING_API_KEY: ${EMBEDDING_API_KEY:-}
     depends_on:
       surrealdb:
         condition: service_healthy
@@ -114,14 +98,14 @@ services:
 
   world-lore-researcher:
     build:
-      context: ./a_world_lore_researcher
+      context: .
+      dockerfile: a_world_lore_researcher/Dockerfile
     environment:
       AGENT_ID: world_lore_researcher
       GAME_NAME: wow
       STARTING_ZONE: elwynn_forest
-      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY}
-      LLM_MODEL: ${LLM_MODEL:-openai/gpt-4o-mini}
-      OPENROUTER_BASE_URL: ${OPENROUTER_BASE_URL:-https://openrouter.ai/api/v1}
+      LLM_MODEL: ${LLM_MODEL:-openrouter:openai/gpt-4o-mini}
+      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY:-}
       MCP_STORAGE_URL: http://mcp-storage:8005/mcp
       MCP_WEB_SEARCH_URL: http://mcp-web-search:8006/mcp
       MCP_WEB_CRAWLER_URL: http://mcp-web-crawler:8007/mcp

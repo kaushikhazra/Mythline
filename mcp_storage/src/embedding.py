@@ -1,20 +1,29 @@
 """Embedding generation for the Storage MCP service.
 
-Generates vector embeddings on write by calling OpenRouter directly.
-This avoids the overhead of MCP-to-MCP protocol communication.
-The Embedding MCP exists for agents to use via MCP protocol; the Storage
-MCP as infrastructure calls the API directly.
+Uses the shared provider-agnostic embedding strategy pattern.
+Domain logic (_build_embeddable_text, enrich_with_embedding) stays here;
+the actual embedding generation is delegated to shared/embedding.py.
 """
 
-import os
+from __future__ import annotations
 
-import httpx
+import logging
 
-OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY", "")
-EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL", "openai/text-embedding-3-small")
-OPENROUTER_BASE_URL = os.getenv("OPENROUTER_BASE_URL", "https://openrouter.ai/api/v1")
+from shared.embedding import create_embedding_provider, EmbeddingProvider
+
+logger = logging.getLogger(__name__)
 
 EMBEDDABLE_TABLES = {"zone", "npc", "faction", "lore", "narrative_item"}
+
+_provider: EmbeddingProvider | None = None
+
+
+def _get_provider() -> EmbeddingProvider:
+    """Lazy-init the embedding provider singleton."""
+    global _provider
+    if _provider is None:
+        _provider = create_embedding_provider()
+    return _provider
 
 
 def _build_embeddable_text(table: str, data: dict) -> str:
@@ -64,31 +73,15 @@ def _build_embeddable_text(table: str, data: dict) -> str:
 
 
 async def generate_embedding(text: str) -> list[float] | None:
-    """Generate an embedding vector by calling OpenRouter directly.
+    """Generate an embedding vector via the configured provider.
 
-    Returns None if the API key is not set or the call fails.
+    Returns None if the provider is not configured or the call fails.
     """
-    if not OPENROUTER_API_KEY:
-        return None
-
     try:
-        async with httpx.AsyncClient() as client:
-            response = await client.post(
-                f"{OPENROUTER_BASE_URL}/embeddings",
-                headers={
-                    "Authorization": f"Bearer {OPENROUTER_API_KEY}",
-                    "Content-Type": "application/json",
-                },
-                json={
-                    "model": EMBEDDING_MODEL,
-                    "input": text,
-                },
-                timeout=30.0,
-            )
-            response.raise_for_status()
-            data = response.json()
-            return data["data"][0]["embedding"]
-    except (httpx.HTTPError, KeyError, IndexError):
+        provider = _get_provider()
+        return await provider.embed(text)
+    except Exception:
+        logger.debug("Embedding generation failed", exc_info=True)
         return None
 
 
