@@ -1,469 +1,464 @@
-# CLAUDE.md - AI Agent Development Guide
+# CLAUDE.md — Mythline v2
 
-This document provides guidance for AI agents (like Claude) working on the Mythline codebase.
+This document is the development guide for Mythline. It captures principles, conventions, and an index to detailed design documents. It is written for Kaushik and Velasari (Claude) — the two builders of this system.
+
+---
 
 ## Project Overview
 
-Mythline is a multi-agent AI storytelling system built with Pydantic AI. The system creates World of Warcraft narratives using specialized agents that research lore, generate narration, create dialogue, and track user preferences.
+Mythline is a multi-agent AI storytelling system that creates MMORPG narratives. The system researches game lore, builds character profiles, and produces cinematic drama — all through autonomous, collaborating AI agents. World of Warcraft is the first target, but the architecture is MMORPG-generic by design.
 
-## Architecture Principles
+---
 
-### Agent Design Pattern
+## Development Philosophy
 
-All agents follow a consistent pattern defined in `PDs/pydantic_ai_coding_guide.md`:
+### Root Cause over Patch
 
-**Standard Agent Structure:**
+We do not solve problems by patching symptoms. When something breaks or behaves unexpectedly:
+
+1. **Investigate the root cause** — understand why, not just what
+2. **Research probable solutions** — don't grab the first fix that compiles
+3. **Evaluate and pick the best** — if multiple viable options exist, discuss before implementing
+4. **If either of us is confused — stop** — discuss until both understand, then implement
+
+Perfection over speed. Shortcuts create debt. Understanding creates quality.
+
+### SOLID, DRY, KISS
+
+These three principles govern all code decisions:
+
+- **SOLID** — Single responsibility, open/closed, Liskov substitution, interface segregation, dependency inversion
+- **DRY** — Don't repeat yourself. But don't prematurely abstract either — three similar lines are better than a premature abstraction
+- **KISS** — The simplest solution that works correctly is the best solution
+
+### Reuse Before Build
+
+Never assume we have to build from scratch. The software ecosystem is vast. Before building any component:
+
+1. Search the web for existing libraries that solve the problem
+2. If multiple options exist, present the list with recommendations — we discuss and pick together
+3. Only build custom if no suitable library exists (and that's also an opportunity to open-source)
+
+### Incremental Development
+
+We build and validate incrementally. Each component must be tested as it's added — unit tests prove it works in isolation, integration tests prove it fits with existing components, and regression tests prove nothing broke.
+
+### Docker-First
+
+Every component must work in Docker, not just locally. The validation sequence is: prove it works locally first, then prove it works in Docker. If it doesn't run in a container, it's not done.
+
+---
+
+## Architecture Overview
+
+Mythline v2 is composed of two fundamentally different systems sharing a common data layer:
+
 ```
-agent_name/
-├── __init__.py
-├── agent.py
-├── prompts/
-│   └── system_prompt.md
-└── config/
-    └── mcp_config.json (optional)
-```
+KNOWLEDGE ACQUISITION (5 autonomous pipelines)
+  Research Agent -> Validator Agent -> MCP Store   (per domain)
+  Runs continuously as daemons. No coordination between pipelines.
 
-**Agent Class Pattern:**
-- OOP design with class-based agents
-- `AGENT_ID` constant for identification
-- `__init__(session_id: str)` for stateful agents
-- `run(prompt: str) -> AgentRunResult` method
-- Context memory for coherent conversations
+                    5 Domain MCP Stores
+                    (shared data layer)
 
-### Agent Types
-
-**Orchestrator Agents (with MCP tools)**
-- story_research_agent
-- story_creator_agent
-- shot_creator_agent
-- video_director_agent
-- Load MCP servers for external tools
-- Have both context and long-term memory
-- Delegate specialized tasks to sub-agents
-
-**Sub-Agents (stateful)**
-- narrator_agent
-- dialog_creator_agent
-- story_planner_agent
-- shot_reviewer_agent
-- story_reviewer_agent
-- Have context memory for coherent output
-- No MCP servers (lightweight)
-- Focused single purpose
-
-**Sub-Agents (stateless)**
-- user_preference_agent
-- chunker_agent
-- location_extractor_agent
-- npc_extractor_agent
-- quest_extractor_agent
-- research_input_parser_agent
-- search_query_generator
-- story_setting_extractor_agent
-- quality_assessor
-- youtube_metadata_agent
-- llm_tester_agent
-- No session_id or context memory
-- Pure input/output transformation
-- Used for analysis and extraction
-
-## Memory System
-
-### Context Memory
-
-**Location:** `.mythline/{agent_id}/context_memory/{session_id}.json`
-
-**Purpose:**
-- Maintains conversation history per session
-- Enables coherent multi-turn interactions
-- Agent-specific namespaces
-
-**Implementation:**
-```python
-from src.libs.agent_memory.context_memory import save_context, load_context
-
-self.messages = load_context(self.AGENT_ID, session_id)
-agent_output = self.agent.run_sync(prompt, message_history=self.messages)
-self.messages = agent_output.all_messages()
-save_context(self.AGENT_ID, self.session_id, self.messages)
+DRAMA PRODUCTION (8-agent swarm)
+  Agents collaborate via RabbitMQ message channels.
+  Quality Assessor gates output (score >= 0.8 to pass).
+  Done when all scenes across all quests are finalized.
 ```
 
-### Long-term Memory
+### Core Principles
 
-**Location:** `.mythline/{agent_id}/long_term_memory/memory.json`
+- **MCP = data layer** (stores and serves). **Agents = intelligence layer** (thinks and creates).
+- **Every component is a Docker container.** Agents, MCPs, infrastructure — all containerized.
+- **Each agent is independent.** Own codebase, own Dockerfile, own .env. No shared harness. This preserves the freedom to diverge — today Pydantic AI, tomorrow maybe Claude SDK for a specific agent.
+- **RabbitMQ is the universal communication backbone.** All agent-to-agent communication flows through RabbitMQ channels.
+- **Environment variables for configuration.** Layered overrides: Docker -> .env -> default values.
 
-**Purpose:**
-- Cross-session preference storage
-- User preference tracking
-- Agent-specific memory
+### The Five Knowledge Domains
 
-**Implementation:**
-```python
-from src.libs.agent_memory.long_term_memory import save_long_term_memory, load_long_term_memory
+| Domain | What it stores |
+|--------|---------------|
+| World Lore | Canonical game world — zones, factions, NPCs, cosmology, history. Era-versioned. |
+| Quest Lore | Quest chains — structure, prerequisites, outcomes, NPC involvement. |
+| Character | Player identity, capabilities, nature, reputation, journal, growth arc. |
+| Dynamics | Computed NPC dispositions, faction politics, phased world state. |
+| Narrative History | Scene-level index of previous interactions. NOT prose — queryable metadata. |
 
-preferences = load_long_term_memory(self.AGENT_ID)
-save_long_term_memory(self.AGENT_ID, preference_text)
+### Story Formula
+
+```
+Next Story = World Lore + Quest Lore + Character + Dynamics + Narrative History
+                                                                  ^
+                                                    (each story feeds back in)
 ```
 
-## MCP Servers
+### Agent Inventory (18 total)
 
-### Available Servers
+**Knowledge Acquisition (10 agents — 2 per domain):**
 
-**mcp_web_search (port 8000)**
-- Web search via DuckDuckGo
-- Auto-crawls top 5 results
-- Returns combined content
+| Agent | Role |
+|-------|------|
+| World Lore Researcher | Researches game world from web sources |
+| World Lore Validator | Validates lore accuracy and source quality |
+| Quest Lore Researcher | Researches quest chains and structure |
+| Quest Lore Validator | Validates quest data integrity |
+| Character Researcher | Captures and researches character data |
+| Character Validator | Validates character consistency |
+| Dynamics Researcher | Computes NPC/faction/world state |
+| Dynamics Validator | Validates relational consistency |
+| Narrative History Researcher | Reads story output, indexes interactions |
+| Narrative History Validator | Validates continuity and threads |
 
-**mcp_web_crawler (port 8001)**
-- URL content extraction
-- Markdown conversion
-- Single page crawling
+**Drama Production (8 agents):**
 
-**mcp_filesystem (port 8002)**
-- File read/write operations
-- Directory operations
-- File existence checks
+| Agent | Role |
+|-------|------|
+| Story Architect | Plans narrative arc and scene structure |
+| Scene Director | Plans per-scene beats and breakdown |
+| Character Director | Directs behavior within game gesture constraints |
+| Narrator | Writes descriptive narrative |
+| Dialogist | Writes character dialogue |
+| Shot Composer | Creates cinematic shot list |
+| Quality Assessor | Scores output 0-1, provides feedback |
+| Continuity Service | Cross-cutting — answers consistency queries from any agent |
 
-**mcp_knowledge_base (port 8003)**
-- Vector-based knowledge storage
-- Semantic search with Qdrant
-- Embedding-powered retrieval
+### MCP Services (5 total)
 
-## External Service Libraries
+| Service | Purpose |
+|---------|---------|
+| Storage MCP | Single service with 5 domain collections (SurrealDB backend) |
+| Web Search MCP | Search the open web (DuckDuckGo) |
+| Web Crawler MCP | Extract content from URLs |
+| Filesystem MCP | Read/write file operations |
+| Embedding MCP | Vector embedding generation |
 
-### YouTube Uploader (`src/libs/youtube/`)
+### Infrastructure Services
 
-**Purpose:** Upload videos to YouTube with full metadata support
+| Service | Purpose |
+|---------|---------|
+| RabbitMQ | Universal message queue for all agent communication |
+| SurrealDB | Backend for Storage MCP (vector + graph + SQL) |
 
-**Components:**
-- `auth.py` - OAuth 2.0 authentication with token storage
-- `uploader.py` - YouTubeUploader class following OBSController pattern
+### External Service Libraries
 
-**Credential Storage:** `.mythline/youtube/credentials.json`
+These v1 libraries carry forward into v2:
 
-**Usage:**
-```python
-from src.libs.youtube import YouTubeUploader, VideoMetadata
+| Library | Purpose |
+|---------|---------|
+| YouTube Uploader | Upload videos to YouTube with metadata |
+| OBS Controller | Control OBS Studio for screen recording |
+| Voice Recognition | Voice command recognition for navigation |
 
-uploader = YouTubeUploader()
-success, error = uploader.connect()
+---
 
-metadata = VideoMetadata(
-    title="My Video",
-    description="Description",
-    tags=["tag1", "tag2"],
-    privacy_status="private"
-)
+## Repository Structure
 
-success, video_id, error = uploader.upload(video_path, metadata)
+Flat prefixed layout at the root. Each agent and service is its own deployable unit.
+
+```
+mythline/
+|
++-- a_world_lore_researcher/       # Agent: own Dockerfile, .env, pyproject.toml, prompts/
++-- a_world_lore_validator/
++-- a_quest_lore_researcher/
++-- a_quest_lore_validator/
++-- a_character_researcher/
++-- a_character_validator/
++-- a_dynamics_researcher/
++-- a_dynamics_validator/
++-- a_narrative_hx_researcher/
++-- a_narrative_hx_validator/
++-- a_story_architect/
++-- a_scene_director/
++-- a_character_director/
++-- a_narrator/
++-- a_dialogist/
++-- a_shot_composer/
++-- a_quality_assessor/
++-- a_continuity_service/
+|
++-- mcp_storage/                    # MCP services
++-- mcp_web_search/
++-- mcp_web_crawler/
++-- mcp_filesystem/
++-- mcp_embedding/
+|
++-- s_rabbitmq/                     # Infrastructure services
++-- s_surrealdb/
+|
++-- shared/                         # Central utilities (see below)
+|
++-- web/                            # UI
+|   +-- backend/                    # FastAPI + WebSocket
+|   +-- frontend/                   # React + Vite + TypeScript
+|
++-- docker-compose.yml              # Orchestrates all containers
++-- .env                            # Root-level defaults
 ```
 
-### OBS Controller (`src/libs/obs/`)
+### Naming Conventions
 
-**Purpose:** Control OBS Studio for screen recording
+- **Root folders**: Prefixed — `a_` (agents), `mcp_` (MCP services), `s_` (infrastructure services)
+- **Python files/folders**: `snake_case` (PEP 8)
+- **TypeScript components**: `PascalCase` (e.g., `MessageFeed.tsx`, `ChannelList.tsx`)
+- **TypeScript utilities/hooks**: `camelCase` (e.g., `useWebSocket.ts`, `formatTimestamp.ts`)
 
-**Pattern:** Service controller with connect/disconnect and tuple returns
+### The `shared/` Folder
 
-### Voice Recognition (`src/libs/voice/`)
+Contains central utilities that all agents and services use — things that don't diverge independently:
 
-**Purpose:** Voice command recognition for hands-free navigation
+- Pydantic models for RabbitMQ message schemas
+- Structured logging emitter and decorators
+- Common type definitions
+- Parsing utilities
+- MCP client helpers
+- File creation utilities
 
-**Components:**
-- `voice_recognizer.py` - Vosk-based speech recognition
-- `voice_commands.py` - Command parsing and interpretation
+### Per-Agent Structure
 
-### Embedding (`src/libs/embedding/`)
+Each agent folder is self-contained:
 
-**Purpose:** Text embedding generation for semantic operations
-
-**Usage:** Supports knowledge base and semantic search functionality
-
-### Knowledge Base (`src/libs/knowledge_base/`)
-
-**Purpose:** Vector storage and semantic retrieval
-
-**Components:** Qdrant-based vector database operations
-
-### Logger (`src/libs/logger/`)
-
-**Purpose:** Centralized logging utilities
-
-**Usage:** Consistent logging across agents and services
-
-### Parsers (`src/libs/parsers/`)
-
-**Purpose:** Content parsing utilities
-
-**Usage:** Parse and structure various content formats
-
-### MCP Configuration
-
-MCP servers are configured per agent in `config/mcp_config.json`:
-
-```json
-{
-  "mcpServers": {
-    "web-search": {
-      "url": "http://localhost:8000/mcp"
-    },
-    "web-crawler": {
-      "url": "http://localhost:8001/mcp"
-    },
-    "filesystem": {
-      "url": "http://localhost:8002/mcp"
-    }
-  }
-}
 ```
+a_narrator/
++-- Dockerfile
++-- .env
++-- pyproject.toml
++-- uv.lock
++-- prompts/
+|   +-- system_prompt.md
++-- src/
+|   +-- agent.py
+|   +-- ...
+```
+
+---
 
 ## Coding Standards
 
-### KISS Philosophy
+### Python — PEP 8
 
-**DO:**
-- Keep code simple and readable
-- Use OOP where appropriate
-- Follow existing patterns
-- Self-documenting code
-
-**DON'T:**
-- Add comments (code should be self-explanatory)
-- Add unnecessary logging
-- Use inline imports
-- Add extra validation/verification
-- Use emojis in code
-
-### File Structure
-
-**Imports:**
-- All imports at the top
-- Standard library first
-- Third-party second
-- Local imports last
+- Follow PEP 8 for all Python code
+- Docstrings for modules, classes, and functions (PEP 257)
+- Inline comments for **why**, not **what** — the code explains what, comments explain reasoning
+- All imports at the top: standard library, then third-party, then local
 - No inline imports
+- No emojis in code
 
-**String Formatting:**
-```python
-single_line = "Some value"
+### TypeScript — Standard Conventions
 
-multi_line = """
-    This is line 1
-    This is line 2
-"""
+- PascalCase for components and types
+- camelCase for functions, variables, hooks
+- Strict mode enabled
+- Functional components with hooks
+
+### Frontend Structure
+
+```
+web/frontend/src/
++-- components/        # Reusable UI pieces: Button, MessageEntry, ChannelList
++-- features/          # Feature-grouped: drama/, knowledge/, settings/
++-- hooks/             # Custom hooks: useWebSocket, useChannel
++-- layouts/           # Page shells: DashboardLayout, SidebarLayout
++-- pages/             # Route-level: DramaPage, KnowledgePage
++-- providers/         # React Context: WebSocketProvider, ThemeProvider
 ```
 
 ### Prompt Management
 
-**System Prompts:**
-- Stored in `prompts/system_prompt.md`
+- System prompts stored in `prompts/system_prompt.md` per agent
 - Markdown format
 - Sections: Persona, Task, Instructions, Constraints, Output
 
-**Loading Prompts:**
-```python
-from src.libs.utils.prompt_loader import load_agent_prompt
-system_prompt = load_agent_prompt(__file__)
+---
+
+## Error Handling
+
+Production-grade error handling through elegant, reusable patterns — not scattered try/catch blocks.
+
+**Philosophy**: Reduce error handling code by breaking concerns into decorators and reusable patterns. Centralize where it makes sense, but don't force a single strategy on everything.
+
+**Patterns to use:**
+- **Retry decorators** — exponential backoff with jitter for transient failures
+- **Circuit breakers** — prevent cascading failures across services
+- **Dead letter queues** — RabbitMQ DLQ for messages that fail processing
+- **Iteration caps** — safety nets on loops (research-validate cycles, quality iterations)
+
+**Detailed error handling design**: See `.claude/specs/` (to be designed in Phase 1).
+
+---
+
+## Logging & Observability
+
+All agents emit **structured JSON log events** for real-time observability in the UI.
+
+### Log Structure
+
+Every log event includes correlation metadata for grouping and tracing:
+
+- `agent_id` — which agent emitted the event
+- `story_id` — which story production this belongs to (Drama)
+- `domain` — which knowledge domain (Knowledge Acquisition)
+- `timestamp` — when the event occurred
+- `level` — severity (debug, info, warn, error)
+- `event` — what happened
+
+### UI Log Viewer
+
+Logs feed into a hierarchical, real-time viewer in the Discord-style dashboard. Entries are expandable and show animated progress for in-flight operations:
+
 ```
+[narrator] Scene 3 narration started                    12:04:01
+|
+[narrator] Scene 3 narration complete [v]               12:04:18
+    Queried World Lore MCP for Duskwood atmosphere
+    |
+    Queried Continuity Service - confirmed fog motif
+    |
+    Generated 450 tokens, 3.2s
+
+[quality] Score: 0.72 - lore inconsistency in NPC...    12:04:20
+|
+[narrator] Revising Scene 3 narration ...               12:04:21
+    Addressing quality feedback ...
+```
+
+### Persistence
+
+Log events are stored for post-hoc review — not just ephemeral.
+
+**Detailed logging design**: See `.claude/specs/` (to be designed).
+
+---
+
+## Configuration
+
+### Environment Variables — Layered Overrides
+
+```
+Docker (compose env) --overrides--> .env (per-service) --overrides--> default value (in code)
+```
+
+Each agent/service has its own `.env` file. `docker-compose.yml` can override any variable. Code provides sensible defaults as the final fallback.
+
+### Key Environment Variables
+
+```
+OPENROUTER_API_KEY=<your-api-key>
+LLM_MODEL=<provider/model-name>        # OpenRouter format
+RABBITMQ_URL=<amqp-connection-string>
+SURREALDB_URL=<surrealdb-connection-string>
+AGENT_ROLE=<agent-role-identifier>      # Identifies this agent instance
+```
+
+---
+
+## Testing
+
+All three layers, built incrementally:
+
+| Layer | Tool | Purpose |
+|-------|------|---------|
+| Unit | pytest | Individual functions and classes in isolation |
+| Integration | pytest | Agent + MCP, Agent + RabbitMQ, Agent + SurrealDB |
+| E2E | TBD | Full drama pipeline: trigger to final output |
+
+As each component is added, tests must confirm:
+1. The new component works in isolation (unit)
+2. The new component fits with existing components (integration)
+3. Nothing previously working has broken (regression)
+
+---
+
+## Tooling
+
+| Tool | Purpose |
+|------|---------|
+| uv | Python package management (per-agent pyproject.toml + uv.lock) |
+| Pydantic AI v1.62+ | Agent framework with native MCP support |
+| FastMCP | MCP server framework (StreamableHTTP) |
+| RabbitMQ | Message broker (aio-pika Python client) |
+| SurrealDB | Multi-model database (vector + graph + SQL) |
+| Docker + Compose | Containerization and orchestration |
+| React + Vite | Frontend framework and build tool |
+| TanStack Query | Server state management (data fetching, WebSocket) |
+| TanStack Router | Client-side routing |
+| TypeScript | Frontend language (strict mode) |
+| Custom CSS | Styling — dark theme, Discord aesthetic. No Tailwind. |
+
+---
+
+## UI Architecture
+
+Discord-style agent dashboard with real-time updates.
+
+**Tech stack**: React + Vite + TypeScript + TanStack + Custom CSS (dark theme)
+
+**Layout**: Three panels — channel sidebar (left), message feed (center), context panel (right). Channels map to RabbitMQ queue subscriptions. Messages stream via WebSocket from the FastAPI backend.
+
+**Detailed UI design**: See `.claude/specs/v2-architecture/design.md` (UI Architecture section).
+
+---
 
 ## Development Workflow
 
 ### Git-flow
 
-**Branch Structure:**
-- `main` - Production code
-- `develop` - Active development
-- `feature/*` - New features
-- `bugfix/*` - Bug fixes
-- `release/*` - Releases
-- `hotfix/*` - Emergency fixes
+| Branch | Purpose |
+|--------|---------|
+| `main` | Production code |
+| `develop` | Active development |
+| `feature/*` | New features (one spec = one feature) |
+| `bugfix/*` | Bug fixes |
+| `release/*` | Releases |
+| `hotfix/*` | Emergency fixes |
 
-**Starting Work:**
-```bash
-git flow feature start feature-name
-```
+### Spec-Driven Development
 
-**Finishing Work:**
-```bash
-git flow feature finish feature-name
-```
+Every feature follows the spec-driven process:
 
-### Adding New Agents
+1. **Requirement** — `.claude/specs/{feature}/requirement.md` — user stories, acceptance criteria
+2. **Design** — `.claude/specs/{feature}/design.md` — architecture, data models, decisions
+3. **Tasks** — `.claude/specs/{feature}/task.md` — checkbox task list, max 2 levels deep
 
-**1. Create Agent Structure:**
-```bash
-mkdir -p src/agents/new_agent/{prompts,config}
-```
+Task status markers: `[ ]` pending, `[-]` in progress, `[x]` done. Each task references its requirement.
 
-**2. Create Files:**
-- `__init__.py` - Export agent class
-- `agent.py` - Agent implementation
-- `prompts/system_prompt.md` - System prompt
-- `config/mcp_config.json` - MCP config (if needed)
+### Taskyn Integration
 
-**3. Follow Pattern:**
-- Use existing agents as templates
-- Decide if stateful (context memory) or stateless
-- Decide if needs MCP servers
-- Implement `AGENT_ID`, `__init__`, and `run()` method
+Taskyn is the dashboard. `.claude/specs/` is the substance.
 
-**4. Import Pattern:**
-```python
-from src.agents.new_agent import NewAgent
-```
+- Taskyn nodes point to spec files — never duplicate long-form content
+- Create stories/tasks only when starting work, directly in "approved" or "in_progress"
+- Mark done immediately when work completes — one transition, inline with real work
+- Track work as you do it, not before or after
 
-### Adding New MCP Servers
+---
 
-**1. Create Server Structure:**
-```bash
-mkdir -p src/mcp_servers/mcp_new_server
-```
+## Design Documents Index
 
-**2. Create Files:**
-- `__init__.py`
-- `server.py` - FastMCP server implementation
+| Document | Location | Content |
+|----------|----------|---------|
+| v2 Requirements | `.claude/specs/v2-architecture/requirement.md` | Discovery questions, knowledge domains, architecture requirements |
+| v2 Design | `.claude/specs/v2-architecture/design.md` | Full architecture — systems, agents, data model, deployment, UI |
+| v2 Tasks | `.claude/specs/v2-architecture/task.md` | Phase-level task checklist |
+| Pydantic AI Research | `.claude/research/pydantic-ai-state-of-framework-2026.md` | Framework capabilities and ecosystem |
+| WoW Systems Research | `.claude/research/wow-systems-for-roleplay-storytelling.md` | MMORPG data model validation |
+| Daemon Processes Research | `.claude/research/autonomous-agent-daemon-processes.md` | Process management and scheduling |
+| Docker MCP Research | `.claude/research/docker-mcp-integration.md` | Containerization and MCP Gateway |
+| Message Queue Research | `.claude/research/message-queue-for-drama-agents.md` | Broker evaluation and selection |
+| Storage Research | `.claude/research/vector-db-knowledge-storage-research.md` | Database evaluation (SurrealDB decision) |
 
-**3. Server Pattern:**
-```python
-from mcp.server.fastmcp import FastMCP
+---
 
-server = FastMCP(name="Server Name", port=port)
-
-@server.tool()
-async def tool_name(arg: type) -> return_type:
-    pass
-
-if __name__=='__main__':
-    server.run(transport='streamable-http')
-```
-
-**4. Add Batch File:**
-Create `start_new_server.bat` for easy startup.
-
-## Common Tasks
-
-### Testing Agents Locally
-
-```bash
-# Story research (interactive)
-python -m src.ui.cli.research_story
-
-# Story creation (non-interactive, requires --subject)
-python -m src.ui.cli.create_story --subject shadowglen
-```
-
-### Voice Navigator
-
-```bash
-# Start voice-controlled shot navigation
-python -m src.ui.cli.voice_navigator --subject shadowglen
-```
-
-### YouTube Upload
-
-```bash
-# Upload video with auto-generated metadata from story
-python -m src.ui.cli.upload_youtube --subject last_stand
-
-# Upload with custom privacy setting
-python -m src.ui.cli.upload_youtube --subject last_stand -p public
-
-# List categories and playlists
-python -m src.ui.cli.upload_youtube --list-categories
-python -m src.ui.cli.upload_youtube --list-playlists
-
-# Clear stored credentials
-python -m src.ui.cli.upload_youtube --logout
-```
-
-### Checking Memory
-
-Context memory: `.mythline/{agent_id}/context_memory/`
-Long-term memory: `.mythline/{agent_id}/long_term_memory/`
-
-### Debugging
-
-- Check MCP server status (should be running)
-- Verify `.env` configuration
-- Check session files in `.mythline/`
-- Review agent system prompts
-
-## Sub-Agent Integration
-
-### When to Create Sub-Agents
-
-**Create separate sub-agents when:**
-- Task requires specialized expertise
-- Output needs context memory for coherence
-- Functionality is reusable across agents
-- Complexity justifies separation
-
-**Use inline tools when:**
-- Simple, stateless operations
-- One-off functionality
-- Minimal code (< 10 lines)
-
-### Calling Sub-Agents
-
-```python
-self._sub_agent = SubAgent(session_id)
-
-@self.agent.tool
-async def use_sub_agent(ctx: RunContext, input: str) -> str:
-    response = self._sub_agent.run(input)
-    return response.output
-```
-
-## Best Practices
-
-1. **Follow Existing Patterns**: Use current agents as templates
-2. **Keep It Simple**: Avoid over-engineering
-3. **Session Awareness**: Most agents need session_id for context
-4. **Prompt Quality**: Clear, structured prompts in markdown
-5. **Memory Usage**: Context for coherence, long-term for preferences
-6. **MCP Modularity**: Only load needed MCP servers
-7. **Error Handling**: Let Pydantic AI handle most errors
-8. **Testing**: Test with real interactions via CLI
-
-## Reference Files
-
-- `PDs/pydantic_ai_coding_guide.md` - Detailed coding patterns
-- `src/agents/story_research_agent/agent.py` - Research orchestrator example
-- `src/agents/story_creator_agent/agent.py` - Story orchestrator example
-- `src/agents/shot_creator_agent/agent.py` - Simple agent example
-- `src/agents/video_director_agent/agent.py` - Video orchestrator example
-- `src/agents/narrator_agent/agent.py` - Stateful sub-agent example
-- `src/agents/user_preference_agent/agent.py` - Stateless sub-agent example
-- `src/agents/youtube_metadata_agent/agent.py` - Metadata generation example
-
-## Environment Variables
-
-```
-OPENROUTER_API_KEY=required
-LLM_MODEL=openai/gpt-4o-mini (OpenRouter format: provider/model-name)
-EMBEDDING_MODEL=openai/text-embedding-3-small (OpenRouter format for knowledge base embeddings)
-MCP_WEB_SEARCH_PORT=8000
-MCP_WEB_CRAWLER_PORT=8001
-MCP_FILESYSTEM_PORT=8002
-MCP_KNOWLEDGE_BASE_PORT=8003
-QDRANT_PATH=.mythline/knowledge_base
-PYTHONDONTWRITEBYTECODE=1
-```
-
-**Note:** All LLM and embedding operations use OpenRouter as the unified API provider.
-
-## Quick Start for AI Agents
+## Quick Start
 
 When working on Mythline:
 
 1. Read this file first
-2. Check `PDs/pydantic_ai_coding_guide.md` for patterns
-3. Review similar existing agents
-4. Follow KISS principles
-5. No comments, keep code clean
-6. Test via CLI before committing
+2. Check the design documents index above for deep context
+3. Follow SOLID, DRY, KISS
+4. PEP 8 for Python, standard conventions for TypeScript
+5. Root cause over patch — never shortcut understanding
+6. Test incrementally — unit, integration, regression
 7. Use git-flow for branches
-8. Commit with clear messages
-
-## Questions?
-
-Check existing code first. The codebase is designed to be self-documenting.
+8. Track work in Taskyn as you do it, link to specs
