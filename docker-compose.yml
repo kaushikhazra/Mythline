@@ -110,6 +110,37 @@ services:
       start_period: 10s
     restart: unless-stopped
 
+  # --- Agents ---
+
+  world-lore-researcher:
+    build:
+      context: ./a_world_lore_researcher
+    environment:
+      AGENT_ID: world_lore_researcher
+      GAME_NAME: wow
+      STARTING_ZONE: elwynn_forest
+      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY}
+      LLM_MODEL: ${LLM_MODEL:-openai/gpt-4o-mini}
+      OPENROUTER_BASE_URL: ${OPENROUTER_BASE_URL:-https://openrouter.ai/api/v1}
+      MCP_STORAGE_URL: http://mcp-storage:8005/mcp
+      MCP_WEB_SEARCH_URL: http://mcp-web-search:8006/mcp
+      MCP_WEB_CRAWLER_URL: http://mcp-web-crawler:8007/mcp
+      RABBITMQ_URL: amqp://mythline:mythline@rabbitmq:5672/
+      RESEARCH_CYCLE_DELAY_MINUTES: "5"
+      DAILY_TOKEN_BUDGET: "500000"
+      PER_CYCLE_TOKEN_BUDGET: "50000"
+      RATE_LIMIT_REQUESTS_PER_MINUTE: "30"
+    depends_on:
+      mcp-storage:
+        condition: service_healthy
+      mcp-web-search:
+        condition: service_healthy
+      mcp-web-crawler:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    restart: unless-stopped
+
 volumes:
   surrealdb_data:
   rabbitmq_data:
