@@ -27,18 +27,18 @@
   - [x] Docker build and test
   _US-3 (storage dependency, called by Storage MCP)_
 
-- [ ] Web Search MCP — build the search service
-  - [ ] Scaffold `mcp_web_search/` folder with Dockerfile, pyproject.toml, .env
-  - [ ] Implement FastMCP server with DuckDuckGo search
-  - [ ] Implement tool: `search(query, max_results) -> list[SearchResult]`
-  - [ ] Docker build and test
+- [x] Web Search MCP — build the search service
+  - [x] Scaffold `mcp_web_search/` folder with Dockerfile, pyproject.toml, .env
+  - [x] Implement FastMCP server with DuckDuckGo search
+  - [x] Implement tool: `search(query, max_results) -> list[SearchResult]`
+  - [x] Docker build and test
   _US-4 (multi-source research)_
 
-- [ ] Web Crawler MCP — build the crawler service
-  - [ ] Scaffold `mcp_web_crawler/` folder with Dockerfile, pyproject.toml, .env
-  - [ ] Implement FastMCP server with URL content extraction
-  - [ ] Implement tool: `crawl_url(url) -> markdown_content`
-  - [ ] Docker build and test
+- [x] Web Crawler MCP — build the crawler service
+  - [x] Scaffold `mcp_web_crawler/` folder with Dockerfile, pyproject.toml, .env
+  - [x] Implement FastMCP server with URL content extraction
+  - [x] Implement tool: `crawl_url(url) -> markdown_content`
+  - [x] Docker build and test
   _US-4 (multi-source research)_
 
 - [ ] RabbitMQ — setup and configuration
