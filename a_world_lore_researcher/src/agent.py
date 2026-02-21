@@ -32,8 +32,8 @@ from src.models import (
 PROMPTS_DIR = Path(__file__).parent.parent / "prompts"
 
 
-def _load_system_prompt() -> str:
-    prompt_path = PROMPTS_DIR / "system_prompt.md"
+def _load_prompt(name: str) -> str:
+    prompt_path = PROMPTS_DIR / f"{name}.md"
     return prompt_path.read_text(encoding="utf-8")
 
 
@@ -61,14 +61,14 @@ class LoreResearcher:
 
         self._extraction_agent = Agent(
             model_name,
-            system_prompt=_load_system_prompt(),
+            system_prompt=_load_prompt("system_prompt"),
             output_type=ZoneExtraction,
             retries=2,
         )
 
         self._cross_ref_agent = Agent(
             model_name,
-            system_prompt=self._cross_reference_prompt(),
+            system_prompt=_load_prompt("cross_reference"),
             output_type=CrossReferenceResult,
             retries=2,
         )
@@ -86,7 +86,7 @@ class LoreResearcher:
 
         self._research_agent = Agent(
             model_name,
-            system_prompt=_load_system_prompt(),
+            system_prompt=_load_prompt("system_prompt"),
             toolsets=[self._search_server, self._crawler_server],
             retries=2,
         )
@@ -150,21 +150,3 @@ class LoreResearcher:
             )
         return result.output
 
-    @staticmethod
-    def _cross_reference_prompt() -> str:
-        return (
-            "You are a lore consistency validator. Your job is to examine "
-            "extracted game lore data and identify contradictions, inconsistencies, "
-            "or conflicting information between different sources.\n\n"
-            "For each conflict found, identify:\n"
-            "- The data point in question\n"
-            "- The two conflicting claims and their sources\n"
-            "- A suggested resolution (prefer official/primary sources)\n\n"
-            "Assign confidence scores (0.0 to 1.0) for each category:\n"
-            "- zone: overall zone data accuracy\n"
-            "- npcs: NPC data accuracy\n"
-            "- factions: faction data accuracy\n"
-            "- lore: historical/cosmological accuracy\n"
-            "- narrative_items: item data accuracy\n\n"
-            "If data is consistent, mark is_consistent=True with high confidence scores."
-        )

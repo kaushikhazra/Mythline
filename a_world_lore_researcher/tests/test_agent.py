@@ -5,7 +5,7 @@ from unittest.mock import AsyncMock, patch, MagicMock
 
 import pytest
 
-from src.agent import ZoneExtraction, CrossReferenceResult, _load_system_prompt
+from src.agent import ZoneExtraction, CrossReferenceResult, _load_prompt
 from src.models import (
     ZoneData,
     NPCData,
@@ -28,11 +28,17 @@ def _make_researcher():
     return LoreResearcher()
 
 
-class TestLoadSystemPrompt:
-    def test_loads_prompt_file(self):
-        prompt = _load_system_prompt()
+class TestLoadPrompt:
+    def test_loads_system_prompt(self):
+        prompt = _load_prompt("system_prompt")
         assert isinstance(prompt, str)
         assert len(prompt) > 0
+
+    def test_loads_cross_reference_prompt(self):
+        prompt = _load_prompt("cross_reference")
+        assert isinstance(prompt, str)
+        assert "consistency" in prompt.lower()
+        assert "confidence" in prompt.lower()
 
 
 class TestZoneExtraction:
@@ -101,11 +107,6 @@ class TestLoreResearcherInit:
         assert researcher._cross_ref_agent is not None
         assert researcher._research_agent is not None
 
-    def test_cross_reference_prompt(self):
-        from src.agent import LoreResearcher
-        prompt = LoreResearcher._cross_reference_prompt()
-        assert "consistency" in prompt.lower()
-        assert "confidence" in prompt.lower()
 
 
 class TestExtractZoneData:
