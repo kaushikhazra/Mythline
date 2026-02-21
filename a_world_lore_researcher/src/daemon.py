@@ -149,10 +149,8 @@ class Daemon:
 
 
 async def main():
-    logging.basicConfig(
-        level=logging.INFO,
-        format="%(message)s",
-    )
+    from src.logging_config import setup_logging
+    setup_logging()
     daemon = Daemon()
     await daemon.start()
 

@@ -163,10 +163,10 @@
 
 ## 8. Structured Logging
 
-- [ ] Implement structured JSON logging across all modules
-  - [ ] Base fields: agent_id, domain, timestamp, level, event
-  - [ ] All 18 event types from design spec
-  - [ ] Hierarchical event support (parent + sub-events)
+- [x] Implement structured JSON logging across all modules
+  - [x] Base fields: agent_id, domain, timestamp, level, event
+  - [x] All 18 event types from design spec
+  - [x] Hierarchical event support (parent + sub-events via extra fields)
   _US-9 (observability)_
 
 ## 9. System Prompt
