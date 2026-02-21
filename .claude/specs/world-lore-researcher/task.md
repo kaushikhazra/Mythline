@@ -171,12 +171,12 @@
 
 ## 9. System Prompt
 
-- [ ] Write `prompts/system_prompt.md`
-  - [ ] Persona: autonomous lore researcher
-  - [ ] Task: research MMORPG zones depth-first, structure into data model
-  - [ ] Instructions: search strategy, source preference, cross-referencing, conflict handling
-  - [ ] Constraints: stay within budget, respect rate limits, never fabricate lore
-  - [ ] Output: structured data matching Pydantic models
+- [x] Write `prompts/system_prompt.md`
+  - [x] Persona: autonomous lore researcher
+  - [x] Task: research MMORPG zones depth-first, structure into data model
+  - [x] Instructions: search strategy, source preference, cross-referencing, conflict handling
+  - [x] Constraints: stay within budget, respect rate limits, never fabricate lore
+  - [x] Output: structured data matching Pydantic models
   _US-3, US-4, US-5 (research quality)_
 
 ## 10. Testing
