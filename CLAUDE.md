@@ -427,10 +427,22 @@ Task status markers: `[ ]` pending, `[-]` in progress, `[x]` done. Each task ref
 
 Taskyn is the dashboard. `.claude/specs/` is the substance.
 
+- **Everything is tracked in Taskyn** — no untracked work
+- **Time tracking is mandatory** — every work session has a timer running in Taskyn
 - Taskyn nodes point to spec files — never duplicate long-form content
 - Create stories/tasks only when starting work, directly in "approved" or "in_progress"
 - Mark done immediately when work completes — one transition, inline with real work
 - Track work as you do it, not before or after
+
+### Functional Slicing
+
+We build vertically by functional unit, not horizontally by tech layer. Infrastructure gets built because a functional unit needs it, not as a separate phase.
+
+**Build order:**
+1. Knowledge Acquisition — one researcher-validator pair at a time (World Lore first, then Quest, Character, Dynamics, Narrative History)
+2. Drama Production — following the natural flow (Story Architect → Scene Director → Character Director → Narrator → Dialogist → Shot Composer → Quality Assessor → Continuity Service)
+
+The first researcher (World Lore) naturally forces us to build most infrastructure (SurrealDB, Storage MCP, Web Search MCP, Web Crawler MCP, Embedding MCP, RabbitMQ, Docker). Each subsequent unit is incremental.
 
 ---
 
