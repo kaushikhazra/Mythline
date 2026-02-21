@@ -20,11 +20,11 @@
   - [ ] Docker build and test
   _US-3, US-6, US-7 (all data persistence)_
 
-- [ ] Embedding MCP — build the embedding service
-  - [ ] Scaffold `mcp_embedding/` folder with Dockerfile, pyproject.toml, .env
-  - [ ] Implement FastMCP server with OpenRouter embedding endpoint
-  - [ ] Implement tool: `generate_embedding(text) -> vector`
-  - [ ] Docker build and test
+- [x] Embedding MCP — build the embedding service
+  - [x] Scaffold `mcp_embedding/` folder with Dockerfile, pyproject.toml, .env
+  - [x] Implement FastMCP server with OpenRouter embedding endpoint
+  - [x] Implement tool: `generate_embedding(text) -> vector`
+  - [x] Docker build and test
   _US-3 (storage dependency, called by Storage MCP)_
 
 - [ ] Web Search MCP — build the search service
