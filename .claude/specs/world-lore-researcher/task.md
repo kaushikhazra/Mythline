@@ -68,19 +68,19 @@
 
 ## 2. Pydantic Models
 
-- [ ] Define message models in `models.py`
-  - [ ] MessageEnvelope — base message wrapper
-  - [ ] ResearchPackage — zone data + sources + confidence + conflicts
-  - [ ] ValidationResult — accepted/rejected with feedback
-  - [ ] UserDecisionRequired — question + options + context
-  - [ ] UserDecisionResponse — decision_id + choice
+- [x] Define message models in `models.py`
+  - [x] MessageEnvelope — base message wrapper
+  - [x] ResearchPackage — zone data + sources + confidence + conflicts
+  - [x] ValidationResult — accepted/rejected with feedback
+  - [x] UserDecisionRequired — question + options + context
+  - [x] UserDecisionResponse — decision_id + choice
   _US-6 (validator communication), US-2 (fork decisions)_
 
-- [ ] Define data models in `models.py`
-  - [ ] ZoneData, NPCData, FactionData, LoreData, NarrativeItemData
-  - [ ] SourceReference, Conflict, ValidationFeedback
-  - [ ] ResearchCheckpoint
-  - [ ] PhaseState, NPCRelationship, FactionRelation
+- [x] Define data models in `models.py`
+  - [x] ZoneData, NPCData, FactionData, LoreData, NarrativeItemData
+  - [x] SourceReference, Conflict, ValidationFeedback
+  - [x] ResearchCheckpoint
+  - [x] PhaseState, NPCRelationship, FactionRelation
   _US-3 (depth-first data), US-4 (cross-referencing)_
 
 ## 3. Configuration
