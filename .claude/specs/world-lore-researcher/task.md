@@ -100,10 +100,10 @@
 
 ## 4. Checkpoint System
 
-- [ ] Implement `checkpoint.py`
-  - [ ] save_checkpoint(state: ResearchCheckpoint) → Storage MCP
-  - [ ] load_checkpoint() → ResearchCheckpoint | None
-  - [ ] Daily budget reset logic (check last_reset_date vs today)
+- [x] Implement `checkpoint.py`
+  - [x] save_checkpoint(state: ResearchCheckpoint) → Storage MCP
+  - [x] load_checkpoint() → ResearchCheckpoint | None
+  - [x] Daily budget reset logic (check last_reset_date vs today)
   _US-7 (budget controls), US-1 (self-healing)_
 
 ## 5. Research Pipeline
