@@ -11,13 +11,13 @@
   - [x] Document findings — pass/fail decision on SurrealDB vs Qdrant fallback
   _US-3, US-4 (storage dependency)_
 
-- [ ] Storage MCP — build the MCP service with SurrealDB backend
-  - [ ] Scaffold `mcp_storage/` folder with Dockerfile, pyproject.toml, .env
-  - [ ] Implement FastMCP server with SurrealDB connection
-  - [ ] Implement World Lore domain tools: create/read/update/query for zone, npc, faction, lore, narrative_item
-  - [ ] Implement `research_state` collection tools: save_checkpoint, load_checkpoint
-  - [ ] Implement embedding-on-write (call Embedding MCP when persisting)
-  - [ ] Docker build and test
+- [x] Storage MCP — build the MCP service with SurrealDB backend
+  - [x] Scaffold `mcp_storage/` folder with Dockerfile, pyproject.toml, .env
+  - [x] Implement FastMCP server with SurrealDB connection
+  - [x] Implement World Lore domain tools: create/read/update/query for zone, npc, faction, lore, narrative_item
+  - [x] Implement `research_state` collection tools: save_checkpoint, load_checkpoint
+  - [x] Implement embedding-on-write (call Embedding MCP when persisting)
+  - [x] Docker build and test
   _US-3, US-6, US-7 (all data persistence)_
 
 - [x] Embedding MCP — build the embedding service
