@@ -8,7 +8,7 @@ from mcp.server.fastmcp import FastMCP
 
 MCP_WEB_CRAWLER_PORT = int(os.getenv("MCP_WEB_CRAWLER_PORT", "8007"))
 
-server = FastMCP(name="Web Crawler Service", port=MCP_WEB_CRAWLER_PORT)
+server = FastMCP(name="Web Crawler Service", host="0.0.0.0", port=MCP_WEB_CRAWLER_PORT)
 
 
 def _fetch_and_extract(url: str, include_links: bool, include_tables: bool) -> dict:

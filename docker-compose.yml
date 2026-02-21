@@ -1,0 +1,115 @@
+services:
+  # --- Infrastructure ---
+
+  surrealdb:
+    image: surrealdb/surrealdb:v2.6.2
+    user: "0"
+    ports:
+      - "${SURREALDB_PORT:-8010}:8000"
+    command: start --log info --user ${SURREALDB_USER:-root} --pass ${SURREALDB_PASS:-root} surrealkv:/data/mythline.db
+    volumes:
+      - surrealdb_data:/data
+    healthcheck:
+      test: ["CMD", "/surreal", "isready", "--conn", "http://localhost:8000"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  rabbitmq:
+    image: rabbitmq:4.1-management-alpine
+    ports:
+      - "${RABBITMQ_PORT:-5672}:5672"
+      - "${RABBITMQ_MGMT_PORT:-15672}:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-mythline}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASS:-mythline}
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "check_port_connectivity"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # --- MCP Services ---
+
+  mcp-embedding:
+    build:
+      context: ./mcp_embedding
+    ports:
+      - "${MCP_EMBEDDING_PORT:-8004}:8004"
+    environment:
+      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY}
+      EMBEDDING_MODEL: ${EMBEDDING_MODEL:-openai/text-embedding-3-small}
+      OPENROUTER_BASE_URL: ${OPENROUTER_BASE_URL:-https://openrouter.ai/api/v1}
+      MCP_EMBEDDING_PORT: "8004"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request,urllib.error;exec('try:\\n urllib.request.urlopen(\"http://localhost:8004/mcp\")\\nexcept urllib.error.HTTPError as e:\\n exit(0 if e.code==406 else 1)')"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+
+  mcp-storage:
+    build:
+      context: ./mcp_storage
+    ports:
+      - "${MCP_STORAGE_PORT:-8005}:8005"
+    environment:
+      SURREALDB_URL: ws://surrealdb:8000/rpc
+      SURREALDB_USER: ${SURREALDB_USER:-root}
+      SURREALDB_PASS: ${SURREALDB_PASS:-root}
+      SURREALDB_NAMESPACE: ${SURREALDB_NAMESPACE:-mythline}
+      SURREALDB_DATABASE: ${SURREALDB_DATABASE:-world_lore}
+      MCP_STORAGE_PORT: "8005"
+      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY}
+      EMBEDDING_MODEL: ${EMBEDDING_MODEL:-openai/text-embedding-3-small}
+      OPENROUTER_BASE_URL: ${OPENROUTER_BASE_URL:-https://openrouter.ai/api/v1}
+    depends_on:
+      surrealdb:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request,urllib.error;exec('try:\\n urllib.request.urlopen(\"http://localhost:8005/mcp\")\\nexcept urllib.error.HTTPError as e:\\n exit(0 if e.code==406 else 1)')"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+
+  mcp-web-search:
+    build:
+      context: ./mcp_web_search
+    ports:
+      - "${MCP_WEB_SEARCH_PORT:-8006}:8006"
+    environment:
+      MCP_WEB_SEARCH_PORT: "8006"
+      SEARCH_MAX_RESULTS: ${SEARCH_MAX_RESULTS:-10}
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request,urllib.error;exec('try:\\n urllib.request.urlopen(\"http://localhost:8006/mcp\")\\nexcept urllib.error.HTTPError as e:\\n exit(0 if e.code==406 else 1)')"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+
+  mcp-web-crawler:
+    build:
+      context: ./mcp_web_crawler
+    ports:
+      - "${MCP_WEB_CRAWLER_PORT:-8007}:8007"
+    environment:
+      MCP_WEB_CRAWLER_PORT: "8007"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request,urllib.error;exec('try:\\n urllib.request.urlopen(\"http://localhost:8007/mcp\")\\nexcept urllib.error.HTTPError as e:\\n exit(0 if e.code==406 else 1)')"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+
+volumes:
+  surrealdb_data:
+  rabbitmq_data:

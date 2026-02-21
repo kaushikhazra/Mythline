@@ -13,7 +13,7 @@ from src.schema import initialize_schema
 
 MCP_STORAGE_PORT = int(os.getenv("MCP_STORAGE_PORT", "8005"))
 
-server = FastMCP(name="Storage Service", port=MCP_STORAGE_PORT)
+server = FastMCP(name="Storage Service", host="0.0.0.0", port=MCP_STORAGE_PORT)
 
 VALID_TABLES = {"zone", "npc", "faction", "lore", "narrative_item"}
 VALID_RELATIONS = {

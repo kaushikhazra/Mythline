@@ -9,7 +9,7 @@ from mcp.server.fastmcp import FastMCP
 MCP_WEB_SEARCH_PORT = int(os.getenv("MCP_WEB_SEARCH_PORT", "8006"))
 SEARCH_MAX_RESULTS = int(os.getenv("SEARCH_MAX_RESULTS", "10"))
 
-server = FastMCP(name="Web Search Service", port=MCP_WEB_SEARCH_PORT)
+server = FastMCP(name="Web Search Service", host="0.0.0.0", port=MCP_WEB_SEARCH_PORT)
 
 
 def _search_sync(query: str, max_results: int) -> list[dict]:

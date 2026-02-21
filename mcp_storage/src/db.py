@@ -1,5 +1,7 @@
 """SurrealDB connection management for the Storage MCP service."""
 
+from __future__ import annotations
+
 import json
 import os
 from datetime import datetime

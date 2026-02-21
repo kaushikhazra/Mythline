@@ -41,18 +41,18 @@
   - [x] Docker build and test
   _US-4 (multi-source research)_
 
-- [ ] RabbitMQ — setup and configuration
-  - [ ] Add RabbitMQ service to docker-compose.yml with health check
-  - [ ] Create `knowledge.topic` exchange (topic type, durable)
-  - [ ] Create queues: `agent.world_lore_researcher`, `agent.world_lore_validator`, `user.decisions`
-  - [ ] Test publish/subscribe from Python using aio-pika
+- [x] RabbitMQ — setup and configuration
+  - [x] Add RabbitMQ service to docker-compose.yml with health check
+  - [x] Create `knowledge.topic` exchange (topic type, durable)
+  - [x] Create queues: `agent.world_lore_researcher`, `agent.world_lore_validator`, `user.decisions`
+  - [x] Test publish/subscribe from Python using aio-pika
   _US-6 (validator communication)_
 
-- [ ] Docker Compose — base orchestration
-  - [ ] Create root docker-compose.yml with infrastructure services (RabbitMQ, SurrealDB)
-  - [ ] Add MCP services (storage, embedding, web_search, web_crawler)
-  - [ ] Configure networking, health checks, volume mounts
-  - [ ] Verify all services start and communicate
+- [x] Docker Compose — base orchestration
+  - [x] Create root docker-compose.yml with infrastructure services (RabbitMQ, SurrealDB)
+  - [x] Add MCP services (storage, embedding, web_search, web_crawler)
+  - [x] Configure networking, health checks, volume mounts
+  - [x] Verify all services start and communicate
   _US-1 (daemon in Docker)_
 
 ## 1. Agent Scaffold

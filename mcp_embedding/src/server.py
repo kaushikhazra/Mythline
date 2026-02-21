@@ -10,7 +10,7 @@ EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL", "openai/text-embedding-3-small")
 OPENROUTER_BASE_URL = os.getenv("OPENROUTER_BASE_URL", "https://openrouter.ai/api/v1")
 MCP_EMBEDDING_PORT = int(os.getenv("MCP_EMBEDDING_PORT", "8004"))
 
-server = FastMCP(name="Embedding Service", port=MCP_EMBEDDING_PORT)
+server = FastMCP(name="Embedding Service", host="0.0.0.0", port=MCP_EMBEDDING_PORT)
 
 
 @server.tool()
