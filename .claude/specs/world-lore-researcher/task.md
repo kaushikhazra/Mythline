@@ -2,13 +2,13 @@
 
 ## 0. Prerequisites (Infrastructure)
 
-- [ ] SurrealDB PoC — validate on Windows: embedded mode, vector search, graph traversal, CRUD, Python SDK stability
-  - [ ] Install SurrealDB locally and in Docker
-  - [ ] Create test tables matching World Lore schema (zone, npc, faction, lore, narrative_item)
-  - [ ] Test RELATE operations for graph edges (CONNECTS_TO, BELONGS_TO, etc.)
-  - [ ] Test vector search (embedding similarity query)
-  - [ ] Test basic CRUD operations via Python SDK (`surrealdb`)
-  - [ ] Document findings — pass/fail decision on SurrealDB vs Qdrant fallback
+- [x] SurrealDB PoC — validate on Windows: embedded mode, vector search, graph traversal, CRUD, Python SDK stability
+  - [x] Install SurrealDB locally and in Docker
+  - [x] Create test tables matching World Lore schema (zone, npc, faction, lore, narrative_item)
+  - [x] Test RELATE operations for graph edges (CONNECTS_TO, BELONGS_TO, etc.)
+  - [x] Test vector search (embedding similarity query)
+  - [x] Test basic CRUD operations via Python SDK (`surrealdb`)
+  - [x] Document findings — pass/fail decision on SurrealDB vs Qdrant fallback
   _US-3, US-4 (storage dependency)_
 
 - [ ] Storage MCP — build the MCP service with SurrealDB backend
