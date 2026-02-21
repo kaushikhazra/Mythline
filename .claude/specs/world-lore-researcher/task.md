@@ -132,21 +132,21 @@
 
 ## 6. Daemon Loop
 
-- [ ] Implement `daemon.py` — main loop and lifecycle
-  - [ ] Startup: load config, connect RabbitMQ, connect MCP, load checkpoint
-  - [ ] Main loop: pick zone → run pipeline → delay → check budget → repeat
-  - [ ] Shutdown: save checkpoint, close connections, exit gracefully
-  - [ ] Signal handling (SIGTERM/SIGINT for Docker stop)
+- [x] Implement `daemon.py` — main loop and lifecycle
+  - [x] Startup: load config, connect RabbitMQ, connect MCP, load checkpoint
+  - [x] Main loop: pick zone → run pipeline → delay → check budget → repeat
+  - [x] Shutdown: save checkpoint, close connections, exit gracefully
+  - [x] Signal handling (SIGTERM/SIGINT for Docker stop)
   _US-1 (autonomous daemon)_
 
-- [ ] Implement validation response handler
+- [ ] Implement validation response handler _(deferred: requires validator agent)_
   - [ ] Listen on researcher's RabbitMQ channel for ValidationResult messages
   - [ ] On accept: clear zone checkpoint, add to completed_zones, move to next zone
   - [ ] On reject: adjust strategy per feedback, re-run relevant pipeline steps
   - [ ] On iteration cap: discard, log, add to failed_zones, move on
   _US-6 (validator communication)_
 
-- [ ] Implement user decision handler
+- [ ] Implement user decision handler _(deferred: requires validator agent)_
   - [ ] Publish UserDecisionRequired to `user.decisions` queue at forks
   - [ ] Wait for UserDecisionResponse on researcher's channel
   - [ ] Reorder progression queue based on user's choice
