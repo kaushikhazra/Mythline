@@ -154,11 +154,11 @@
 
 ## 7. Pydantic AI Agent
 
-- [ ] Implement `agent.py` — the LLM-powered brain
-  - [ ] Create Pydantic AI agent with system prompt from `prompts/system_prompt.md`
-  - [ ] Register MCP tools (Web Search, Web Crawler via MCP Gateway)
-  - [ ] Implement extraction tool calls (LLM structures raw content into data models)
-  - [ ] Implement cross-reference tool (LLM consistency check)
+- [x] Implement `agent.py` — the LLM-powered brain
+  - [x] Create Pydantic AI agent with system prompt from `prompts/system_prompt.md`
+  - [x] Register MCP tools (Web Search, Web Crawler via MCP Gateway)
+  - [x] Implement extraction tool calls (LLM structures raw content into data models)
+  - [x] Implement cross-reference tool (LLM consistency check)
   _US-3 (depth-first extraction), US-4 (cross-referencing)_
 
 ## 8. Structured Logging
