@@ -1,0 +1,34 @@
+game: wow
+game_name: World of Warcraft
+
+source_tiers:
+  official:
+    description: Official Blizzard sources
+    domains:
+      - worldofwarcraft.blizzard.com
+      - wowpedia.fandom.com
+      - news.blizzard.com
+    weight: 1.0
+
+  primary:
+    description: Major community wikis and databases
+    domains:
+      - warcraft.wiki.gg
+      - wow.tools
+    weight: 0.8
+
+  secondary:
+    description: Community guides and lore analysis
+    domains:
+      - icy-veins.com
+      - nobbel87.com
+      - wow.gamepedia.com
+    weight: 0.6
+
+  tertiary:
+    description: General gaming sources
+    domains:
+      - reddit.com/r/wow
+      - reddit.com/r/warcraftlore
+      - mmo-champion.com
+    weight: 0.4

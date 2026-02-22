@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "search": {
+      "url": "${MCP_WEB_SEARCH_URL}",
+      "timeout": 30
+    }
+  }
+}

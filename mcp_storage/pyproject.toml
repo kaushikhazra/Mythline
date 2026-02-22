@@ -1,0 +1,27 @@
+[project]
+name = "mcp-storage"
+version = "0.1.0"
+description = "Storage MCP service for Mythline - SurrealDB backend for world lore and research state"
+requires-python = ">=3.12"
+dependencies = [
+    "mcp>=1.26.0",
+    "httpx>=0.28.0",
+    "uvicorn>=0.34.0",
+    "surrealdb>=1.0.8",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+    "pytest-asyncio>=1.0.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
