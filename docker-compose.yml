@@ -79,19 +79,23 @@ services:
       start_period: 10s
     restart: unless-stopped
 
-  mcp-web-crawler:
-    build:
-      context: ./mcp_web_crawler
+  crawl4ai:
+    image: unclecode/crawl4ai:latest
     ports:
-      - "${MCP_WEB_CRAWLER_PORT:-8007}:8007"
-    environment:
-      MCP_WEB_CRAWLER_PORT: "8007"
+      - "${CRAWL4AI_PORT:-11235}:11235"
+    shm_size: 1g
+    deploy:
+      resources:
+        limits:
+          memory: 4G
+        reservations:
+          memory: 1G
     healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request,urllib.error;exec('try:\\n urllib.request.urlopen(\"http://localhost:8007/mcp\")\\nexcept urllib.error.HTTPError as e:\\n exit(0 if e.code==406 else 1)')"]
-      interval: 15s
-      timeout: 5s
+      test: ["CMD", "curl", "-f", "http://localhost:11235/health"]
+      interval: 30s
+      timeout: 10s
       retries: 3
-      start_period: 10s
+      start_period: 40s
     restart: unless-stopped
 
   # --- Agents ---
@@ -108,7 +112,7 @@ services:
       OPENROUTER_API_KEY: ${OPENROUTER_API_KEY:-}
       MCP_STORAGE_URL: http://mcp-storage:8005/mcp
       MCP_WEB_SEARCH_URL: http://mcp-web-search:8006/mcp
-      MCP_WEB_CRAWLER_URL: http://mcp-web-crawler:8007/mcp
+      MCP_WEB_CRAWLER_URL: http://crawl4ai:11235
       RABBITMQ_URL: amqp://mythline:mythline@rabbitmq:5672/
       RESEARCH_CYCLE_DELAY_MINUTES: "5"
       DAILY_TOKEN_BUDGET: "500000"
@@ -119,7 +123,7 @@ services:
         condition: service_healthy
       mcp-web-search:
         condition: service_healthy
-      mcp-web-crawler:
+      crawl4ai:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy

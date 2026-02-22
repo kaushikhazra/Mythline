@@ -9,82 +9,46 @@ from __future__ import annotations
 import json
 from datetime import date
 
-import httpx
-
 from src.config import AGENT_ID, MCP_STORAGE_URL, DAILY_TOKEN_BUDGET
+from src.mcp_client import mcp_call
 from src.models import ResearchCheckpoint
 
 
 async def save_checkpoint(checkpoint: ResearchCheckpoint) -> None:
-    async with httpx.AsyncClient() as client:
-        response = await client.post(
-            MCP_STORAGE_URL,
-            json={
-                "jsonrpc": "2.0",
-                "id": 1,
-                "method": "tools/call",
-                "params": {
-                    "name": "save_checkpoint",
-                    "arguments": {
-                        "agent_id": AGENT_ID,
-                        "state": checkpoint.model_dump_json(),
-                    },
-                },
-            },
-            timeout=30.0,
-        )
-        response.raise_for_status()
+    await mcp_call(
+        MCP_STORAGE_URL,
+        "save_checkpoint",
+        {"agent_id": AGENT_ID, "state": checkpoint.model_dump_json()},
+    )
 
 
 async def load_checkpoint() -> ResearchCheckpoint | None:
-    async with httpx.AsyncClient() as client:
-        response = await client.post(
-            MCP_STORAGE_URL,
-            json={
-                "jsonrpc": "2.0",
-                "id": 1,
-                "method": "tools/call",
-                "params": {
-                    "name": "load_checkpoint",
-                    "arguments": {
-                        "agent_id": AGENT_ID,
-                    },
-                },
-            },
-            timeout=30.0,
-        )
-        response.raise_for_status()
-        result = response.json()
+    result = await mcp_call(
+        MCP_STORAGE_URL,
+        "load_checkpoint",
+        {"agent_id": AGENT_ID},
+    )
 
-        content = _extract_mcp_text(result)
-        if not content or content == "null":
-            return None
+    if not result or result == "null":
+        return None
 
-        data = json.loads(content)
-        if not data:
-            return None
+    if isinstance(result, str):
+        data = json.loads(result)
+    else:
+        data = result
 
-        return ResearchCheckpoint(**data)
+    if not data:
+        return None
+
+    return ResearchCheckpoint(**data)
 
 
 async def delete_checkpoint() -> None:
-    async with httpx.AsyncClient() as client:
-        response = await client.post(
-            MCP_STORAGE_URL,
-            json={
-                "jsonrpc": "2.0",
-                "id": 1,
-                "method": "tools/call",
-                "params": {
-                    "name": "delete_checkpoint",
-                    "arguments": {
-                        "agent_id": AGENT_ID,
-                    },
-                },
-            },
-            timeout=30.0,
-        )
-        response.raise_for_status()
+    await mcp_call(
+        MCP_STORAGE_URL,
+        "delete_checkpoint",
+        {"agent_id": AGENT_ID},
+    )
 
 
 def check_daily_budget_reset(checkpoint: ResearchCheckpoint) -> ResearchCheckpoint:
@@ -102,13 +66,3 @@ def is_daily_budget_exhausted(checkpoint: ResearchCheckpoint) -> bool:
 def add_tokens_used(checkpoint: ResearchCheckpoint, tokens: int) -> ResearchCheckpoint:
     checkpoint.daily_tokens_used += tokens
     return checkpoint
-
-
-def _extract_mcp_text(response_json: dict) -> str | None:
-    result = response_json.get("result", {})
-    content = result.get("content", [])
-    if content and isinstance(content, list):
-        for item in content:
-            if item.get("type") == "text":
-                return item.get("text")
-    return None

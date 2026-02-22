@@ -39,6 +39,10 @@ EVENT_TYPES = [
 
 class StructuredJsonFormatter(logging.Formatter):
 
+    _DEFAULT_RECORD_KEYS = frozenset(
+        logging.LogRecord("", 0, "", 0, "", (), None).__dict__
+    ) | {"extra_fields", "message"}
+
     def format(self, record: logging.LogRecord) -> str:
         log_entry = {
             "agent_id": AGENT_ID,
@@ -54,10 +58,8 @@ class StructuredJsonFormatter(logging.Formatter):
         elif isinstance(getattr(record, "args", None), dict):
             pass
 
-        for key in list(vars(record)):
-            if key not in logging.LogRecord(
-                "", 0, "", 0, "", (), None
-            ).__dict__ and key not in ("extra_fields", "message"):
+        for key in vars(record):
+            if key not in self._DEFAULT_RECORD_KEYS:
                 val = getattr(record, key)
                 if isinstance(val, (str, int, float, bool, list, dict, type(None))):
                     log_entry[key] = val

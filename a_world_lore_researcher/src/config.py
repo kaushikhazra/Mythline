@@ -29,7 +29,7 @@ RATE_LIMIT_REQUESTS_PER_MINUTE = _int_env("RATE_LIMIT_REQUESTS_PER_MINUTE", 30)
 RABBITMQ_URL = os.getenv("RABBITMQ_URL", "amqp://mythline:mythline@localhost:5672/")
 MCP_STORAGE_URL = os.getenv("MCP_STORAGE_URL", "http://localhost:8005/mcp")
 MCP_WEB_SEARCH_URL = os.getenv("MCP_WEB_SEARCH_URL", "http://localhost:8006/mcp")
-MCP_WEB_CRAWLER_URL = os.getenv("MCP_WEB_CRAWLER_URL", "http://localhost:8007/mcp")
+MCP_WEB_CRAWLER_URL = os.getenv("MCP_WEB_CRAWLER_URL", "http://localhost:11235")
 
 LLM_MODEL = os.getenv("LLM_MODEL", "openrouter:openai/gpt-4o-mini")
 

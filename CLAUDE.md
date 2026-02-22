@@ -123,14 +123,19 @@ Next Story = World Lore + Quest Lore + Character + Dynamics + Narrative History
 | Quality Assessor | Scores output 0-1, provides feedback |
 | Continuity Service | Cross-cutting — answers consistency queries from any agent |
 
-### MCP Services (5 total)
+### MCP Services (3 total)
 
 | Service | Purpose |
 |---------|---------|
 | Storage MCP | Single service with 5 domain collections (SurrealDB backend). Embedding on write via shared provider. |
 | Web Search MCP | Search the open web (DuckDuckGo) |
-| Web Crawler MCP | Extract content from URLs |
 | Filesystem MCP | Read/write file operations |
+
+### External Docker Services
+
+| Service | Purpose |
+|---------|---------|
+| crawl4ai | Headless Chromium web crawler (Playwright + anti-bot). REST API at port 11235. Replaces old mcp_web_crawler. |
 
 ### Infrastructure Services
 
@@ -179,7 +184,6 @@ mythline/
 |
 +-- mcp_storage/                    # MCP services
 +-- mcp_web_search/
-+-- mcp_web_crawler/
 +-- mcp_filesystem/
 |
 +-- s_rabbitmq/                     # Infrastructure services
@@ -457,6 +461,13 @@ The first researcher (World Lore) naturally forces us to build most infrastructu
 | Docker MCP Research | `.claude/research/docker-mcp-integration.md` | Containerization and MCP Gateway |
 | Message Queue Research | `.claude/research/message-queue-for-drama-agents.md` | Broker evaluation and selection |
 | Storage Research | `.claude/research/vector-db-knowledge-storage-research.md` | Database evaluation (SurrealDB decision) |
+
+### Custom Skills
+
+| Skill | Location | Purpose |
+|-------|----------|---------|
+| `/dryrun-design` | `.claude/skills/dryrun-design/SKILL.md` | Dry-run a design doc — 8-pass review for gaps, missing paths, architectural risks |
+| `/dryrun-code` | `.claude/skills/dryrun-code/SKILL.md` | Dry-run implemented code — 9-pass review for bugs, missing handling, contract violations |
 
 ---
 

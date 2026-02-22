@@ -12,6 +12,7 @@ import signal
 
 import aio_pika
 
+from src.agent import LoreResearcher
 from src.checkpoint import (
     check_daily_budget_reset,
     is_daily_budget_exhausted,
@@ -24,10 +25,12 @@ from src.config import (
     RESEARCH_CYCLE_DELAY_MINUTES,
     STARTING_ZONE,
 )
-from src.models import ResearchCheckpoint
+from src.models import MessageEnvelope, ResearchCheckpoint
 from src.pipeline import run_pipeline
 
 logger = logging.getLogger(__name__)
+
+VALIDATOR_QUEUE = "agent.world_lore_validator"
 
 
 class Daemon:
@@ -44,6 +47,9 @@ class Daemon:
 
         await self._connect_rabbitmq()
 
+        researcher = LoreResearcher()
+        publish_fn = self._make_publish_fn()
+
         checkpoint = await load_checkpoint()
         if checkpoint:
             logger.info("checkpoint_loaded", extra={"zone": checkpoint.zone_name, "step": checkpoint.current_step})
@@ -53,11 +59,11 @@ class Daemon:
             checkpoint = ResearchCheckpoint(zone_name=STARTING_ZONE)
 
         try:
-            await self._main_loop(checkpoint)
+            await self._main_loop(checkpoint, researcher, publish_fn)
         finally:
             await self._shutdown(checkpoint)
 
-    async def _main_loop(self, checkpoint: ResearchCheckpoint):
+    async def _main_loop(self, checkpoint: ResearchCheckpoint, researcher: LoreResearcher, publish_fn):
         while self._running:
             if is_daily_budget_exhausted(checkpoint):
                 logger.warning("budget_exhausted", extra={"type": "daily", "tokens_used": checkpoint.daily_tokens_used})
@@ -72,11 +78,14 @@ class Daemon:
                 continue
 
             logger.info("research_cycle_started", extra={"zone_name": zone})
-            checkpoint.zone_name = zone
-            checkpoint.current_step = 0
-            checkpoint.step_data = {}
+            if zone != checkpoint.zone_name or checkpoint.current_step == 0:
+                # New zone — reset checkpoint state
+                checkpoint.zone_name = zone
+                checkpoint.current_step = 0
+                checkpoint.step_data = {}
+            # else: resuming in-progress zone — keep current_step and step_data
 
-            checkpoint = await run_pipeline(checkpoint)
+            checkpoint = await run_pipeline(checkpoint, researcher, publish_fn)
 
             checkpoint.completed_zones.append(zone)
             if zone in checkpoint.progression_queue:
@@ -113,6 +122,21 @@ class Daemon:
 
         return None
 
+    def _make_publish_fn(self):
+        """Return an async callable that publishes a MessageEnvelope to RabbitMQ."""
+        async def publish(envelope: MessageEnvelope):
+            if not self._channel:
+                logger.warning("rabbitmq_publish_skipped", extra={"reason": "no channel"})
+                return
+            await self._channel.default_exchange.publish(
+                aio_pika.Message(
+                    body=envelope.model_dump_json().encode(),
+                    content_type="application/json",
+                ),
+                routing_key=VALIDATOR_QUEUE,
+            )
+        return publish
+
     async def _connect_rabbitmq(self):
         try:
             self._connection = await aio_pika.connect_robust(RABBITMQ_URL)
@@ -131,9 +155,15 @@ class Daemon:
             logger.error("checkpoint_save_failed_on_shutdown", exc_info=True)
 
         if self._channel:
-            await self._channel.close()
+            try:
+                await self._channel.close()
+            except Exception:
+                logger.warning("channel_close_failed", exc_info=True)
         if self._connection:
-            await self._connection.close()
+            try:
+                await self._connection.close()
+            except Exception:
+                logger.warning("connection_close_failed", exc_info=True)
 
     def _setup_signal_handlers(self):
         loop = asyncio.get_running_loop()

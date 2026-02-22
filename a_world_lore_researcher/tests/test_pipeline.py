@@ -1,190 +1,349 @@
-"""Tests for the 10-step research pipeline — individual steps with mocked MCP calls."""
+"""Tests for the 9-step research pipeline — steps call LoreResearcher, not mcp_client."""
 
-from unittest.mock import AsyncMock, patch
+from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
-from src.models import ResearchCheckpoint
+from src.agent import (
+    CrossReferenceResult,
+    LoreResearcher,
+    ResearchResult,
+    ZoneExtraction,
+)
+from src.models import (
+    MessageEnvelope,
+    ResearchCheckpoint,
+    SourceReference,
+    SourceTier,
+    ZoneData,
+    NPCData,
+    FactionData,
+    LoreData,
+    NarrativeItemData,
+    Conflict,
+)
 from src.pipeline import (
     PIPELINE_STEPS,
-    _make_source_ref,
-    step_zone_overview_search,
-    step_zone_overview_extract,
-    step_npc_search,
-    step_npc_extract,
-    step_faction_search_extract,
-    step_lore_search_extract,
-    step_narrative_items_search_extract,
+    run_pipeline,
+    step_zone_overview_research,
+    step_npc_research,
+    step_faction_research,
+    step_lore_research,
+    step_narrative_items_research,
+    step_extract_all,
     step_cross_reference,
     step_discover_connected_zones,
     step_package_and_send,
-    run_pipeline,
 )
 
 
-MOCK_SEARCH_RESULTS = [
-    {"title": "Elwynn Forest - Wowpedia", "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest", "snippet": "Elwynn Forest..."},
-    {"title": "Elwynn Forest - Warcraft Wiki", "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest", "snippet": "Zone guide..."},
-]
+# --- Fixtures ---
 
-MOCK_CRAWL_RESULT = {
-    "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
-    "title": "Elwynn Forest",
-    "content": "# Elwynn Forest\n\nA peaceful forest in the Eastern Kingdoms...",
-    "error": None,
-}
+
+def _mock_researcher() -> MagicMock:
+    """Create a mock LoreResearcher with all methods stubbed."""
+    researcher = MagicMock(spec=LoreResearcher)
+    researcher.AGENT_ID = "world_lore_researcher"
+
+    researcher.research_zone = AsyncMock(return_value=ResearchResult(
+        raw_content=["# Elwynn Forest\nPeaceful starting zone..."],
+        sources=[SourceReference(
+            url="https://wowpedia.fandom.com/wiki/Elwynn",
+            domain="wowpedia.fandom.com",
+            tier=SourceTier.OFFICIAL,
+        )],
+        summary="Researched zone overview.",
+    ))
+
+    researcher.extract_zone_data = AsyncMock(return_value=ZoneExtraction(
+        zone=ZoneData(name="Elwynn Forest", game="wow", narrative_arc="Starting zone"),
+        npcs=[NPCData(name="Marshal Dughan")],
+        factions=[FactionData(name="Stormwind Guard")],
+        lore=[LoreData(title="History of Elwynn")],
+        narrative_items=[NarrativeItemData(name="Hogger's Claw")],
+    ))
+
+    researcher.cross_reference = AsyncMock(return_value=CrossReferenceResult(
+        is_consistent=True,
+        confidence={"zone": 0.9, "npcs": 0.85, "factions": 0.8},
+        notes="All consistent.",
+    ))
+
+    researcher.discover_connected_zones = AsyncMock(
+        return_value=["westfall", "stormwind_city", "redridge_mountains"]
+    )
+
+    return researcher
+
+
+def _fresh_checkpoint() -> ResearchCheckpoint:
+    return ResearchCheckpoint(zone_name="elwynn_forest")
+
+
+# --- Pipeline structure ---
 
 
 class TestPipelineSteps:
-    def test_pipeline_has_10_steps(self):
-        assert len(PIPELINE_STEPS) == 10
+    def test_pipeline_has_9_steps(self):
+        assert len(PIPELINE_STEPS) == 9
 
-    def test_make_source_ref_known_domain(self):
-        ref = _make_source_ref("https://wowpedia.fandom.com/wiki/Elwynn")
-        assert ref.domain == "wowpedia.fandom.com"
+    def test_step_names(self):
+        expected = [
+            "zone_overview_research",
+            "npc_research",
+            "faction_research",
+            "lore_research",
+            "narrative_items_research",
+            "extract_all",
+            "cross_reference",
+            "discover_connected_zones",
+            "package_and_send",
+        ]
+        assert PIPELINE_STEPS == expected
 
-    def test_make_source_ref_unknown_domain(self):
-        ref = _make_source_ref("https://unknown-site.com/page")
-        assert ref.domain == "unknown-site.com"
+
+# --- Steps 1-5: Research ---
 
 
-class TestZoneOverviewSearch:
+class TestResearchSteps:
     @pytest.mark.asyncio
-    @patch("src.pipeline.web_search", new_callable=AsyncMock, return_value=MOCK_SEARCH_RESULTS)
-    async def test_collects_urls(self, mock_search):
-        cp = ResearchCheckpoint(zone_name="elwynn_forest")
-        result = await step_zone_overview_search(cp)
-        assert len(result.step_data["zone_overview_urls"]) == 2
-        assert "wowpedia.fandom.com" in result.step_data["zone_overview_urls"][0]
+    async def test_zone_overview_accumulates(self):
+        cp = _fresh_checkpoint()
+        researcher = _mock_researcher()
+        await step_zone_overview_research(cp, researcher)
 
-
-class TestZoneOverviewExtract:
-    @pytest.mark.asyncio
-    @patch("src.pipeline.crawl_url", new_callable=AsyncMock, return_value=MOCK_CRAWL_RESULT)
-    async def test_crawls_and_stores_content(self, mock_crawl):
-        cp = ResearchCheckpoint(zone_name="elwynn_forest")
-        cp.step_data["zone_overview_urls"] = ["https://wowpedia.fandom.com/wiki/Elwynn_Forest"]
-        result = await step_zone_overview_extract(cp)
-        assert len(result.step_data["zone_overview_content"]) == 1
-        assert "Elwynn Forest" in result.step_data["zone_overview_content"][0]
-        assert len(result.step_data["zone_overview_sources"]) == 1
-
-    @pytest.mark.asyncio
-    @patch("src.pipeline.crawl_url", new_callable=AsyncMock, return_value={"url": "x", "content": None, "error": "fail"})
-    async def test_skips_failed_crawls(self, mock_crawl):
-        cp = ResearchCheckpoint(zone_name="elwynn_forest")
-        cp.step_data["zone_overview_urls"] = ["https://example.com"]
-        result = await step_zone_overview_extract(cp)
-        assert len(result.step_data["zone_overview_content"]) == 0
-
-
-class TestNPCSteps:
-    @pytest.mark.asyncio
-    @patch("src.pipeline.web_search", new_callable=AsyncMock, return_value=MOCK_SEARCH_RESULTS)
-    async def test_npc_search(self, mock_search):
-        cp = ResearchCheckpoint(zone_name="elwynn_forest")
-        result = await step_npc_search(cp)
-        assert "npc_urls" in result.step_data
+        assert len(cp.step_data["research_raw_content"]) == 1
+        assert len(cp.step_data["research_sources"]) == 1
+        researcher.research_zone.assert_called_once()
 
     @pytest.mark.asyncio
-    @patch("src.pipeline.crawl_url", new_callable=AsyncMock, return_value=MOCK_CRAWL_RESULT)
-    async def test_npc_extract(self, mock_crawl):
-        cp = ResearchCheckpoint(zone_name="elwynn_forest")
-        cp.step_data["npc_urls"] = ["https://example.com/npcs"]
-        result = await step_npc_extract(cp)
-        assert len(result.step_data["npc_content"]) == 1
+    async def test_npc_research_accumulates(self):
+        cp = _fresh_checkpoint()
+        researcher = _mock_researcher()
+        # Simulate step 1 already ran
+        cp.step_data["research_raw_content"] = ["existing content"]
+        cp.step_data["research_sources"] = [{"url": "https://x.com", "domain": "x.com", "tier": "official", "accessed_at": "2026-01-01T00:00:00"}]
 
+        await step_npc_research(cp, researcher)
 
-class TestFactionStep:
+        assert len(cp.step_data["research_raw_content"]) == 2
+        assert len(cp.step_data["research_sources"]) == 2
+
     @pytest.mark.asyncio
-    @patch("src.pipeline.crawl_url", new_callable=AsyncMock, return_value=MOCK_CRAWL_RESULT)
-    @patch("src.pipeline.web_search", new_callable=AsyncMock, return_value=MOCK_SEARCH_RESULTS)
-    async def test_faction_search_extract(self, mock_search, mock_crawl):
-        cp = ResearchCheckpoint(zone_name="elwynn_forest")
-        result = await step_faction_search_extract(cp)
-        assert "faction_content" in result.step_data
-        assert len(result.step_data["faction_content"]) > 0
+    async def test_faction_research(self):
+        cp = _fresh_checkpoint()
+        researcher = _mock_researcher()
+        await step_faction_research(cp, researcher)
+        assert "research_raw_content" in cp.step_data
+        researcher.research_zone.assert_called_once()
 
-
-class TestLoreStep:
     @pytest.mark.asyncio
-    @patch("src.pipeline.crawl_url", new_callable=AsyncMock, return_value=MOCK_CRAWL_RESULT)
-    @patch("src.pipeline.web_search", new_callable=AsyncMock, return_value=MOCK_SEARCH_RESULTS)
-    async def test_lore_search_extract(self, mock_search, mock_crawl):
-        cp = ResearchCheckpoint(zone_name="elwynn_forest")
-        result = await step_lore_search_extract(cp)
-        assert "lore_content" in result.step_data
+    async def test_lore_research(self):
+        cp = _fresh_checkpoint()
+        researcher = _mock_researcher()
+        await step_lore_research(cp, researcher)
+        assert "research_raw_content" in cp.step_data
 
-
-class TestNarrativeItemsStep:
     @pytest.mark.asyncio
-    @patch("src.pipeline.crawl_url", new_callable=AsyncMock, return_value=MOCK_CRAWL_RESULT)
-    @patch("src.pipeline.web_search", new_callable=AsyncMock, return_value=MOCK_SEARCH_RESULTS)
-    async def test_narrative_items(self, mock_search, mock_crawl):
-        cp = ResearchCheckpoint(zone_name="elwynn_forest")
-        result = await step_narrative_items_search_extract(cp)
-        assert "narrative_items_content" in result.step_data
+    async def test_narrative_items_research(self):
+        cp = _fresh_checkpoint()
+        researcher = _mock_researcher()
+        await step_narrative_items_research(cp, researcher)
+        assert "research_raw_content" in cp.step_data
+
+
+# --- Step 6: Extract all ---
+
+
+class TestExtractAll:
+    @pytest.mark.asyncio
+    async def test_stores_extraction(self):
+        cp = _fresh_checkpoint()
+        cp.step_data["research_raw_content"] = ["raw content here"]
+        cp.step_data["research_sources"] = [
+            {"url": "https://wowpedia.fandom.com/wiki/Elwynn", "domain": "wowpedia.fandom.com", "tier": "official", "accessed_at": "2026-01-01T00:00:00"},
+        ]
+        researcher = _mock_researcher()
+
+        await step_extract_all(cp, researcher)
+
+        assert "extraction" in cp.step_data
+        extraction = ZoneExtraction.model_validate(cp.step_data["extraction"])
+        assert extraction.zone.name == "Elwynn Forest"
+        assert len(extraction.npcs) == 1
+        researcher.extract_zone_data.assert_called_once()
+
+
+# --- Step 7: Cross-reference ---
 
 
 class TestCrossReference:
     @pytest.mark.asyncio
-    async def test_marks_complete(self):
-        cp = ResearchCheckpoint(zone_name="elwynn_forest")
-        result = await step_cross_reference(cp)
-        assert result.step_data["cross_reference_complete"] is True
+    async def test_stores_cross_reference(self):
+        cp = _fresh_checkpoint()
+        extraction = ZoneExtraction(
+            zone=ZoneData(name="Elwynn Forest"),
+            npcs=[NPCData(name="Marshal Dughan")],
+        )
+        cp.step_data["extraction"] = extraction.model_dump(mode="json")
+        researcher = _mock_researcher()
+
+        await step_cross_reference(cp, researcher)
+
+        assert "cross_reference" in cp.step_data
+        cr = CrossReferenceResult.model_validate(cp.step_data["cross_reference"])
+        assert cr.is_consistent is True
+        assert cr.confidence["zone"] == 0.9
+        researcher.cross_reference.assert_called_once()
+
+
+# --- Step 8: Discover connected zones ---
 
 
 class TestDiscoverConnectedZones:
     @pytest.mark.asyncio
-    @patch("src.pipeline.web_search", new_callable=AsyncMock, return_value=MOCK_SEARCH_RESULTS)
-    async def test_discovers_zones(self, mock_search):
-        cp = ResearchCheckpoint(zone_name="elwynn_forest")
-        result = await step_discover_connected_zones(cp)
-        assert result.step_data["discover_connected_complete"] is True
+    async def test_populates_progression_queue(self):
+        cp = _fresh_checkpoint()
+        researcher = _mock_researcher()
+
+        await step_discover_connected_zones(cp, researcher)
+
+        assert "westfall" in cp.progression_queue
+        assert "stormwind_city" in cp.progression_queue
+        assert "redridge_mountains" in cp.progression_queue
+        assert cp.step_data["discovered_zones"] == ["westfall", "stormwind_city", "redridge_mountains"]
+
+    @pytest.mark.asyncio
+    async def test_filters_completed_zones(self):
+        cp = _fresh_checkpoint()
+        cp.completed_zones = ["westfall"]
+        researcher = _mock_researcher()
+
+        await step_discover_connected_zones(cp, researcher)
+
+        assert "westfall" not in cp.progression_queue
+        assert "stormwind_city" in cp.progression_queue
+
+    @pytest.mark.asyncio
+    async def test_filters_current_zone(self):
+        cp = ResearchCheckpoint(zone_name="westfall")
+        researcher = _mock_researcher()
+        researcher.discover_connected_zones = AsyncMock(
+            return_value=["westfall", "elwynn_forest"]
+        )
+
+        await step_discover_connected_zones(cp, researcher)
+
+        assert "westfall" not in cp.progression_queue
+        assert "elwynn_forest" in cp.progression_queue
+
+
+# --- Step 9: Package and send ---
 
 
 class TestPackageAndSend:
-    @pytest.mark.asyncio
-    async def test_creates_package(self):
-        cp = ResearchCheckpoint(zone_name="elwynn_forest")
-        cp.step_data["zone_overview_sources"] = [
-            {"url": "https://wowpedia.fandom.com/wiki/Elwynn", "domain": "wowpedia.fandom.com", "tier": "official", "accessed_at": "2026-02-21T00:00:00"},
+    def _setup_checkpoint(self) -> ResearchCheckpoint:
+        """Create checkpoint with steps 6-7 data already populated."""
+        cp = _fresh_checkpoint()
+        extraction = ZoneExtraction(
+            zone=ZoneData(name="Elwynn Forest", game="wow"),
+            npcs=[NPCData(name="Marshal Dughan")],
+            factions=[FactionData(name="Stormwind Guard")],
+        )
+        cr_result = CrossReferenceResult(
+            is_consistent=True,
+            confidence={"zone": 0.9, "npcs": 0.85},
+        )
+        cp.step_data["extraction"] = extraction.model_dump(mode="json")
+        cp.step_data["cross_reference"] = cr_result.model_dump(mode="json")
+        cp.step_data["research_sources"] = [
+            {"url": "https://wowpedia.fandom.com/wiki/Elwynn", "domain": "wowpedia.fandom.com", "tier": "official", "accessed_at": "2026-01-01T00:00:00"},
         ]
-        cp.step_data["npc_sources"] = []
-        cp.step_data["faction_sources"] = []
-        cp.step_data["lore_sources"] = []
-        cp.step_data["narrative_items_sources"] = []
+        return cp
 
-        result = await step_package_and_send(cp)
-        assert result.step_data["package_ready"] is True
-        assert result.step_data["package"]["zone_name"] == "elwynn_forest"
-        assert len(result.step_data["package"]["sources"]) == 1
+    @pytest.mark.asyncio
+    async def test_assembles_full_package(self):
+        cp = self._setup_checkpoint()
+        researcher = _mock_researcher()
+
+        await step_package_and_send(cp, researcher)
+
+        assert "package" in cp.step_data
+        pkg = cp.step_data["package"]
+        assert pkg["zone_name"] == "elwynn_forest"
+        assert pkg["zone_data"]["name"] == "Elwynn Forest"
+        assert len(pkg["npcs"]) == 1
+        assert len(pkg["factions"]) == 1
+        assert len(pkg["sources"]) == 1
+        assert pkg["confidence"]["zone"] == 0.9
+
+    @pytest.mark.asyncio
+    async def test_calls_publish_fn(self):
+        cp = self._setup_checkpoint()
+        researcher = _mock_researcher()
+        publish_fn = AsyncMock()
+
+        await step_package_and_send(cp, researcher, publish_fn)
+
+        publish_fn.assert_called_once()
+        envelope = publish_fn.call_args[0][0]
+        assert isinstance(envelope, MessageEnvelope)
+        assert envelope.source_agent == "world_lore_researcher"
+        assert envelope.target_agent == "world_lore_validator"
+        assert envelope.message_type.value == "research_package"
+
+    @pytest.mark.asyncio
+    async def test_handles_no_publish_fn(self):
+        cp = self._setup_checkpoint()
+        researcher = _mock_researcher()
+
+        # Should not raise even without publish_fn
+        await step_package_and_send(cp, researcher, None)
+        assert "package" in cp.step_data
+
+
+# --- Full pipeline ---
 
 
 class TestRunPipeline:
     @pytest.mark.asyncio
-    @patch("src.pipeline.save_checkpoint", new_callable=AsyncMock)
-    @patch("src.pipeline.crawl_url", new_callable=AsyncMock, return_value=MOCK_CRAWL_RESULT)
-    @patch("src.pipeline.web_search", new_callable=AsyncMock, return_value=MOCK_SEARCH_RESULTS)
-    async def test_runs_all_steps(self, mock_search, mock_crawl, mock_save):
-        cp = ResearchCheckpoint(zone_name="elwynn_forest")
-        result = await run_pipeline(cp)
-        assert result.current_step == 10
-        assert mock_save.call_count == 10
-        assert result.step_data["package_ready"] is True
+    async def test_runs_all_steps(self):
+        cp = _fresh_checkpoint()
+        researcher = _mock_researcher()
+        publish_fn = AsyncMock()
+
+        with pytest.MonkeyPatch.context() as m:
+            m.setattr("src.pipeline.save_checkpoint", AsyncMock())
+
+            result = await run_pipeline(cp, researcher, publish_fn)
+
+        assert result.current_step == 9
+        assert "package" in result.step_data
+        assert result.step_data["package"]["zone_name"] == "elwynn_forest"
+        publish_fn.assert_called_once()
 
     @pytest.mark.asyncio
-    @patch("src.pipeline.save_checkpoint", new_callable=AsyncMock)
-    @patch("src.pipeline.crawl_url", new_callable=AsyncMock, return_value=MOCK_CRAWL_RESULT)
-    @patch("src.pipeline.web_search", new_callable=AsyncMock, return_value=MOCK_SEARCH_RESULTS)
-    async def test_resumes_from_checkpoint(self, mock_search, mock_crawl, mock_save):
-        cp = ResearchCheckpoint(zone_name="elwynn_forest", current_step=7)
-        cp.step_data["zone_overview_sources"] = []
-        cp.step_data["npc_sources"] = []
-        cp.step_data["faction_sources"] = []
-        cp.step_data["lore_sources"] = []
-        cp.step_data["narrative_items_sources"] = []
+    async def test_resumes_from_checkpoint(self):
+        cp = _fresh_checkpoint()
+        cp.current_step = 7  # Start at discover_connected_zones
 
-        result = await run_pipeline(cp)
-        assert result.current_step == 10
-        assert mock_save.call_count == 3
+        researcher = _mock_researcher()
+
+        with pytest.MonkeyPatch.context() as m:
+            save_mock = AsyncMock()
+            m.setattr("src.pipeline.save_checkpoint", save_mock)
+
+            # Need extraction + cross_reference data for package_and_send
+            extraction = ZoneExtraction(
+                zone=ZoneData(name="Elwynn Forest", game="wow"),
+            )
+            cr_result = CrossReferenceResult(is_consistent=True, confidence={"zone": 0.9})
+            cp.step_data["extraction"] = extraction.model_dump(mode="json")
+            cp.step_data["cross_reference"] = cr_result.model_dump(mode="json")
+            cp.step_data["research_sources"] = []
+
+            result = await run_pipeline(cp, researcher)
+
+        assert result.current_step == 9
+        # Only steps 8 and 9 should have saved (indices 7 and 8)
+        assert save_mock.call_count == 2

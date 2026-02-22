@@ -1,257 +1,292 @@
-"""10-step research pipeline for zone-level lore extraction.
+"""9-step research pipeline for zone-level lore extraction.
 
 Each step is checkpointed for crash resilience. The pipeline runs for
 a single zone and produces a ResearchPackage for the validator.
+
+Steps 1-5: Per-topic research (agent searches + crawls autonomously).
+Step 6: Single extraction (all raw content -> structured Pydantic models).
+Step 7: Cross-reference (consistency check + confidence scores).
+Step 8: Discover connected zones (populate progression queue).
+Step 9: Package and send (assemble ResearchPackage, publish to RabbitMQ).
 """
 
 from __future__ import annotations
 
 import logging
-from urllib.parse import urlparse
+from collections.abc import Awaitable, Callable
 
-from aiolimiter import AsyncLimiter
-from tenacity import retry, stop_after_attempt, wait_exponential_jitter
-
-from src.checkpoint import save_checkpoint
-from src.config import (
-    GAME_NAME,
-    RATE_LIMIT_REQUESTS_PER_MINUTE,
-    get_source_tier_for_domain,
+from src.agent import (
+    CrossReferenceResult,
+    LoreResearcher,
+    ResearchResult,
+    ZoneExtraction,
 )
-from src.mcp_client import web_search, crawl_url
+from src.checkpoint import save_checkpoint
+from src.config import GAME_NAME
 from src.models import (
+    MessageEnvelope,
+    MessageType,
     ResearchCheckpoint,
     ResearchPackage,
     SourceReference,
-    SourceTier,
-    ZoneData,
 )
 
 logger = logging.getLogger(__name__)
 
-search_limiter = AsyncLimiter(RATE_LIMIT_REQUESTS_PER_MINUTE, 60)
-crawl_limiter = AsyncLimiter(RATE_LIMIT_REQUESTS_PER_MINUTE, 60)
-
 PIPELINE_STEPS = [
-    "zone_overview_search",
-    "zone_overview_extract",
-    "npc_search",
-    "npc_extract",
-    "faction_search_extract",
-    "lore_search_extract",
-    "narrative_items_search_extract",
+    "zone_overview_research",
+    "npc_research",
+    "faction_research",
+    "lore_research",
+    "narrative_items_research",
+    "extract_all",
     "cross_reference",
     "discover_connected_zones",
     "package_and_send",
 ]
 
 
-def _make_source_ref(url: str) -> SourceReference:
-    domain = urlparse(url).netloc
-    tier_name = get_source_tier_for_domain(domain)
-    try:
-        tier = SourceTier(tier_name) if tier_name else SourceTier.TERTIARY
-    except ValueError:
-        tier = SourceTier.TERTIARY
-    return SourceReference(url=url, domain=domain, tier=tier)
+async def run_pipeline(
+    checkpoint: ResearchCheckpoint,
+    researcher: LoreResearcher,
+    publish_fn: Callable[[MessageEnvelope], Awaitable[None]] | None = None,
+) -> ResearchCheckpoint:
+    """Run the research pipeline for a single zone.
 
-
-@retry(stop=stop_after_attempt(3), wait=wait_exponential_jitter(initial=1, max=30))
-async def _rate_limited_search(query: str, max_results: int = 10) -> list[dict]:
-    async with search_limiter:
-        return await web_search(query, max_results)
-
-
-@retry(stop=stop_after_attempt(3), wait=wait_exponential_jitter(initial=1, max=30))
-async def _rate_limited_crawl(url: str) -> dict:
-    async with crawl_limiter:
-        return await crawl_url(url)
-
-
-async def run_pipeline(checkpoint: ResearchCheckpoint) -> ResearchCheckpoint:
+    Args:
+        checkpoint: Current research state (supports resume from any step).
+        researcher: LoreResearcher instance with agent + tools.
+        publish_fn: Async callable to publish MessageEnvelope to RabbitMQ.
+                    None in tests or when RabbitMQ is unavailable.
+    """
     zone_name = checkpoint.zone_name
     start_step = checkpoint.current_step
 
     for step_idx in range(start_step, len(PIPELINE_STEPS)):
         step_name = PIPELINE_STEPS[step_idx]
-        logger.info("pipeline_step_started", extra={"zone_name": zone_name, "step": step_idx + 1, "step_name": step_name})
+        logger.info(
+            "pipeline_step_started",
+            extra={"zone_name": zone_name, "step": step_idx + 1, "step_name": step_name},
+        )
 
         step_fn = STEP_FUNCTIONS.get(step_name)
         if step_fn:
-            checkpoint = await step_fn(checkpoint)
+            checkpoint = await step_fn(checkpoint, researcher, publish_fn)
 
         checkpoint.current_step = step_idx + 1
         await save_checkpoint(checkpoint)
-        logger.info("pipeline_step_completed", extra={"zone_name": zone_name, "step": step_idx + 1, "step_name": step_name})
+        logger.info(
+            "pipeline_step_completed",
+            extra={"zone_name": zone_name, "step": step_idx + 1, "step_name": step_name},
+        )
 
     return checkpoint
 
 
-async def step_zone_overview_search(checkpoint: ResearchCheckpoint) -> ResearchCheckpoint:
-    zone_name = checkpoint.zone_name.replace("_", " ")
-    query = f"{zone_name} {GAME_NAME} lore zone overview"
-    results = await _rate_limited_search(query)
-    checkpoint.step_data["zone_overview_urls"] = [r.get("url", "") for r in results if r.get("url")]
-    checkpoint.step_data["zone_overview_snippets"] = [r.get("snippet", "") for r in results]
-    return checkpoint
+# ---------------------------------------------------------------------------
+# Helper: accumulate research results into step_data
+# ---------------------------------------------------------------------------
 
 
-async def step_zone_overview_extract(checkpoint: ResearchCheckpoint) -> ResearchCheckpoint:
-    urls = checkpoint.step_data.get("zone_overview_urls", [])
-    crawled_content = []
-    sources = []
+def _accumulate_research(
+    checkpoint: ResearchCheckpoint, result: ResearchResult
+) -> None:
+    """Append raw content + sources from a research run into step_data."""
+    raw = checkpoint.step_data.get("research_raw_content", [])
+    raw.extend(result.raw_content)
+    checkpoint.step_data["research_raw_content"] = raw
 
-    for url in urls[:5]:
-        try:
-            result = await _rate_limited_crawl(url)
-            if result.get("content"):
-                crawled_content.append(result["content"])
-                sources.append(_make_source_ref(url))
-        except Exception:
-            logger.warning("crawl_failed", extra={"url": url})
-
-    checkpoint.step_data["zone_overview_content"] = crawled_content
-    checkpoint.step_data["zone_overview_sources"] = [s.model_dump() for s in sources]
-    return checkpoint
+    sources = checkpoint.step_data.get("research_sources", [])
+    sources.extend(s.model_dump(mode="json") for s in result.sources)
+    checkpoint.step_data["research_sources"] = sources
 
 
-async def step_npc_search(checkpoint: ResearchCheckpoint) -> ResearchCheckpoint:
-    zone_name = checkpoint.zone_name.replace("_", " ")
-    query = f"{zone_name} {GAME_NAME} NPCs notable characters"
-    results = await _rate_limited_search(query)
-    checkpoint.step_data["npc_urls"] = [r.get("url", "") for r in results if r.get("url")]
-    return checkpoint
+# ---------------------------------------------------------------------------
+# Steps 1-5: Per-topic research (data-driven)
+# ---------------------------------------------------------------------------
+
+RESEARCH_TOPICS = {
+    "zone_overview_research": (
+        "zone overview for {zone} in {game}: "
+        "level range, narrative arc, political climate, access gating, "
+        "phase states, and general atmosphere."
+    ),
+    "npc_research": (
+        "NPCs and notable characters in {zone} in {game}: "
+        "names, faction allegiance, personality, motivations, relationships, "
+        "quest involvement, and phased states."
+    ),
+    "faction_research": (
+        "factions and organizations in {zone} in {game}: "
+        "hierarchy, inter-faction relationships, mutual exclusions, ideology, goals."
+    ),
+    "lore_research": (
+        "lore, history, mythology, and cosmology of {zone} in {game}: "
+        "historical events, power sources, cosmic rules, world-shaping moments."
+    ),
+    "narrative_items_research": (
+        "legendary items, artifacts, and narrative objects in {zone} "
+        "in {game}: story arcs, wielder lineage, power descriptions, significance."
+    ),
+}
 
 
-async def step_npc_extract(checkpoint: ResearchCheckpoint) -> ResearchCheckpoint:
-    urls = checkpoint.step_data.get("npc_urls", [])
-    crawled_content = []
-    sources = []
+def _make_research_step(topic_key: str):
+    """Factory that returns an async step function for a research topic."""
+    template = RESEARCH_TOPICS[topic_key]
 
-    for url in urls[:5]:
-        try:
-            result = await _rate_limited_crawl(url)
-            if result.get("content"):
-                crawled_content.append(result["content"])
-                sources.append(_make_source_ref(url))
-        except Exception:
-            logger.warning("crawl_failed", extra={"url": url})
+    async def step(
+        checkpoint: ResearchCheckpoint,
+        researcher: LoreResearcher,
+        publish_fn: Callable | None = None,
+    ) -> ResearchCheckpoint:
+        zone_name = checkpoint.zone_name.replace("_", " ")
+        instructions = "Focus on " + template.format(zone=zone_name, game=GAME_NAME)
+        result = await researcher.research_zone(zone_name, instructions=instructions)
+        _accumulate_research(checkpoint, result)
+        return checkpoint
 
-    checkpoint.step_data["npc_content"] = crawled_content
-    checkpoint.step_data["npc_sources"] = [s.model_dump() for s in sources]
-    return checkpoint
-
-
-async def step_faction_search_extract(checkpoint: ResearchCheckpoint) -> ResearchCheckpoint:
-    zone_name = checkpoint.zone_name.replace("_", " ")
-    query = f"{zone_name} {GAME_NAME} factions organizations"
-    results = await _rate_limited_search(query)
-    urls = [r.get("url", "") for r in results if r.get("url")]
-
-    crawled_content = []
-    sources = []
-    for url in urls[:5]:
-        try:
-            result = await _rate_limited_crawl(url)
-            if result.get("content"):
-                crawled_content.append(result["content"])
-                sources.append(_make_source_ref(url))
-        except Exception:
-            logger.warning("crawl_failed", extra={"url": url})
-
-    checkpoint.step_data["faction_content"] = crawled_content
-    checkpoint.step_data["faction_sources"] = [s.model_dump() for s in sources]
-    return checkpoint
+    step.__name__ = f"step_{topic_key}"
+    return step
 
 
-async def step_lore_search_extract(checkpoint: ResearchCheckpoint) -> ResearchCheckpoint:
-    zone_name = checkpoint.zone_name.replace("_", " ")
-    query = f"{zone_name} {GAME_NAME} lore history mythology cosmology"
-    results = await _rate_limited_search(query)
-    urls = [r.get("url", "") for r in results if r.get("url")]
-
-    crawled_content = []
-    sources = []
-    for url in urls[:5]:
-        try:
-            result = await _rate_limited_crawl(url)
-            if result.get("content"):
-                crawled_content.append(result["content"])
-                sources.append(_make_source_ref(url))
-        except Exception:
-            logger.warning("crawl_failed", extra={"url": url})
-
-    checkpoint.step_data["lore_content"] = crawled_content
-    checkpoint.step_data["lore_sources"] = [s.model_dump() for s in sources]
-    return checkpoint
+step_zone_overview_research = _make_research_step("zone_overview_research")
+step_npc_research = _make_research_step("npc_research")
+step_faction_research = _make_research_step("faction_research")
+step_lore_research = _make_research_step("lore_research")
+step_narrative_items_research = _make_research_step("narrative_items_research")
 
 
-async def step_narrative_items_search_extract(checkpoint: ResearchCheckpoint) -> ResearchCheckpoint:
-    zone_name = checkpoint.zone_name.replace("_", " ")
-    query = f"{zone_name} {GAME_NAME} legendary items artifacts"
-    results = await _rate_limited_search(query)
-    urls = [r.get("url", "") for r in results if r.get("url")]
-
-    crawled_content = []
-    sources = []
-    for url in urls[:5]:
-        try:
-            result = await _rate_limited_crawl(url)
-            if result.get("content"):
-                crawled_content.append(result["content"])
-                sources.append(_make_source_ref(url))
-        except Exception:
-            logger.warning("crawl_failed", extra={"url": url})
-
-    checkpoint.step_data["narrative_items_content"] = crawled_content
-    checkpoint.step_data["narrative_items_sources"] = [s.model_dump() for s in sources]
-    return checkpoint
+# ---------------------------------------------------------------------------
+# Step 6: Extract all structured data from accumulated raw content
+# ---------------------------------------------------------------------------
 
 
-async def step_cross_reference(checkpoint: ResearchCheckpoint) -> ResearchCheckpoint:
-    checkpoint.step_data["cross_reference_complete"] = True
-    return checkpoint
-
-
-async def step_discover_connected_zones(checkpoint: ResearchCheckpoint) -> ResearchCheckpoint:
-    zone_name = checkpoint.zone_name.replace("_", " ")
-    query = f"{zone_name} {GAME_NAME} connected zones adjacent areas"
-    results = await _rate_limited_search(query)
-
-    checkpoint.step_data["connected_zone_urls"] = [r.get("url", "") for r in results if r.get("url")]
-    checkpoint.step_data["discover_connected_complete"] = True
-    return checkpoint
-
-
-async def step_package_and_send(checkpoint: ResearchCheckpoint) -> ResearchCheckpoint:
+async def step_extract_all(
+    checkpoint: ResearchCheckpoint,
+    researcher: LoreResearcher,
+    publish_fn: Callable | None = None,
+) -> ResearchCheckpoint:
     zone_name = checkpoint.zone_name
-    zone_data = ZoneData(name=zone_name.replace("_", " ").title(), game=GAME_NAME)
+    raw_content = checkpoint.step_data.get("research_raw_content", [])
+    source_dicts = checkpoint.step_data.get("research_sources", [])
+    sources = [SourceReference(**sd) for sd in source_dicts]
 
-    all_sources = []
-    for key in ["zone_overview_sources", "npc_sources", "faction_sources", "lore_sources", "narrative_items_sources"]:
-        source_dicts = checkpoint.step_data.get(key, [])
-        for sd in source_dicts:
-            all_sources.append(SourceReference(**sd))
+    extraction = await researcher.extract_zone_data(zone_name, raw_content, sources)
+    checkpoint.step_data["extraction"] = extraction.model_dump(mode="json")
+    return checkpoint
+
+
+# ---------------------------------------------------------------------------
+# Step 7: Cross-reference
+# ---------------------------------------------------------------------------
+
+
+async def step_cross_reference(
+    checkpoint: ResearchCheckpoint,
+    researcher: LoreResearcher,
+    publish_fn: Callable | None = None,
+) -> ResearchCheckpoint:
+    extraction_dict = checkpoint.step_data.get("extraction", {})
+    extraction = ZoneExtraction.model_validate(extraction_dict)
+
+    cr_result = await researcher.cross_reference(extraction)
+    checkpoint.step_data["cross_reference"] = cr_result.model_dump(mode="json")
+    return checkpoint
+
+
+# ---------------------------------------------------------------------------
+# Step 8: Discover connected zones
+# ---------------------------------------------------------------------------
+
+
+async def step_discover_connected_zones(
+    checkpoint: ResearchCheckpoint,
+    researcher: LoreResearcher,
+    publish_fn: Callable | None = None,
+) -> ResearchCheckpoint:
+    zone_slugs = await researcher.discover_connected_zones(checkpoint.zone_name)
+
+    # Filter out already-completed zones
+    new_zones = [
+        z for z in zone_slugs
+        if z not in checkpoint.completed_zones
+        and z not in checkpoint.progression_queue
+        and z != checkpoint.zone_name
+    ]
+
+    checkpoint.progression_queue.extend(new_zones)
+    checkpoint.step_data["discovered_zones"] = zone_slugs
+    return checkpoint
+
+
+# ---------------------------------------------------------------------------
+# Step 9: Package and send
+# ---------------------------------------------------------------------------
+
+
+async def step_package_and_send(
+    checkpoint: ResearchCheckpoint,
+    researcher: LoreResearcher,
+    publish_fn: Callable | None = None,
+) -> ResearchCheckpoint:
+    zone_name = checkpoint.zone_name
+
+    # Rebuild structured data from step_data
+    extraction_dict = checkpoint.step_data.get("extraction", {})
+    extraction = ZoneExtraction.model_validate(extraction_dict)
+
+    cr_dict = checkpoint.step_data.get("cross_reference", {})
+    cr_result = CrossReferenceResult.model_validate(cr_dict)
+
+    source_dicts = checkpoint.step_data.get("research_sources", [])
+    all_sources = [SourceReference(**sd) for sd in source_dicts]
 
     package = ResearchPackage(
         zone_name=zone_name,
-        zone_data=zone_data,
+        zone_data=extraction.zone,
+        npcs=extraction.npcs,
+        factions=extraction.factions,
+        lore=extraction.lore,
+        narrative_items=extraction.narrative_items,
         sources=all_sources,
+        confidence=cr_result.confidence,
+        conflicts=cr_result.conflicts,
     )
 
-    checkpoint.step_data["package"] = package.model_dump()
-    checkpoint.step_data["package_ready"] = True
+    checkpoint.step_data["package"] = package.model_dump(mode="json")
+
+    # Publish to RabbitMQ
+    if publish_fn:
+        envelope = MessageEnvelope(
+            source_agent=LoreResearcher.AGENT_ID,
+            target_agent="world_lore_validator",
+            message_type=MessageType.RESEARCH_PACKAGE,
+            payload=package.model_dump(mode="json"),
+        )
+        await publish_fn(envelope)
+        logger.info("package_published", extra={"zone_name": zone_name})
+    else:
+        logger.warning(
+            "package_not_published",
+            extra={"zone_name": zone_name, "reason": "no publish_fn"},
+        )
+
     return checkpoint
 
 
+# ---------------------------------------------------------------------------
+# Step dispatch table
+# ---------------------------------------------------------------------------
+
+
 STEP_FUNCTIONS = {
-    "zone_overview_search": step_zone_overview_search,
-    "zone_overview_extract": step_zone_overview_extract,
-    "npc_search": step_npc_search,
-    "npc_extract": step_npc_extract,
-    "faction_search_extract": step_faction_search_extract,
-    "lore_search_extract": step_lore_search_extract,
-    "narrative_items_search_extract": step_narrative_items_search_extract,
+    "zone_overview_research": step_zone_overview_research,
+    "npc_research": step_npc_research,
+    "faction_research": step_faction_research,
+    "lore_research": step_lore_research,
+    "narrative_items_research": step_narrative_items_research,
+    "extract_all": step_extract_all,
     "cross_reference": step_cross_reference,
     "discover_connected_zones": step_discover_connected_zones,
     "package_and_send": step_package_and_send,

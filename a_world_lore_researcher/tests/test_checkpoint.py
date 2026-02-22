@@ -1,7 +1,7 @@
 """Tests for checkpoint system — save/load logic and budget resets."""
 
 from datetime import date
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, patch
 
 import pytest
 
@@ -11,7 +11,6 @@ from src.checkpoint import (
     is_daily_budget_exhausted,
     load_checkpoint,
     save_checkpoint,
-    _extract_mcp_text,
 )
 from src.models import ResearchCheckpoint
 
@@ -75,78 +74,29 @@ class TestAddTokens:
         assert cp.daily_tokens_used == 600
 
 
-class TestExtractMcpText:
-    def test_extracts_text_content(self):
-        response = {
-            "result": {
-                "content": [
-                    {"type": "text", "text": '{"zone_name": "elwynn_forest"}'}
-                ]
-            }
-        }
-        assert _extract_mcp_text(response) == '{"zone_name": "elwynn_forest"}'
-
-    def test_returns_none_for_empty_content(self):
-        assert _extract_mcp_text({"result": {"content": []}}) is None
-        assert _extract_mcp_text({"result": {}}) is None
-        assert _extract_mcp_text({}) is None
-
-    def test_skips_non_text_content(self):
-        response = {
-            "result": {
-                "content": [
-                    {"type": "image", "data": "..."},
-                    {"type": "text", "text": "found"},
-                ]
-            }
-        }
-        assert _extract_mcp_text(response) == "found"
-
-
 class TestSaveCheckpoint:
     @pytest.mark.asyncio
-    async def test_save_sends_mcp_request(self):
+    async def test_save_calls_mcp(self):
         cp = ResearchCheckpoint(zone_name="elwynn_forest", current_step=3)
 
-        mock_response = AsyncMock()
-        mock_response.raise_for_status = lambda: None
-
-        with patch("src.checkpoint.httpx.AsyncClient") as mock_client_cls:
-            mock_client = AsyncMock()
-            mock_client.post.return_value = mock_response
-            mock_client.__aenter__ = AsyncMock(return_value=mock_client)
-            mock_client.__aexit__ = AsyncMock(return_value=None)
-            mock_client_cls.return_value = mock_client
+        with patch("src.checkpoint.mcp_call", new_callable=AsyncMock) as mock_call:
+            mock_call.return_value = {"saved": "research_state:world_lore_researcher"}
 
             await save_checkpoint(cp)
 
-            mock_client.post.assert_called_once()
-            call_args = mock_client.post.call_args
-            body = call_args.kwargs.get("json") or call_args[1].get("json")
-            assert body["method"] == "tools/call"
-            assert body["params"]["name"] == "save_checkpoint"
+            mock_call.assert_called_once()
+            args = mock_call.call_args
+            assert args[0][1] == "save_checkpoint"
+            assert args[0][2]["agent_id"] == "world_lore_researcher"
 
 
 class TestLoadCheckpoint:
     @pytest.mark.asyncio
     async def test_load_returns_checkpoint(self):
-        cp_data = ResearchCheckpoint(zone_name="westfall", current_step=5).model_dump_json()
-        mcp_response = {
-            "result": {
-                "content": [{"type": "text", "text": cp_data}]
-            }
-        }
+        cp_data = ResearchCheckpoint(zone_name="westfall", current_step=5).model_dump()
 
-        mock_response = MagicMock()
-        mock_response.raise_for_status = lambda: None
-        mock_response.json.return_value = mcp_response
-
-        with patch("src.checkpoint.httpx.AsyncClient") as mock_client_cls:
-            mock_client = AsyncMock()
-            mock_client.post.return_value = mock_response
-            mock_client.__aenter__ = AsyncMock(return_value=mock_client)
-            mock_client.__aexit__ = AsyncMock(return_value=None)
-            mock_client_cls.return_value = mock_client
+        with patch("src.checkpoint.mcp_call", new_callable=AsyncMock) as mock_call:
+            mock_call.return_value = cp_data
 
             result = await load_checkpoint()
 
@@ -156,22 +106,16 @@ class TestLoadCheckpoint:
 
     @pytest.mark.asyncio
     async def test_load_returns_none_when_empty(self):
-        mcp_response = {
-            "result": {
-                "content": [{"type": "text", "text": "null"}]
-            }
-        }
+        with patch("src.checkpoint.mcp_call", new_callable=AsyncMock) as mock_call:
+            mock_call.return_value = None
 
-        mock_response = MagicMock()
-        mock_response.raise_for_status = lambda: None
-        mock_response.json.return_value = mcp_response
+            result = await load_checkpoint()
+            assert result is None
 
-        with patch("src.checkpoint.httpx.AsyncClient") as mock_client_cls:
-            mock_client = AsyncMock()
-            mock_client.post.return_value = mock_response
-            mock_client.__aenter__ = AsyncMock(return_value=mock_client)
-            mock_client.__aexit__ = AsyncMock(return_value=None)
-            mock_client_cls.return_value = mock_client
+    @pytest.mark.asyncio
+    async def test_load_returns_none_for_null_string(self):
+        with patch("src.checkpoint.mcp_call", new_callable=AsyncMock) as mock_call:
+            mock_call.return_value = "null"
 
             result = await load_checkpoint()
             assert result is None

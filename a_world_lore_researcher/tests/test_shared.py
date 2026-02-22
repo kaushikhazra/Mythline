@@ -51,27 +51,23 @@ class TestExpandEnvVars:
 class TestLoadMcpConfig:
     def test_loads_servers_from_json(self, monkeypatch):
         monkeypatch.setenv("MCP_WEB_SEARCH_URL", "http://localhost:8006/mcp")
-        monkeypatch.setenv("MCP_WEB_CRAWLER_URL", "http://localhost:8007/mcp")
 
         servers = load_mcp_config(agent_module.__file__)
 
-        assert len(servers) == 2
+        assert len(servers) == 1
         prefixes = {s.tool_prefix for s in servers}
-        assert prefixes == {"search", "crawler"}
+        assert prefixes == {"search"}
 
     def test_timeout_passed_through(self, monkeypatch):
         monkeypatch.setenv("MCP_WEB_SEARCH_URL", "http://localhost:8006/mcp")
-        monkeypatch.setenv("MCP_WEB_CRAWLER_URL", "http://localhost:8007/mcp")
 
         servers = load_mcp_config(agent_module.__file__)
 
         by_prefix = {s.tool_prefix: s for s in servers}
         assert by_prefix["search"].timeout == 30
-        assert by_prefix["crawler"].timeout == 60
 
     def test_url_expanded_from_env(self, monkeypatch):
         monkeypatch.setenv("MCP_WEB_SEARCH_URL", "http://custom-host:9999/mcp")
-        monkeypatch.setenv("MCP_WEB_CRAWLER_URL", "http://localhost:8007/mcp")
 
         servers = load_mcp_config(agent_module.__file__)
 

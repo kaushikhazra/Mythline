@@ -48,7 +48,8 @@ class TestEnvVarDefaults:
         assert "5672" in RABBITMQ_URL
         assert "8005" in MCP_STORAGE_URL
         assert "8006" in MCP_WEB_SEARCH_URL
-        assert "8007" in MCP_WEB_CRAWLER_URL
+        assert "11235" in MCP_WEB_CRAWLER_URL
+        assert MCP_WEB_CRAWLER_URL.endswith("11235")
 
 
 class TestSourcesConfig:
