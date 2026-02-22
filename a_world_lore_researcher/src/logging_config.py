@@ -9,6 +9,7 @@ from __future__ import annotations
 import json
 import logging
 import sys
+import traceback
 from datetime import datetime, timezone
 
 from src.config import AGENT_ID
@@ -17,23 +18,30 @@ DOMAIN = "world_lore"
 
 EVENT_TYPES = [
     "daemon_started",
-    "checkpoint_loaded",
-    "research_cycle_started",
+    "daemon_shutdown",
+    "daemon_no_channel",
+    "signal_received",
+    "rabbitmq_connected",
+    "rabbitmq_connection_failed",
+    "rabbitmq_connection_retry",
+    "rabbitmq_publish_skipped",
+    "queues_declared",
+    "job_received",
+    "job_message_parse_failed",
+    "job_failed",
+    "job_checkpoints_cleaned",
+    "zone_failed",
+    "status_published",
+    "status_publish_skipped",
+    "crash_recovery_skip_completed",
+    "crash_recovery_resume_partial",
     "pipeline_step_started",
     "pipeline_step_completed",
-    "search_executed",
-    "crawl_executed",
-    "conflict_detected",
-    "package_sent",
-    "validation_received",
-    "validation_rejected",
-    "fork_detected",
-    "user_decision_requested",
-    "user_decision_received",
-    "budget_warning",
-    "budget_exhausted",
-    "error",
-    "daemon_shutdown",
+    "pipeline_step_skipped",
+    "package_published",
+    "package_not_published",
+    "channel_close_failed",
+    "connection_close_failed",
 ]
 
 
@@ -63,6 +71,11 @@ class StructuredJsonFormatter(logging.Formatter):
                 val = getattr(record, key)
                 if isinstance(val, (str, int, float, bool, list, dict, type(None))):
                     log_entry[key] = val
+
+        if record.exc_info and record.exc_info[1] is not None:
+            log_entry["exception"] = "".join(
+                traceback.format_exception(*record.exc_info)
+            )
 
         return json.dumps(log_entry, default=str)
 

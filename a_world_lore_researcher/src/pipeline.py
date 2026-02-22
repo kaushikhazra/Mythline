@@ -111,11 +111,15 @@ async def run_pipeline(
 
 
 def _accumulate_research(
-    checkpoint: ResearchCheckpoint, result: ResearchResult
+    checkpoint: ResearchCheckpoint, result: ResearchResult, topic_key: str
 ) -> None:
-    """Append raw content + sources from a research run into step_data."""
+    """Append raw content + sources from a research run into step_data.
+
+    Each content block is labeled with its topic_key so the extraction
+    step can reconstruct section-delimited content for the LLM.
+    """
     raw = checkpoint.step_data.get("research_raw_content", [])
-    raw.extend(result.raw_content)
+    raw.extend({"topic": topic_key, "content": block} for block in result.raw_content)
     checkpoint.step_data["research_raw_content"] = raw
 
     sources = checkpoint.step_data.get("research_sources", [])
@@ -165,7 +169,7 @@ def _make_research_step(topic_key: str):
         zone_name = checkpoint.zone_name.replace("_", " ")
         instructions = "Focus on " + template.format(zone=zone_name, game=GAME_NAME)
         result = await researcher.research_zone(zone_name, instructions=instructions)
-        _accumulate_research(checkpoint, result)
+        _accumulate_research(checkpoint, result, topic_key)
         return checkpoint
 
     step.__name__ = f"step_{topic_key}"
@@ -183,6 +187,36 @@ step_narrative_items_research = _make_research_step("narrative_items_research")
 # Step 6: Extract all structured data from accumulated raw content
 # ---------------------------------------------------------------------------
 
+TOPIC_SECTION_HEADERS = {
+    "zone_overview_research": "## ZONE OVERVIEW",
+    "npc_research": "## NPCs AND NOTABLE CHARACTERS",
+    "faction_research": "## FACTIONS AND ORGANIZATIONS",
+    "lore_research": "## LORE, HISTORY, AND MYTHOLOGY",
+    "narrative_items_research": "## LEGENDARY ITEMS AND NARRATIVE OBJECTS",
+}
+
+
+def _reconstruct_labeled_content(raw_blocks: list[dict]) -> list[str]:
+    """Group labeled content blocks by topic and prepend section headers.
+
+    Returns a list of strings, one per topic section, with the section
+    header followed by all content blocks for that topic.
+    """
+    from collections import OrderedDict
+
+    grouped: OrderedDict[str, list[str]] = OrderedDict()
+    for block in raw_blocks:
+        topic = block.get("topic", "unknown")
+        grouped.setdefault(topic, []).append(block.get("content", ""))
+
+    sections = []
+    for topic, contents in grouped.items():
+        header = TOPIC_SECTION_HEADERS.get(topic, f"## {topic.upper()}")
+        section = header + "\n\n" + "\n\n".join(contents)
+        sections.append(section)
+
+    return sections
+
 
 async def step_extract_all(
     checkpoint: ResearchCheckpoint,
@@ -190,11 +224,12 @@ async def step_extract_all(
     publish_fn: Callable | None = None,
 ) -> ResearchCheckpoint:
     zone_name = checkpoint.zone_name
-    raw_content = checkpoint.step_data.get("research_raw_content", [])
+    raw_blocks = checkpoint.step_data.get("research_raw_content", [])
     source_dicts = checkpoint.step_data.get("research_sources", [])
     sources = [SourceReference(**sd) for sd in source_dicts]
 
-    extraction = await researcher.extract_zone_data(zone_name, raw_content, sources)
+    labeled_content = _reconstruct_labeled_content(raw_blocks)
+    extraction = await researcher.extract_zone_data(zone_name, labeled_content, sources)
     checkpoint.step_data["extraction"] = extraction.model_dump(mode="json")
     return checkpoint
 

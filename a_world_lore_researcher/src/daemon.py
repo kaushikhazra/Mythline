@@ -8,7 +8,6 @@ and publishes status updates. Processes one job at a time (prefetch=1).
 from __future__ import annotations
 
 import asyncio
-import json
 import logging
 import signal
 
@@ -150,6 +149,7 @@ class Daemon:
 
         checkpoint_prefix = f"{AGENT_ID}:{job.job_id}:"
         existing_keys = await list_checkpoints(checkpoint_prefix)
+        recovered_checkpoints: dict[str, ResearchCheckpoint] = {}
 
         for key in existing_keys:
             # Key format: {agent_id}:{job_id}:{zone_name}
@@ -159,6 +159,7 @@ class Daemon:
             cp = await load_checkpoint(key)
             if not cp:
                 continue
+            recovered_checkpoints[zone_name] = cp
             if cp.current_step >= TOTAL_STEPS:
                 # Fully completed — skip and recover discovered zones
                 zones_completed.append(zone_name)
@@ -182,8 +183,19 @@ class Daemon:
                     "current_step": cp.current_step,
                 })
 
-        # Adjust depth if root zone was already completed (recovery starts at depth 1+)
-        if job.zone_name in zones_completed and max_depth > 0:
+        # Determine starting depth from recovered checkpoints
+        if recovered_checkpoints and zones_pending:
+            max_pending_depth = 0
+            for zn in zones_pending:
+                cp = recovered_checkpoints.get(zn)
+                if cp and cp.wave_depth > 0:
+                    max_pending_depth = max(max_pending_depth, cp.wave_depth)
+            if max_pending_depth > 0:
+                current_depth = max_pending_depth
+            elif job.zone_name in zones_completed and max_depth > 0:
+                # Fallback for legacy checkpoints without wave_depth
+                current_depth = 1
+        elif job.zone_name in zones_completed and max_depth > 0:
             current_depth = 1
 
         publish_fn = self._make_publish_fn()
@@ -199,9 +211,7 @@ class Daemon:
                 # Determine whether to skip discovery for this zone
                 is_last_wave = current_depth >= max_depth
                 skip_steps: set[str] | None = None
-                if current_depth == 0 and max_depth == 0:
-                    skip_steps = {"discover_connected_zones"}
-                elif is_last_wave:
+                if is_last_wave:
                     skip_steps = {"discover_connected_zones"}
 
                 # Publish ZONE_STARTED
@@ -225,6 +235,7 @@ class Daemon:
                         checkpoint = ResearchCheckpoint(
                             job_id=job.job_id,
                             zone_name=zone_name,
+                            wave_depth=current_depth,
                         )
 
                     # Build step progress callback for this zone
@@ -291,7 +302,11 @@ class Daemon:
             current_depth += 1
 
         # Publish final status
-        if zones_failed_list:
+        if zones_failed_list and not zones_completed:
+            # Every zone failed — propagate as job failure so _on_job_message nacks
+            failed_names = ", ".join(f.zone_name for f in zones_failed_list)
+            raise RuntimeError(f"all zones failed: {failed_names}")
+        elif zones_failed_list:
             await self._publish_status(JobStatusUpdate(
                 job_id=job.job_id,
                 status=JobStatus.JOB_PARTIAL_COMPLETED,
@@ -357,14 +372,25 @@ class Daemon:
             )
         return publish
 
-    async def _connect_rabbitmq(self):
-        """Connect to RabbitMQ."""
-        try:
-            self._connection = await aio_pika.connect_robust(RABBITMQ_URL)
-            self._channel = await self._connection.channel()
-            logger.info("rabbitmq_connected")
-        except Exception:
-            logger.warning("rabbitmq_connection_failed", exc_info=True)
+    async def _connect_rabbitmq(self, max_retries: int = 5):
+        """Connect to RabbitMQ with exponential backoff."""
+        for attempt in range(1, max_retries + 1):
+            try:
+                self._connection = await aio_pika.connect_robust(RABBITMQ_URL)
+                self._channel = await self._connection.channel()
+                logger.info("rabbitmq_connected")
+                return
+            except Exception:
+                if attempt == max_retries:
+                    logger.error("rabbitmq_connection_failed", extra={
+                        "attempts": attempt,
+                    }, exc_info=True)
+                    return
+                delay = min(2 ** attempt, 30)
+                logger.warning("rabbitmq_connection_retry", extra={
+                    "attempt": attempt, "retry_in_seconds": delay,
+                })
+                await asyncio.sleep(delay)
 
     async def _shutdown(self):
         """Clean shutdown — close RabbitMQ connections."""

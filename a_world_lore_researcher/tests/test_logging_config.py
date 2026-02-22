@@ -12,16 +12,16 @@ from src.logging_config import (
 
 
 class TestEventTypes:
-    def test_has_18_event_types(self):
-        assert len(EVENT_TYPES) == 18
+    def test_has_25_event_types(self):
+        assert len(EVENT_TYPES) == 25
 
     def test_contains_key_events(self):
         assert "daemon_started" in EVENT_TYPES
         assert "daemon_shutdown" in EVENT_TYPES
-        assert "pipeline_step_started" in EVENT_TYPES
-        assert "pipeline_step_completed" in EVENT_TYPES
-        assert "error" in EVENT_TYPES
-        assert "budget_exhausted" in EVENT_TYPES
+        assert "job_received" in EVENT_TYPES
+        assert "job_failed" in EVENT_TYPES
+        assert "zone_failed" in EVENT_TYPES
+        assert "status_published" in EVENT_TYPES
 
 
 class TestStructuredJsonFormatter:

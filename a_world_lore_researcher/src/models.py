@@ -99,20 +99,13 @@ class ValidationFeedback(BaseModel):
     suggestion: str = ""
 
 
-class FailedZone(BaseModel):
-    zone_name: str
-    reason: str
-    iterations: int
-    failed_at: datetime = Field(default_factory=_now)
-
-
 # --- Job Queue Models ---
 
 
 class ResearchJob(BaseModel):
     job_id: str
-    zone_name: str
-    depth: int = 0
+    zone_name: str = Field(min_length=1)
+    depth: int = Field(default=0, ge=0, le=5)
     game: str = "wow"
     requested_by: str = ""
     requested_at: datetime = Field(default_factory=_now)
@@ -267,4 +260,5 @@ class ResearchCheckpoint(BaseModel):
     job_id: str
     zone_name: str
     current_step: int = 0
+    wave_depth: int = 0
     step_data: dict = Field(default_factory=dict)

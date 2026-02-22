@@ -638,6 +638,110 @@ class TestExecuteJob:
         # Should process root + westfall only (elwynn_forest deduplicated)
         assert call_count == 2
 
+    @pytest.mark.asyncio
+    @patch("src.daemon.list_checkpoints", new_callable=AsyncMock, return_value=[])
+    @patch("src.daemon.load_checkpoint", new_callable=AsyncMock, return_value=None)
+    @patch("src.daemon.load_budget", new_callable=AsyncMock)
+    @patch("src.daemon.save_budget", new_callable=AsyncMock)
+    @patch("src.daemon.run_pipeline", new_callable=AsyncMock)
+    @patch("src.daemon.Daemon._publish_status", new_callable=AsyncMock)
+    async def test_all_zones_failed_raises(
+        self, mock_status, mock_pipeline, mock_save_budget, mock_load_budget,
+        mock_load_cp, mock_list_cp,
+    ):
+        """All zones failing raises RuntimeError (triggers JOB_FAILED + nack in caller)."""
+        from src.models import BudgetState
+        mock_load_budget.return_value = BudgetState()
+
+        daemon = Daemon()
+        daemon._channel = AsyncMock()
+        daemon._channel.default_exchange = AsyncMock()
+
+        job = _make_job(depth=1)
+
+        call_count = 0
+
+        async def fake_pipeline(cp, researcher, publish_fn, skip_steps=None, on_step_progress=None):
+            nonlocal call_count
+            call_count += 1
+            if call_count == 1:
+                # Root discovers 2 zones then fails
+                cp.step_data["discovered_zones"] = ["westfall", "stormwind_city"]
+                raise RuntimeError("root failed")
+            # All discovered zones also fail
+            raise RuntimeError("zone failed")
+
+        mock_pipeline.side_effect = fake_pipeline
+
+        with pytest.raises(RuntimeError, match="all zones failed"):
+            await daemon._execute_job(job, MagicMock())
+
+        # No JOB_PARTIAL_COMPLETED or JOB_COMPLETED should have been published
+        statuses = [call[0][0].status for call in mock_status.call_args_list]
+        assert JobStatus.JOB_PARTIAL_COMPLETED not in statuses
+        assert JobStatus.JOB_COMPLETED not in statuses
+
+    @pytest.mark.asyncio
+    @patch("src.daemon.list_checkpoints", new_callable=AsyncMock, return_value=[])
+    @patch("src.daemon.load_checkpoint", new_callable=AsyncMock, return_value=None)
+    @patch("src.daemon.load_budget", new_callable=AsyncMock)
+    @patch("src.daemon.save_budget", new_callable=AsyncMock)
+    @patch("src.daemon.run_pipeline", new_callable=AsyncMock)
+    @patch("src.daemon.Daemon._publish_status", new_callable=AsyncMock)
+    async def test_all_zones_failed_nacks_via_on_job_message(
+        self, mock_status, mock_pipeline, mock_save_budget, mock_load_budget,
+        mock_load_cp, mock_list_cp,
+    ):
+        """All-zones-failed RuntimeError propagates to _on_job_message which nacks."""
+        from src.models import BudgetState
+        mock_load_budget.return_value = BudgetState()
+
+        daemon = Daemon()
+        daemon._channel = AsyncMock()
+        daemon._channel.default_exchange = AsyncMock()
+        researcher = MagicMock()
+
+        job = _make_job(depth=0)
+        msg = _make_message(job)
+
+        async def fake_pipeline(cp, researcher, publish_fn, skip_steps=None, on_step_progress=None):
+            raise RuntimeError("zone exploded")
+
+        mock_pipeline.side_effect = fake_pipeline
+
+        await daemon._on_job_message(msg, researcher)
+
+        msg.nack.assert_called_once_with(requeue=False)
+        msg.ack.assert_not_called()
+        # JOB_FAILED should be published by _on_job_message
+        statuses = [call[0][0].status for call in mock_status.call_args_list]
+        assert JobStatus.JOB_FAILED in statuses
+
+
+# --- ResearchJob validation ---
+
+
+class TestResearchJobValidation:
+    def test_rejects_empty_zone_name(self):
+        from pydantic import ValidationError
+        with pytest.raises(ValidationError):
+            _make_job(zone_name="")
+
+    def test_rejects_negative_depth(self):
+        from pydantic import ValidationError
+        with pytest.raises(ValidationError):
+            _make_job(depth=-1)
+
+    def test_rejects_depth_over_5(self):
+        from pydantic import ValidationError
+        with pytest.raises(ValidationError):
+            _make_job(depth=6)
+
+    def test_accepts_valid_depth_range(self):
+        for d in (0, 1, 3, 5):
+            job = _make_job(depth=d)
+            assert job.depth == d
+
 
 # --- Signal handling ---
 

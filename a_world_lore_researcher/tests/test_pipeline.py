@@ -24,6 +24,8 @@ from src.models import (
 )
 from src.pipeline import (
     PIPELINE_STEPS,
+    TOPIC_SECTION_HEADERS,
+    _reconstruct_labeled_content,
     run_pipeline,
     step_zone_overview_research,
     step_npc_research,
@@ -107,49 +109,64 @@ class TestPipelineSteps:
 
 class TestResearchSteps:
     @pytest.mark.asyncio
-    async def test_zone_overview_accumulates(self):
+    async def test_zone_overview_accumulates_with_topic_label(self):
         cp = _fresh_checkpoint()
         researcher = _mock_researcher()
         await step_zone_overview_research(cp, researcher)
 
-        assert len(cp.step_data["research_raw_content"]) == 1
+        raw = cp.step_data["research_raw_content"]
+        assert len(raw) == 1
+        assert raw[0]["topic"] == "zone_overview_research"
+        assert raw[0]["content"] == "# Elwynn Forest\nPeaceful starting zone..."
         assert len(cp.step_data["research_sources"]) == 1
         researcher.research_zone.assert_called_once()
 
     @pytest.mark.asyncio
-    async def test_npc_research_accumulates(self):
+    async def test_npc_research_accumulates_with_topic_label(self):
         cp = _fresh_checkpoint()
         researcher = _mock_researcher()
-        # Simulate step 1 already ran
-        cp.step_data["research_raw_content"] = ["existing content"]
+        # Simulate step 1 already ran (labeled format)
+        cp.step_data["research_raw_content"] = [
+            {"topic": "zone_overview_research", "content": "existing content"}
+        ]
         cp.step_data["research_sources"] = [{"url": "https://x.com", "domain": "x.com", "tier": "official", "accessed_at": "2026-01-01T00:00:00"}]
 
         await step_npc_research(cp, researcher)
 
-        assert len(cp.step_data["research_raw_content"]) == 2
+        raw = cp.step_data["research_raw_content"]
+        assert len(raw) == 2
+        assert raw[0]["topic"] == "zone_overview_research"
+        assert raw[1]["topic"] == "npc_research"
         assert len(cp.step_data["research_sources"]) == 2
 
     @pytest.mark.asyncio
-    async def test_faction_research(self):
+    async def test_faction_research_labels_topic(self):
         cp = _fresh_checkpoint()
         researcher = _mock_researcher()
         await step_faction_research(cp, researcher)
-        assert "research_raw_content" in cp.step_data
+
+        raw = cp.step_data["research_raw_content"]
+        assert len(raw) == 1
+        assert raw[0]["topic"] == "faction_research"
         researcher.research_zone.assert_called_once()
 
     @pytest.mark.asyncio
-    async def test_lore_research(self):
+    async def test_lore_research_labels_topic(self):
         cp = _fresh_checkpoint()
         researcher = _mock_researcher()
         await step_lore_research(cp, researcher)
-        assert "research_raw_content" in cp.step_data
+
+        raw = cp.step_data["research_raw_content"]
+        assert raw[0]["topic"] == "lore_research"
 
     @pytest.mark.asyncio
-    async def test_narrative_items_research(self):
+    async def test_narrative_items_research_labels_topic(self):
         cp = _fresh_checkpoint()
         researcher = _mock_researcher()
         await step_narrative_items_research(cp, researcher)
-        assert "research_raw_content" in cp.step_data
+
+        raw = cp.step_data["research_raw_content"]
+        assert raw[0]["topic"] == "narrative_items_research"
 
 
 # --- Step 6: Extract all ---
@@ -157,9 +174,13 @@ class TestResearchSteps:
 
 class TestExtractAll:
     @pytest.mark.asyncio
-    async def test_stores_extraction(self):
+    async def test_stores_extraction_from_labeled_content(self):
         cp = _fresh_checkpoint()
-        cp.step_data["research_raw_content"] = ["raw content here"]
+        cp.step_data["research_raw_content"] = [
+            {"topic": "zone_overview_research", "content": "Elwynn Forest is a peaceful zone."},
+            {"topic": "npc_research", "content": "Marshal Dughan guards Goldshire."},
+            {"topic": "faction_research", "content": "Stormwind Guard patrols the area."},
+        ]
         cp.step_data["research_sources"] = [
             {"url": "https://wowpedia.fandom.com/wiki/Elwynn", "domain": "wowpedia.fandom.com", "tier": "official", "accessed_at": "2026-01-01T00:00:00"},
         ]
@@ -172,6 +193,76 @@ class TestExtractAll:
         assert extraction.zone.name == "Elwynn Forest"
         assert len(extraction.npcs) == 1
         researcher.extract_zone_data.assert_called_once()
+
+        # Verify labeled sections were reconstructed with headers
+        call_args = researcher.extract_zone_data.call_args
+        raw_content_arg = call_args[0][1]  # second positional arg
+        assert len(raw_content_arg) == 3
+        assert raw_content_arg[0].startswith("## ZONE OVERVIEW")
+        assert raw_content_arg[1].startswith("## NPCs AND NOTABLE CHARACTERS")
+        assert raw_content_arg[2].startswith("## FACTIONS AND ORGANIZATIONS")
+
+
+# --- Labeled content reconstruction ---
+
+
+class TestReconstructLabeledContent:
+    def test_groups_by_topic_with_headers(self):
+        blocks = [
+            {"topic": "zone_overview_research", "content": "Zone info here."},
+            {"topic": "npc_research", "content": "NPC info here."},
+            {"topic": "zone_overview_research", "content": "More zone info."},
+        ]
+        sections = _reconstruct_labeled_content(blocks)
+
+        assert len(sections) == 2
+        assert sections[0].startswith("## ZONE OVERVIEW")
+        assert "Zone info here." in sections[0]
+        assert "More zone info." in sections[0]
+        assert sections[1].startswith("## NPCs AND NOTABLE CHARACTERS")
+        assert "NPC info here." in sections[1]
+
+    def test_preserves_topic_order(self):
+        blocks = [
+            {"topic": "npc_research", "content": "NPCs first."},
+            {"topic": "zone_overview_research", "content": "Zone second."},
+        ]
+        sections = _reconstruct_labeled_content(blocks)
+
+        assert len(sections) == 2
+        # NPC came first in input, should be first in output
+        assert sections[0].startswith("## NPCs AND NOTABLE CHARACTERS")
+        assert sections[1].startswith("## ZONE OVERVIEW")
+
+    def test_all_five_topics(self):
+        blocks = [
+            {"topic": "zone_overview_research", "content": "zone"},
+            {"topic": "npc_research", "content": "npcs"},
+            {"topic": "faction_research", "content": "factions"},
+            {"topic": "lore_research", "content": "lore"},
+            {"topic": "narrative_items_research", "content": "items"},
+        ]
+        sections = _reconstruct_labeled_content(blocks)
+
+        assert len(sections) == 5
+        headers = [s.split("\n")[0] for s in sections]
+        assert headers == [
+            TOPIC_SECTION_HEADERS["zone_overview_research"],
+            TOPIC_SECTION_HEADERS["npc_research"],
+            TOPIC_SECTION_HEADERS["faction_research"],
+            TOPIC_SECTION_HEADERS["lore_research"],
+            TOPIC_SECTION_HEADERS["narrative_items_research"],
+        ]
+
+    def test_empty_blocks(self):
+        assert _reconstruct_labeled_content([]) == []
+
+    def test_unknown_topic_gets_fallback_header(self):
+        blocks = [{"topic": "mystery_topic", "content": "data"}]
+        sections = _reconstruct_labeled_content(blocks)
+
+        assert len(sections) == 1
+        assert sections[0].startswith("## MYSTERY_TOPIC")
 
 
 # --- Step 7: Cross-reference ---
@@ -367,8 +458,10 @@ class TestRunPipeline:
             save_mock = AsyncMock()
             m.setattr("src.pipeline.save_checkpoint", save_mock)
 
-            # Pre-populate required step_data
-            cp.step_data["research_raw_content"] = ["raw"]
+            # Pre-populate required step_data (labeled format)
+            cp.step_data["research_raw_content"] = [
+                {"topic": "zone_overview_research", "content": "raw"}
+            ]
             cp.step_data["research_sources"] = []
             extraction = ZoneExtraction(zone=ZoneData(name="Elwynn Forest"))
             cp.step_data["extraction"] = extraction.model_dump(mode="json")

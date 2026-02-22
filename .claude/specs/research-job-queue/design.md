@@ -164,12 +164,11 @@ class ResearchCheckpoint(BaseModel):
     job_id: str
     zone_name: str
     current_step: int = 0
+    wave_depth: int = 0           # Which depth wave this zone belongs to (for crash recovery)
     step_data: dict = Field(default_factory=dict)
-    daily_tokens_used: int = 0
-    last_reset_date: str = ""
 ```
 
-Budget tracking (`daily_tokens_used`, `last_reset_date`) stays on the checkpoint but is shared across the agent instance — not per-job. This needs a separate budget checkpoint keyed by `{agent_id}:budget`.
+Budget tracking (`daily_tokens_used`, `last_reset_date`) lives on a separate `BudgetState` model, keyed by `{agent_id}:budget`. It is shared across the agent instance — not per-job or per-zone.
 
 ### Budget Checkpoint Functions
 
@@ -251,7 +250,7 @@ When a step name is in `skip_steps`, the pipeline logs a skip message and advanc
 
 ## 8. Error Handling
 
-- **Job-level failure**: If a zone pipeline fails after retries, publish `JOB_FAILED` with the error, nack the message (with requeue=false so it goes to DLQ if configured), and clean up the checkpoint.
+- **Job-level failure**: If a zone pipeline fails after retries, publish `JOB_FAILED` with the error, nack the message (with requeue=false so it goes to DLQ if configured). Checkpoints are **not** cleaned up on failure — they enable crash recovery if the message is redelivered from a DLQ or retried manually. Orphaned checkpoints (from jobs that permanently fail) are bounded by the checkpoint key prefix and can be cleaned up via periodic maintenance if needed.
 - **Per-zone failure within a multi-zone job**: Log the failure, skip the zone, continue with remaining zones. If any zones failed, publish `JOB_PARTIAL_COMPLETED` (not `JOB_COMPLETED`) with `zones_failed` listing each failed zone and its error.
 - **Budget exhaustion mid-job**: Publish `JOB_FAILED` with reason "daily token budget exhausted". The job can be retried after budget resets.
 - **Crash recovery**: On restart, the daemon doesn't auto-resume old jobs. Unacked messages return to the queue (RabbitMQ handles this). On redelivery, the daemon scans for existing per-zone checkpoints to determine which zones are already completed (skipped) and which are partially done (resumed from last checkpointed step). See section 4 "Crash Recovery" for details.
