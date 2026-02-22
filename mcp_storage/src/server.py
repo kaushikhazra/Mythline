@@ -297,27 +297,26 @@ async def traverse(record_id: str, relation_type: str, direction: str = "out") -
 async def save_checkpoint(agent_id: str, state: str) -> str:
     """Save a research checkpoint for an agent.
 
-    Overwrites any existing checkpoint for this agent.
+    Overwrites any existing checkpoint for this agent. Supports composite
+    keys (e.g., "world_lore_researcher:job123:elwynn_forest") via
+    SurrealDB's type::thing() for safe record ID handling.
 
     Args:
-        agent_id: Agent identifier (e.g., "world_lore_researcher").
-        state: JSON string of the ResearchCheckpoint data.
+        agent_id: Agent identifier or composite key.
+        state: JSON string of the checkpoint data.
 
     Returns:
         Confirmation message.
     """
     parsed = json.loads(state)
     parsed["saved_at"] = datetime.now(timezone.utc).isoformat()
+    parsed["checkpoint_key"] = agent_id
 
     db = await get_db()
-    existing = _first(await db.select(f"research_state:{agent_id}"))
-    if existing:
-        await db.update(f"research_state:{agent_id}", parsed)
-    else:
-        await db.query(
-            f"CREATE research_state:{agent_id} CONTENT $data",
-            {"data": parsed},
-        )
+    await db.query(
+        "UPSERT type::thing('research_state', $id) CONTENT $data",
+        {"id": agent_id, "data": parsed},
+    )
 
     return json.dumps({"saved": f"research_state:{agent_id}"})
 
@@ -327,14 +326,19 @@ async def load_checkpoint(agent_id: str) -> str:
     """Load a research checkpoint for an agent.
 
     Args:
-        agent_id: Agent identifier (e.g., "world_lore_researcher").
+        agent_id: Agent identifier or composite key.
 
     Returns:
         JSON string of the checkpoint data, or null if none exists.
     """
     db = await get_db()
-    result = _first(await db.select(f"research_state:{agent_id}"))
-    return to_json(result)
+    result = await db.query(
+        "SELECT * FROM type::thing('research_state', $id)",
+        {"id": agent_id},
+    )
+    extracted = _extract_query_result(result)
+    record = _first(extracted) if isinstance(extracted, list) else extracted
+    return to_json(record)
 
 
 @server.tool()
@@ -342,14 +346,47 @@ async def delete_checkpoint(agent_id: str) -> str:
     """Delete a research checkpoint for an agent.
 
     Args:
-        agent_id: Agent identifier (e.g., "world_lore_researcher").
+        agent_id: Agent identifier or composite key.
 
     Returns:
         Confirmation message.
     """
     db = await get_db()
-    await db.delete(f"research_state:{agent_id}")
+    await db.query(
+        "DELETE type::thing('research_state', $id)",
+        {"id": agent_id},
+    )
     return json.dumps({"deleted": f"research_state:{agent_id}"})
+
+
+@server.tool()
+async def list_checkpoints(prefix: str = "") -> str:
+    """List checkpoint keys, optionally filtered by prefix.
+
+    Used for crash recovery — scanning for existing per-zone checkpoints
+    matching a job's key prefix (e.g., "world_lore_researcher:job123:").
+
+    Args:
+        prefix: Key prefix to filter by. Empty string returns all keys.
+
+    Returns:
+        JSON array of matching checkpoint key strings.
+    """
+    db = await get_db()
+    if prefix:
+        result = await db.query(
+            "SELECT checkpoint_key FROM research_state "
+            "WHERE checkpoint_key != NONE AND string::starts_with(checkpoint_key, $prefix)",
+            {"prefix": prefix},
+        )
+    else:
+        result = await db.query(
+            "SELECT checkpoint_key FROM research_state WHERE checkpoint_key != NONE"
+        )
+    extracted = _extract_query_result(result)
+    if not extracted or not isinstance(extracted, list):
+        return json.dumps([])
+    return json.dumps([r["checkpoint_key"] for r in extracted if isinstance(r, dict) and "checkpoint_key" in r])
 
 
 # --- Helpers ---

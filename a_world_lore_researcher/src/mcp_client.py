@@ -5,7 +5,7 @@ REST API for crawl4ai (its built-in MCP SSE endpoint has a Starlette
 middleware bug, but its REST API works perfectly).
 
 Each MCP call creates a fresh session (initialize -> tool call -> close).
-The per-call overhead is negligible for a daemon running every 5 minutes.
+The per-call overhead is negligible for a job-driven daemon.
 """
 
 from __future__ import annotations

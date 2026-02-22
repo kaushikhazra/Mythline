@@ -18,13 +18,14 @@ def _int_env(name: str, default: int) -> int:
 AGENT_ID = os.getenv("AGENT_ID", "world_lore_researcher")
 AGENT_ROLE = os.getenv("AGENT_ROLE", "world_lore_researcher")
 GAME_NAME = os.getenv("GAME_NAME", "wow")
-STARTING_ZONE = os.getenv("STARTING_ZONE", "elwynn_forest")
 
-RESEARCH_CYCLE_DELAY_MINUTES = _int_env("RESEARCH_CYCLE_DELAY_MINUTES", 5)
 DAILY_TOKEN_BUDGET = _int_env("DAILY_TOKEN_BUDGET", 500_000)
-PER_CYCLE_TOKEN_BUDGET = _int_env("PER_CYCLE_TOKEN_BUDGET", 50_000)
+PER_ZONE_TOKEN_BUDGET = _int_env("PER_ZONE_TOKEN_BUDGET", 50_000)
 MAX_RESEARCH_VALIDATE_ITERATIONS = _int_env("MAX_RESEARCH_VALIDATE_ITERATIONS", 3)
 RATE_LIMIT_REQUESTS_PER_MINUTE = _int_env("RATE_LIMIT_REQUESTS_PER_MINUTE", 30)
+
+JOB_QUEUE = os.getenv("JOB_QUEUE", "agent.world_lore_researcher.jobs")
+STATUS_QUEUE = os.getenv("STATUS_QUEUE", "agent.world_lore_researcher.status")
 
 RABBITMQ_URL = os.getenv("RABBITMQ_URL", "amqp://mythline:mythline@localhost:5672/")
 MCP_STORAGE_URL = os.getenv("MCP_STORAGE_URL", "http://localhost:8005/mcp")

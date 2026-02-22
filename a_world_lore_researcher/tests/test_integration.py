@@ -44,15 +44,17 @@ class TestStorageMCPIntegration:
         from src.checkpoint import save_checkpoint, load_checkpoint, delete_checkpoint
         from src.models import ResearchCheckpoint
 
-        cp = ResearchCheckpoint(zone_name="integration_test_zone", current_step=3)
-        await save_checkpoint(cp)
+        key = "integration_test:job-1:test_zone"
+        cp = ResearchCheckpoint(job_id="job-1", zone_name="integration_test_zone", current_step=3)
+        await save_checkpoint(cp, key)
 
-        loaded = await load_checkpoint()
+        loaded = await load_checkpoint(key)
         assert loaded is not None
         assert loaded.zone_name == "integration_test_zone"
         assert loaded.current_step == 3
+        assert loaded.job_id == "job-1"
 
-        await delete_checkpoint()
+        await delete_checkpoint(key)
 
 
 @skip_unless_services

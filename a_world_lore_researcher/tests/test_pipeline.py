@@ -77,7 +77,7 @@ def _mock_researcher() -> MagicMock:
 
 
 def _fresh_checkpoint() -> ResearchCheckpoint:
-    return ResearchCheckpoint(zone_name="elwynn_forest")
+    return ResearchCheckpoint(job_id="test-job", zone_name="elwynn_forest")
 
 
 # --- Pipeline structure ---
@@ -197,45 +197,29 @@ class TestCrossReference:
         researcher.cross_reference.assert_called_once()
 
 
-# --- Step 8: Discover connected zones ---
+# --- Step 8: Discover connected zones (pure discovery) ---
 
 
 class TestDiscoverConnectedZones:
     @pytest.mark.asyncio
-    async def test_populates_progression_queue(self):
+    async def test_writes_discovered_zones_to_step_data(self):
         cp = _fresh_checkpoint()
         researcher = _mock_researcher()
 
         await step_discover_connected_zones(cp, researcher)
 
-        assert "westfall" in cp.progression_queue
-        assert "stormwind_city" in cp.progression_queue
-        assert "redridge_mountains" in cp.progression_queue
         assert cp.step_data["discovered_zones"] == ["westfall", "stormwind_city", "redridge_mountains"]
 
     @pytest.mark.asyncio
-    async def test_filters_completed_zones(self):
+    async def test_no_filtering(self):
+        """Step 8 is pure discovery — no filtering against completed/pending zones."""
         cp = _fresh_checkpoint()
-        cp.completed_zones = ["westfall"]
         researcher = _mock_researcher()
 
         await step_discover_connected_zones(cp, researcher)
 
-        assert "westfall" not in cp.progression_queue
-        assert "stormwind_city" in cp.progression_queue
-
-    @pytest.mark.asyncio
-    async def test_filters_current_zone(self):
-        cp = ResearchCheckpoint(zone_name="westfall")
-        researcher = _mock_researcher()
-        researcher.discover_connected_zones = AsyncMock(
-            return_value=["westfall", "elwynn_forest"]
-        )
-
-        await step_discover_connected_zones(cp, researcher)
-
-        assert "westfall" not in cp.progression_queue
-        assert "elwynn_forest" in cp.progression_queue
+        # All discovered zones are stored, even if they overlap
+        assert len(cp.step_data["discovered_zones"]) == 3
 
 
 # --- Step 9: Package and send ---
@@ -347,3 +331,89 @@ class TestRunPipeline:
         assert result.current_step == 9
         # Only steps 8 and 9 should have saved (indices 7 and 8)
         assert save_mock.call_count == 2
+
+    @pytest.mark.asyncio
+    async def test_skip_steps(self):
+        """Skipped steps log and advance without executing."""
+        cp = _fresh_checkpoint()
+        researcher = _mock_researcher()
+
+        with pytest.MonkeyPatch.context() as m:
+            save_mock = AsyncMock()
+            m.setattr("src.pipeline.save_checkpoint", save_mock)
+
+            result = await run_pipeline(
+                cp, researcher,
+                skip_steps={"discover_connected_zones"},
+            )
+
+        assert result.current_step == 9
+        # discover_connected_zones was skipped — no discovered_zones in step_data
+        assert "discovered_zones" not in result.step_data
+        # research_zone should have been called 5 times (steps 1-5)
+        assert researcher.research_zone.call_count == 5
+        # discover_connected_zones should NOT have been called
+        researcher.discover_connected_zones.assert_not_called()
+
+    @pytest.mark.asyncio
+    async def test_skip_multiple_steps(self):
+        """Multiple steps can be skipped."""
+        cp = _fresh_checkpoint()
+        cp.current_step = 5  # Start at extract_all (step 6)
+
+        researcher = _mock_researcher()
+
+        with pytest.MonkeyPatch.context() as m:
+            save_mock = AsyncMock()
+            m.setattr("src.pipeline.save_checkpoint", save_mock)
+
+            # Pre-populate required step_data
+            cp.step_data["research_raw_content"] = ["raw"]
+            cp.step_data["research_sources"] = []
+            extraction = ZoneExtraction(zone=ZoneData(name="Elwynn Forest"))
+            cp.step_data["extraction"] = extraction.model_dump(mode="json")
+            cr_result = CrossReferenceResult(is_consistent=True, confidence={"zone": 0.9})
+            cp.step_data["cross_reference"] = cr_result.model_dump(mode="json")
+
+            result = await run_pipeline(
+                cp, researcher,
+                skip_steps={"extract_all", "cross_reference", "discover_connected_zones"},
+            )
+
+        assert result.current_step == 9
+        # extract_all and cross_reference were skipped — originals still in step_data
+        researcher.extract_zone_data.assert_not_called()
+        researcher.cross_reference.assert_not_called()
+        researcher.discover_connected_zones.assert_not_called()
+
+    @pytest.mark.asyncio
+    async def test_step_progress_callback(self):
+        """on_step_progress callback fires after each step (including skipped)."""
+        cp = _fresh_checkpoint()
+        cp.current_step = 7  # Start at discover_connected_zones (step 8)
+
+        researcher = _mock_researcher()
+        progress_calls: list[tuple[str, int, int]] = []
+
+        async def on_progress(step_name: str, step_number: int, total_steps: int):
+            progress_calls.append((step_name, step_number, total_steps))
+
+        with pytest.MonkeyPatch.context() as m:
+            m.setattr("src.pipeline.save_checkpoint", AsyncMock())
+
+            extraction = ZoneExtraction(zone=ZoneData(name="Elwynn Forest"))
+            cr_result = CrossReferenceResult(is_consistent=True, confidence={"zone": 0.9})
+            cp.step_data["extraction"] = extraction.model_dump(mode="json")
+            cp.step_data["cross_reference"] = cr_result.model_dump(mode="json")
+            cp.step_data["research_sources"] = []
+
+            await run_pipeline(
+                cp, researcher,
+                skip_steps={"discover_connected_zones"},
+                on_step_progress=on_progress,
+            )
+
+        # Steps 8 (skipped) and 9 (executed) should fire callback
+        assert len(progress_calls) == 2
+        assert progress_calls[0] == ("discover_connected_zones", 8, 9)
+        assert progress_calls[1] == ("package_and_send", 9, 9)

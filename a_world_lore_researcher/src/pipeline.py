@@ -22,7 +22,7 @@ from src.agent import (
     ZoneExtraction,
 )
 from src.checkpoint import save_checkpoint
-from src.config import GAME_NAME
+from src.config import AGENT_ID, GAME_NAME
 from src.models import (
     MessageEnvelope,
     MessageType,
@@ -50,6 +50,8 @@ async def run_pipeline(
     checkpoint: ResearchCheckpoint,
     researcher: LoreResearcher,
     publish_fn: Callable[[MessageEnvelope], Awaitable[None]] | None = None,
+    skip_steps: set[str] | None = None,
+    on_step_progress: Callable[[str, int, int], Awaitable[None]] | None = None,
 ) -> ResearchCheckpoint:
     """Run the research pipeline for a single zone.
 
@@ -58,12 +60,29 @@ async def run_pipeline(
         researcher: LoreResearcher instance with agent + tools.
         publish_fn: Async callable to publish MessageEnvelope to RabbitMQ.
                     None in tests or when RabbitMQ is unavailable.
+        skip_steps: Step names to skip (logged but not executed).
+        on_step_progress: Callback(step_name, step_number, total_steps) called
+                          after each step completes. Used for STEP_PROGRESS status.
     """
     zone_name = checkpoint.zone_name
     start_step = checkpoint.current_step
+    checkpoint_key = f"{AGENT_ID}:{checkpoint.job_id}:{zone_name}"
+    total_steps = len(PIPELINE_STEPS)
 
     for step_idx in range(start_step, len(PIPELINE_STEPS)):
         step_name = PIPELINE_STEPS[step_idx]
+
+        if skip_steps and step_name in skip_steps:
+            logger.info(
+                "pipeline_step_skipped",
+                extra={"zone_name": zone_name, "step": step_idx + 1, "step_name": step_name},
+            )
+            checkpoint.current_step = step_idx + 1
+            await save_checkpoint(checkpoint, checkpoint_key)
+            if on_step_progress:
+                await on_step_progress(step_name, step_idx + 1, total_steps)
+            continue
+
         logger.info(
             "pipeline_step_started",
             extra={"zone_name": zone_name, "step": step_idx + 1, "step_name": step_name},
@@ -74,11 +93,14 @@ async def run_pipeline(
             checkpoint = await step_fn(checkpoint, researcher, publish_fn)
 
         checkpoint.current_step = step_idx + 1
-        await save_checkpoint(checkpoint)
+        await save_checkpoint(checkpoint, checkpoint_key)
         logger.info(
             "pipeline_step_completed",
             extra={"zone_name": zone_name, "step": step_idx + 1, "step_name": step_name},
         )
+
+        if on_step_progress:
+            await on_step_progress(step_name, step_idx + 1, total_steps)
 
     return checkpoint
 
@@ -206,16 +228,6 @@ async def step_discover_connected_zones(
     publish_fn: Callable | None = None,
 ) -> ResearchCheckpoint:
     zone_slugs = await researcher.discover_connected_zones(checkpoint.zone_name)
-
-    # Filter out already-completed zones
-    new_zones = [
-        z for z in zone_slugs
-        if z not in checkpoint.completed_zones
-        and z not in checkpoint.progression_queue
-        and z != checkpoint.zone_name
-    ]
-
-    checkpoint.progression_queue.extend(new_zones)
     checkpoint.step_data["discovered_zones"] = zone_slugs
     return checkpoint
 

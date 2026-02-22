@@ -4,12 +4,14 @@ import json
 from datetime import datetime
 
 from src.models import (
+    BudgetState,
     Conflict,
-    FailedZone,
     FactionData,
     FactionRelation,
     FactionStance,
     ItemSignificance,
+    JobStatus,
+    JobStatusUpdate,
     LoreCategory,
     LoreData,
     MessageEnvelope,
@@ -19,6 +21,7 @@ from src.models import (
     NarrativeItemData,
     PhaseState,
     ResearchCheckpoint,
+    ResearchJob,
     ResearchPackage,
     SourceReference,
     SourceTier,
@@ -27,6 +30,7 @@ from src.models import (
     ValidationFeedback,
     ValidationResult,
     ZoneData,
+    ZoneFailure,
 )
 
 
@@ -145,6 +149,10 @@ class TestMessageEnvelope:
         assert restored.payload["zone_name"] == "elwynn_forest"
         assert restored.message_type == MessageType.RESEARCH_PACKAGE
 
+    def test_new_message_types(self):
+        assert MessageType.RESEARCH_JOB == "research_job"
+        assert MessageType.JOB_STATUS_UPDATE == "job_status_update"
+
 
 class TestResearchPackage:
     def test_minimal(self):
@@ -217,27 +225,139 @@ class TestUserDecision:
 
 class TestResearchCheckpoint:
     def test_defaults(self):
-        cp = ResearchCheckpoint(zone_name="elwynn_forest")
+        cp = ResearchCheckpoint(job_id="job-1", zone_name="elwynn_forest")
+        assert cp.job_id == "job-1"
         assert cp.current_step == 0
         assert cp.step_data == {}
-        assert cp.progression_queue == []
-        assert cp.daily_tokens_used == 0
 
-    def test_full_checkpoint_roundtrip(self):
+    def test_roundtrip(self):
         cp = ResearchCheckpoint(
+            job_id="job-abc",
             zone_name="westfall",
             current_step=5,
-            step_data={"step_1": {"urls": ["https://example.com"]}, "step_2": {"zone_name": "Westfall"}},
-            progression_queue=["redridge_mountains", "duskwood"],
-            priority_queue=["stormwind_city"],
-            completed_zones=["elwynn_forest"],
-            failed_zones=[FailedZone(zone_name="deadwind_pass", reason="No data found", iterations=3)],
-            daily_tokens_used=25000,
-            last_reset_date="2026-02-21",
+            step_data={"step_1": {"urls": ["https://example.com"]}},
         )
         json_str = cp.model_dump_json()
         restored = ResearchCheckpoint.model_validate_json(json_str)
+        assert restored.job_id == "job-abc"
         assert restored.current_step == 5
-        assert len(restored.failed_zones) == 1
-        assert restored.failed_zones[0].zone_name == "deadwind_pass"
-        assert restored.daily_tokens_used == 25000
+        assert restored.zone_name == "westfall"
+
+    def test_no_autonomous_fields(self):
+        """Verify removed fields are no longer present."""
+        cp = ResearchCheckpoint(job_id="j1", zone_name="test")
+        assert not hasattr(cp, "progression_queue")
+        assert not hasattr(cp, "priority_queue")
+        assert not hasattr(cp, "completed_zones")
+        assert not hasattr(cp, "failed_zones")
+        assert not hasattr(cp, "daily_tokens_used")
+        assert not hasattr(cp, "last_reset_date")
+
+
+class TestResearchJob:
+    def test_defaults(self):
+        job = ResearchJob(job_id="abc-123", zone_name="elwynn_forest")
+        assert job.job_id == "abc-123"
+        assert job.zone_name == "elwynn_forest"
+        assert job.depth == 0
+        assert job.game == "wow"
+        assert job.requested_by == ""
+        assert isinstance(job.requested_at, datetime)
+
+    def test_full_job(self):
+        job = ResearchJob(
+            job_id="xyz-789",
+            zone_name="westfall",
+            depth=2,
+            game="wow",
+            requested_by="user-1",
+        )
+        assert job.depth == 2
+        assert job.requested_by == "user-1"
+
+    def test_json_roundtrip(self):
+        job = ResearchJob(job_id="test", zone_name="elwynn_forest", depth=1)
+        json_str = job.model_dump_json()
+        restored = ResearchJob.model_validate_json(json_str)
+        assert restored.job_id == "test"
+        assert restored.depth == 1
+
+
+class TestJobStatus:
+    def test_all_values(self):
+        assert JobStatus.ACCEPTED == "accepted"
+        assert JobStatus.ZONE_STARTED == "zone_started"
+        assert JobStatus.STEP_PROGRESS == "step_progress"
+        assert JobStatus.ZONE_COMPLETED == "zone_completed"
+        assert JobStatus.JOB_COMPLETED == "job_completed"
+        assert JobStatus.JOB_PARTIAL_COMPLETED == "job_partial_completed"
+        assert JobStatus.JOB_FAILED == "job_failed"
+
+
+class TestZoneFailure:
+    def test_create(self):
+        zf = ZoneFailure(zone_name="deadwind_pass", error="No data found")
+        assert zf.zone_name == "deadwind_pass"
+        assert zf.error == "No data found"
+
+    def test_json_roundtrip(self):
+        zf = ZoneFailure(zone_name="test", error="timeout")
+        restored = ZoneFailure.model_validate_json(zf.model_dump_json())
+        assert restored.zone_name == "test"
+
+
+class TestJobStatusUpdate:
+    def test_defaults(self):
+        update = JobStatusUpdate(job_id="j1", status=JobStatus.ACCEPTED)
+        assert update.job_id == "j1"
+        assert update.zone_name == ""
+        assert update.step_name == ""
+        assert update.zones_completed == 0
+        assert update.zones_total == 0
+        assert update.zones_failed == []
+        assert update.error == ""
+        assert isinstance(update.timestamp, datetime)
+
+    def test_full_update(self):
+        update = JobStatusUpdate(
+            job_id="j1",
+            status=JobStatus.JOB_PARTIAL_COMPLETED,
+            zones_completed=3,
+            zones_total=5,
+            zones_failed=[
+                ZoneFailure(zone_name="deadwind_pass", error="timeout"),
+                ZoneFailure(zone_name="burning_steppes", error="budget"),
+            ],
+        )
+        assert len(update.zones_failed) == 2
+        assert update.zones_failed[0].zone_name == "deadwind_pass"
+
+    def test_json_roundtrip(self):
+        update = JobStatusUpdate(
+            job_id="j1",
+            status=JobStatus.STEP_PROGRESS,
+            zone_name="elwynn_forest",
+            step_name="npc_research",
+            step_number=2,
+            total_steps=9,
+        )
+        restored = JobStatusUpdate.model_validate_json(update.model_dump_json())
+        assert restored.step_name == "npc_research"
+        assert restored.step_number == 2
+
+
+class TestBudgetState:
+    def test_defaults(self):
+        bs = BudgetState()
+        assert bs.daily_tokens_used == 0
+        assert bs.last_reset_date == ""
+
+    def test_with_values(self):
+        bs = BudgetState(daily_tokens_used=25000, last_reset_date="2026-02-22")
+        assert bs.daily_tokens_used == 25000
+
+    def test_json_roundtrip(self):
+        bs = BudgetState(daily_tokens_used=10000, last_reset_date="2026-02-22")
+        restored = BudgetState.model_validate_json(bs.model_dump_json())
+        assert restored.daily_tokens_used == 10000
+        assert restored.last_reset_date == "2026-02-22"

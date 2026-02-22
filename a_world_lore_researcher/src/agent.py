@@ -20,7 +20,7 @@ from shared.prompt_loader import load_prompt
 from src.config import (
     GAME_NAME,
     LLM_MODEL,
-    PER_CYCLE_TOKEN_BUDGET,
+    PER_ZONE_TOKEN_BUDGET,
     get_source_tier_for_domain,
 )
 from src.mcp_client import crawl_url as rest_crawl_url
@@ -107,6 +107,7 @@ class LoreResearcher:
     AGENT_ID = "world_lore_researcher"
 
     def __init__(self):
+        self._zone_tokens: int = 0
         self._mcp_servers = load_mcp_config(__file__)
 
         self._extraction_agent = Agent(
@@ -163,6 +164,15 @@ class LoreResearcher:
             retries=2,
         )
 
+    @property
+    def zone_tokens(self) -> int:
+        """Total tokens used since last reset."""
+        return self._zone_tokens
+
+    def reset_zone_tokens(self) -> None:
+        """Reset the per-zone token counter."""
+        self._zone_tokens = 0
+
     async def research_zone(
         self, zone_name: str, instructions: str = ""
     ) -> ResearchResult:
@@ -186,9 +196,11 @@ class LoreResearcher:
                 prompt,
                 deps=context,
                 usage_limits=UsageLimits(
-                    response_tokens_limit=PER_CYCLE_TOKEN_BUDGET
+                    response_tokens_limit=PER_ZONE_TOKEN_BUDGET
                 ),
             )
+
+        self._zone_tokens += result.usage().total_tokens or 0
 
         return ResearchResult(
             raw_content=context.raw_content,
@@ -216,9 +228,10 @@ class LoreResearcher:
         result = await self._extraction_agent.run(
             prompt,
             usage_limits=UsageLimits(
-                response_tokens_limit=PER_CYCLE_TOKEN_BUDGET
+                response_tokens_limit=PER_ZONE_TOKEN_BUDGET
             ),
         )
+        self._zone_tokens += result.usage().total_tokens or 0
         return result.output
 
     async def cross_reference(
@@ -239,9 +252,10 @@ class LoreResearcher:
         result = await self._cross_ref_agent.run(
             prompt,
             usage_limits=UsageLimits(
-                response_tokens_limit=PER_CYCLE_TOKEN_BUDGET // 2
+                response_tokens_limit=PER_ZONE_TOKEN_BUDGET // 2
             ),
         )
+        self._zone_tokens += result.usage().total_tokens or 0
         return result.output
 
     async def discover_connected_zones(self, zone_name: str) -> list[str]:
@@ -258,8 +272,9 @@ class LoreResearcher:
             result = await self._zone_discovery_agent.run(
                 prompt,
                 usage_limits=UsageLimits(
-                    response_tokens_limit=PER_CYCLE_TOKEN_BUDGET // 4
+                    response_tokens_limit=PER_ZONE_TOKEN_BUDGET // 4
                 ),
             )
 
+        self._zone_tokens += result.usage().total_tokens or 0
         return result.output.zone_slugs

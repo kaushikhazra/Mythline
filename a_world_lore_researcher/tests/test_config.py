@@ -1,21 +1,19 @@
 """Tests for configuration module — env var loading and source priority."""
 
-import os
-
 from src.config import (
     AGENT_ID,
     AGENT_ROLE,
     DAILY_TOKEN_BUDGET,
     GAME_NAME,
+    JOB_QUEUE,
     MAX_RESEARCH_VALIDATE_ITERATIONS,
     MCP_STORAGE_URL,
     MCP_WEB_CRAWLER_URL,
     MCP_WEB_SEARCH_URL,
-    PER_CYCLE_TOKEN_BUDGET,
+    PER_ZONE_TOKEN_BUDGET,
     RABBITMQ_URL,
     RATE_LIMIT_REQUESTS_PER_MINUTE,
-    RESEARCH_CYCLE_DELAY_MINUTES,
-    STARTING_ZONE,
+    STATUS_QUEUE,
     get_all_trusted_domains,
     get_source_domains_by_tier,
     get_source_tier_for_domain,
@@ -31,15 +29,13 @@ class TestEnvVarDefaults:
 
     def test_game_config(self):
         assert GAME_NAME == "wow"
-        assert STARTING_ZONE == "elwynn_forest"
 
     def test_budget_defaults(self):
         assert DAILY_TOKEN_BUDGET == 500_000
-        assert PER_CYCLE_TOKEN_BUDGET == 50_000
+        assert PER_ZONE_TOKEN_BUDGET == 50_000
 
     def test_rate_limiting(self):
         assert RATE_LIMIT_REQUESTS_PER_MINUTE == 30
-        assert RESEARCH_CYCLE_DELAY_MINUTES == 5
 
     def test_validation(self):
         assert MAX_RESEARCH_VALIDATE_ITERATIONS == 3
@@ -50,6 +46,10 @@ class TestEnvVarDefaults:
         assert "8006" in MCP_WEB_SEARCH_URL
         assert "11235" in MCP_WEB_CRAWLER_URL
         assert MCP_WEB_CRAWLER_URL.endswith("11235")
+
+    def test_queue_defaults(self):
+        assert JOB_QUEUE == "agent.world_lore_researcher.jobs"
+        assert STATUS_QUEUE == "agent.world_lore_researcher.status"
 
 
 class TestSourcesConfig:

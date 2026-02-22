@@ -49,6 +49,8 @@ class ItemSignificance(str, Enum):
 
 class MessageType(str, Enum):
     RESEARCH_PACKAGE = "research_package"
+    RESEARCH_JOB = "research_job"
+    JOB_STATUS_UPDATE = "job_status_update"
     VALIDATION_RESULT = "validation_result"
     USER_DECISION_REQUIRED = "user_decision_required"
     USER_DECISION_RESPONSE = "user_decision_response"
@@ -102,6 +104,52 @@ class FailedZone(BaseModel):
     reason: str
     iterations: int
     failed_at: datetime = Field(default_factory=_now)
+
+
+# --- Job Queue Models ---
+
+
+class ResearchJob(BaseModel):
+    job_id: str
+    zone_name: str
+    depth: int = 0
+    game: str = "wow"
+    requested_by: str = ""
+    requested_at: datetime = Field(default_factory=_now)
+
+
+class JobStatus(str, Enum):
+    ACCEPTED = "accepted"
+    ZONE_STARTED = "zone_started"
+    STEP_PROGRESS = "step_progress"
+    ZONE_COMPLETED = "zone_completed"
+    JOB_COMPLETED = "job_completed"
+    JOB_PARTIAL_COMPLETED = "job_partial_completed"
+    JOB_FAILED = "job_failed"
+
+
+class ZoneFailure(BaseModel):
+    zone_name: str
+    error: str
+
+
+class JobStatusUpdate(BaseModel):
+    job_id: str
+    status: JobStatus
+    zone_name: str = ""
+    step_name: str = ""
+    step_number: int = 0
+    total_steps: int = 0
+    zones_completed: int = 0
+    zones_total: int = 0
+    zones_failed: list[ZoneFailure] = Field(default_factory=list)
+    error: str = ""
+    timestamp: datetime = Field(default_factory=_now)
+
+
+class BudgetState(BaseModel):
+    daily_tokens_used: int = 0
+    last_reset_date: str = ""
 
 
 # --- Domain Data Models ---
@@ -216,12 +264,7 @@ class UserDecisionResponse(BaseModel):
 
 
 class ResearchCheckpoint(BaseModel):
+    job_id: str
     zone_name: str
     current_step: int = 0
     step_data: dict = Field(default_factory=dict)
-    progression_queue: list[str] = Field(default_factory=list)
-    priority_queue: list[str] = Field(default_factory=list)
-    completed_zones: list[str] = Field(default_factory=list)
-    failed_zones: list[FailedZone] = Field(default_factory=list)
-    daily_tokens_used: int = 0
-    last_reset_date: str = ""
