@@ -582,7 +582,7 @@ class TestExecuteJob:
         # Researcher with zone_tokens tracking
         researcher = MagicMock()
         researcher.zone_tokens = 1500
-        researcher.reset_zone_tokens = MagicMock()
+        researcher.reset_zone_state = MagicMock()
 
         async def fake_pipeline(cp, researcher, publish_fn, skip_steps=None, on_step_progress=None):
             cp.current_step = TOTAL_STEPS
@@ -597,7 +597,7 @@ class TestExecuteJob:
         # Second call should have accumulated tokens
         saved_budget = mock_save_budget.call_args_list[1][0][0]
         assert saved_budget.daily_tokens_used == 1500
-        researcher.reset_zone_tokens.assert_called_once()
+        researcher.reset_zone_state.assert_called_once()
 
     @pytest.mark.asyncio
     @patch("src.daemon.list_checkpoints", new_callable=AsyncMock, return_value=[])

@@ -261,7 +261,7 @@ class Daemon:
 
                     # Track token usage and persist budget
                     budget = add_tokens_used(budget, researcher.zone_tokens)
-                    researcher.reset_zone_tokens()
+                    researcher.reset_zone_state()
                     await save_budget(budget)
 
                     # Zone completed
@@ -288,7 +288,7 @@ class Daemon:
                     }, exc_info=True)
                     # Track partial tokens even on failure
                     budget = add_tokens_used(budget, researcher.zone_tokens)
-                    researcher.reset_zone_tokens()
+                    researcher.reset_zone_state()
                     await save_budget(budget)
                     zones_failed_list.append(ZoneFailure(
                         zone_name=zone_name,

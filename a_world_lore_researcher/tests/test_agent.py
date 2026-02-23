@@ -6,12 +6,18 @@ import pytest
 
 import src.agent as agent_module
 from src.agent import (
+    EXTRACTION_CATEGORIES,
     ZoneExtraction,
     CrossReferenceResult,
     ResearchResult,
     ResearchContext,
     ConnectedZonesResult,
+    NPCExtractionResult,
+    FactionExtractionResult,
+    LoreExtractionResult,
+    NarrativeItemExtractionResult,
     _make_source_ref,
+    _normalize_url,
 )
 from shared.prompt_loader import load_prompt
 from src.models import (
@@ -50,18 +56,75 @@ class TestLoadPrompt:
     def test_loads_cross_reference_prompt(self):
         prompt = load_prompt(agent_module.__file__, "cross_reference")
         assert isinstance(prompt, str)
-        assert "consistency" in prompt.lower()
+        assert "completeness" in prompt.lower()
         assert "confidence" in prompt.lower()
+        assert "cross-category" in prompt.lower()
+
+    def test_loads_cross_reference_task_prompt(self):
+        prompt = load_prompt(agent_module.__file__, "cross_reference_task")
+        assert isinstance(prompt, str)
+        assert "{zone_name}" in prompt
+        assert "{full_data}" in prompt
+        assert "zone" in prompt and "npcs" in prompt and "factions" in prompt
 
     def test_loads_discover_zones_prompt(self):
         prompt = load_prompt(agent_module.__file__, "discover_zones")
         assert isinstance(prompt, str)
         assert "connected" in prompt.lower() or "adjacent" in prompt.lower()
 
-    def test_loads_research_zone_prompt(self):
+    def test_loads_research_zone_prompt_with_two_phase(self):
         prompt = load_prompt(agent_module.__file__, "research_zone")
         assert isinstance(prompt, str)
         assert "{zone_name}" in prompt
+        assert "Phase 1" in prompt
+        assert "Phase 2" in prompt
+        assert "{instructions}" in prompt
+
+    def test_loads_extract_zone_prompt(self):
+        prompt = load_prompt(agent_module.__file__, "extract_zone")
+        assert isinstance(prompt, str)
+        assert "{zone_name}" in prompt
+        assert "{source_info}" in prompt
+        assert "{raw_content}" in prompt
+        assert "narrative_arc" in prompt
+
+    def test_loads_extract_npcs_prompt(self):
+        prompt = load_prompt(agent_module.__file__, "extract_npcs")
+        assert isinstance(prompt, str)
+        assert "{zone_name}" in prompt
+        assert "{source_info}" in prompt
+        assert "{raw_content}" in prompt
+        assert "personality" in prompt.lower()
+        assert "hostile" in prompt.lower()
+
+    def test_loads_extract_factions_prompt(self):
+        prompt = load_prompt(agent_module.__file__, "extract_factions")
+        assert isinstance(prompt, str)
+        assert "{zone_name}" in prompt
+        assert "{source_info}" in prompt
+        assert "{raw_content}" in prompt
+        assert "ideology" in prompt.lower()
+
+    def test_loads_extract_lore_prompt(self):
+        prompt = load_prompt(agent_module.__file__, "extract_lore")
+        assert isinstance(prompt, str)
+        assert "{zone_name}" in prompt
+        assert "{source_info}" in prompt
+        assert "{raw_content}" in prompt
+        assert "history, mythology, cosmology, power_source" in prompt
+
+    def test_loads_extract_narrative_items_prompt(self):
+        prompt = load_prompt(agent_module.__file__, "extract_narrative_items")
+        assert isinstance(prompt, str)
+        assert "{zone_name}" in prompt
+        assert "{source_info}" in prompt
+        assert "{raw_content}" in prompt
+        assert "significance" in prompt.lower()
+
+    def test_extract_zone_data_prompt_removed(self):
+        """Old combined extraction prompt should be deleted."""
+        with pytest.raises(FileNotFoundError):
+            load_prompt(agent_module.__file__, "extract_zone_data")
 
 
 # --- Output models ---
@@ -98,6 +161,80 @@ class TestZoneExtraction:
         restored = ZoneExtraction.model_validate_json(json_str)
         assert restored.zone.name == "Westfall"
         assert restored.npcs[0].name == "Gryan Stoutmantle"
+
+
+class TestExtractionResultModels:
+    """Tests for per-category extraction result wrapper models."""
+
+    def test_npc_extraction_result_defaults(self):
+        result = NPCExtractionResult()
+        assert result.npcs == []
+
+    def test_npc_extraction_result_populated(self):
+        result = NPCExtractionResult(npcs=[NPCData(name="Edwin VanCleef")])
+        assert len(result.npcs) == 1
+        assert result.npcs[0].name == "Edwin VanCleef"
+
+    def test_faction_extraction_result_defaults(self):
+        result = FactionExtractionResult()
+        assert result.factions == []
+
+    def test_faction_extraction_result_populated(self):
+        result = FactionExtractionResult(factions=[FactionData(name="Defias Brotherhood")])
+        assert len(result.factions) == 1
+
+    def test_lore_extraction_result_defaults(self):
+        result = LoreExtractionResult()
+        assert result.lore == []
+
+    def test_lore_extraction_result_populated(self):
+        result = LoreExtractionResult(lore=[LoreData(title="Stonemasons' Betrayal")])
+        assert len(result.lore) == 1
+
+    def test_narrative_item_extraction_result_defaults(self):
+        result = NarrativeItemExtractionResult()
+        assert result.narrative_items == []
+
+    def test_narrative_item_extraction_result_populated(self):
+        result = NarrativeItemExtractionResult(
+            narrative_items=[NarrativeItemData(name="VanCleef's Sword")]
+        )
+        assert len(result.narrative_items) == 1
+
+    def test_serialization_roundtrip(self):
+        result = NPCExtractionResult(npcs=[NPCData(name="Test NPC", personality="Brave")])
+        json_str = result.model_dump_json()
+        restored = NPCExtractionResult.model_validate_json(json_str)
+        assert restored.npcs[0].name == "Test NPC"
+        assert restored.npcs[0].personality == "Brave"
+
+
+class TestExtractionCategories:
+    """Tests for the EXTRACTION_CATEGORIES config dict."""
+
+    def test_has_five_categories(self):
+        assert len(EXTRACTION_CATEGORIES) == 5
+
+    def test_expected_keys(self):
+        expected = {"zone", "npcs", "factions", "lore", "narrative_items"}
+        assert set(EXTRACTION_CATEGORIES.keys()) == expected
+
+    def test_token_shares_sum_to_one(self):
+        total = sum(share for _, _, share in EXTRACTION_CATEGORIES.values())
+        assert abs(total - 1.0) < 0.001
+
+    def test_each_entry_has_correct_structure(self):
+        from pydantic import BaseModel
+        for key, (output_type, prompt_name, share) in EXTRACTION_CATEGORIES.items():
+            assert issubclass(output_type, BaseModel), f"{key} output_type not BaseModel"
+            assert isinstance(prompt_name, str), f"{key} prompt_name not str"
+            assert 0 < share <= 1.0, f"{key} share out of range"
+
+    def test_prompt_names_match_files(self):
+        """Each prompt_name in EXTRACTION_CATEGORIES must load successfully."""
+        for key, (_, prompt_name, _) in EXTRACTION_CATEGORIES.items():
+            prompt = load_prompt(agent_module.__file__, prompt_name)
+            assert isinstance(prompt, str) and len(prompt) > 0, f"Prompt {prompt_name} failed"
 
 
 class TestCrossReferenceResult:
@@ -180,50 +317,129 @@ class TestMakeSourceRef:
         assert ref.tier == SourceTier.TERTIARY
 
 
+class TestNormalizeUrl:
+    def test_strips_trailing_slash(self):
+        assert _normalize_url("https://wiki.gg/page/") == "https://wiki.gg/page"
+
+    def test_strips_fragment(self):
+        assert _normalize_url("https://wiki.gg/page#section") == "https://wiki.gg/page"
+
+    def test_strips_both(self):
+        assert _normalize_url("https://wiki.gg/page/#section") == "https://wiki.gg/page"
+
+    def test_no_change_needed(self):
+        assert _normalize_url("https://wiki.gg/page") == "https://wiki.gg/page"
+
+    def test_preserves_query_params(self):
+        assert _normalize_url("https://wiki.gg/page?id=1") == "https://wiki.gg/page?id=1"
+
+    def test_empty_fragment(self):
+        assert _normalize_url("https://wiki.gg/page#") == "https://wiki.gg/page"
+
+
 # --- LoreResearcher init ---
 
 
 class TestLoreResearcherInit:
-    def test_creates_agents(self):
+    def test_creates_per_category_extraction_agents(self):
         researcher = _make_researcher()
-        assert researcher._extraction_agent is not None
+        assert isinstance(researcher._extraction_agents, dict)
+        assert len(researcher._extraction_agents) == 5
+        for key in EXTRACTION_CATEGORIES:
+            assert key in researcher._extraction_agents
+
+    def test_creates_core_agents(self):
+        researcher = _make_researcher()
         assert researcher._cross_ref_agent is not None
         assert researcher._research_agent is not None
         assert researcher._zone_discovery_agent is not None
 
+    def test_has_crawl_cache(self):
+        researcher = _make_researcher()
+        assert isinstance(researcher._crawl_cache, dict)
+        assert len(researcher._crawl_cache) == 0
 
-# --- extract_zone_data ---
+
+class TestResetZoneState:
+    def test_clears_tokens_and_cache(self):
+        researcher = _make_researcher()
+        researcher._zone_tokens = 1000
+        researcher._crawl_cache["https://wiki.gg/page"] = "content"
+
+        researcher.reset_zone_state()
+
+        assert researcher._zone_tokens == 0
+        assert len(researcher._crawl_cache) == 0
 
 
-class TestExtractZoneData:
+# --- extract_category ---
+
+
+class TestExtractCategory:
     @pytest.mark.asyncio
-    async def test_extract_zone_data_calls_agent(self):
+    async def test_extract_category_calls_correct_agent(self):
         researcher = _make_researcher()
 
-        mock_extraction = ZoneExtraction(
-            zone=ZoneData(name="Elwynn Forest", narrative_arc="Starting zone"),
-            npcs=[NPCData(name="Marshal Dughan")],
-        )
-
+        mock_zone_data = ZoneData(name="Elwynn Forest", narrative_arc="Starting zone")
         mock_result = MagicMock()
-        mock_result.output = mock_extraction
+        mock_result.output = mock_zone_data
 
-        researcher._extraction_agent = MagicMock()
-        researcher._extraction_agent.run = AsyncMock(return_value=mock_result)
+        mock_agent = MagicMock()
+        mock_agent.run = AsyncMock(return_value=mock_result)
+        researcher._extraction_agents["zone"] = mock_agent
 
         sources = [
             SourceReference(url="https://wowpedia.fandom.com/wiki/Elwynn", domain="wowpedia.fandom.com", tier=SourceTier.OFFICIAL),
         ]
 
-        result = await researcher.extract_zone_data(
-            zone_name="elwynn_forest",
-            raw_content=["# Elwynn Forest\nA peaceful forest..."],
-            sources=sources,
+        result = await researcher.extract_category(
+            "zone", "elwynn_forest", "# Zone content", sources,
         )
 
-        assert result.zone.name == "Elwynn Forest"
+        assert result.name == "Elwynn Forest"
+        mock_agent.run.assert_called_once()
+
+    @pytest.mark.asyncio
+    async def test_extract_category_npcs(self):
+        researcher = _make_researcher()
+
+        mock_npcs = NPCExtractionResult(npcs=[NPCData(name="Marshal Dughan")])
+        mock_result = MagicMock()
+        mock_result.output = mock_npcs
+
+        mock_agent = MagicMock()
+        mock_agent.run = AsyncMock(return_value=mock_result)
+        researcher._extraction_agents["npcs"] = mock_agent
+
+        sources = [
+            SourceReference(url="https://wiki.gg/npc", domain="wiki.gg", tier=SourceTier.PRIMARY),
+        ]
+
+        result = await researcher.extract_category(
+            "npcs", "elwynn_forest", "# NPC content", sources,
+        )
+
         assert len(result.npcs) == 1
-        researcher._extraction_agent.run.assert_called_once()
+        assert result.npcs[0].name == "Marshal Dughan"
+
+    @pytest.mark.asyncio
+    async def test_extract_category_uses_correct_token_budget(self):
+        researcher = _make_researcher()
+
+        mock_result = MagicMock()
+        mock_result.output = ZoneData(name="Test")
+
+        mock_agent = MagicMock()
+        mock_agent.run = AsyncMock(return_value=mock_result)
+        researcher._extraction_agents["zone"] = mock_agent
+
+        await researcher.extract_category("zone", "test", "", [])
+
+        # Verify usage_limits were passed with correct budget share (10%)
+        call_kwargs = mock_agent.run.call_args[1]
+        budget = call_kwargs["usage_limits"].output_tokens_limit
+        from src.config import PER_ZONE_TOKEN_BUDGET
+        assert budget == int(PER_ZONE_TOKEN_BUDGET * 0.10)
 
 
 # --- cross_reference ---

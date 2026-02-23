@@ -52,6 +52,32 @@ class ZoneExtraction(BaseModel):
     narrative_items: list[NarrativeItemData] = Field(default_factory=list)
 
 
+class NPCExtractionResult(BaseModel):
+    npcs: list[NPCData] = Field(default_factory=list)
+
+
+class FactionExtractionResult(BaseModel):
+    factions: list[FactionData] = Field(default_factory=list)
+
+
+class LoreExtractionResult(BaseModel):
+    lore: list[LoreData] = Field(default_factory=list)
+
+
+class NarrativeItemExtractionResult(BaseModel):
+    narrative_items: list[NarrativeItemData] = Field(default_factory=list)
+
+
+# Per-category extraction config: (output_type, prompt_name, token_budget_share)
+EXTRACTION_CATEGORIES: dict[str, tuple[type[BaseModel], str, float]] = {
+    "zone": (ZoneData, "extract_zone", 0.10),
+    "npcs": (NPCExtractionResult, "extract_npcs", 0.30),
+    "factions": (FactionExtractionResult, "extract_factions", 0.25),
+    "lore": (LoreExtractionResult, "extract_lore", 0.25),
+    "narrative_items": (NarrativeItemExtractionResult, "extract_narrative_items", 0.10),
+}
+
+
 class CrossReferenceResult(BaseModel):
     is_consistent: bool = True
     conflicts: list[Conflict] = Field(default_factory=list)
@@ -88,6 +114,11 @@ class ResearchContext:
 # --- Helpers ---
 
 
+def _normalize_url(url: str) -> str:
+    """Normalize a URL for cache dedup: strip fragments then trailing slashes."""
+    return url.split("#")[0].rstrip("/")
+
+
 def _make_source_ref(url: str) -> SourceReference:
     """Build a SourceReference from a URL, looking up the domain's trust tier."""
     domain = urlparse(url).netloc
@@ -108,14 +139,18 @@ class LoreResearcher:
 
     def __init__(self):
         self._zone_tokens: int = 0
+        self._crawl_cache: dict[str, str] = {}
         self._mcp_servers = load_mcp_config(__file__)
 
-        self._extraction_agent = Agent(
-            LLM_MODEL,
-            system_prompt=load_prompt(__file__, "system_prompt"),
-            output_type=ZoneExtraction,
-            retries=2,
-        )
+        # Per-category extraction agents (replaces single _extraction_agent)
+        self._extraction_agents: dict[str, Agent] = {}
+        for category, (output_type, _, _) in EXTRACTION_CATEGORIES.items():
+            self._extraction_agents[category] = Agent(
+                LLM_MODEL,
+                system_prompt=load_prompt(__file__, "system_prompt"),
+                output_type=output_type,
+                retries=2,
+            )
 
         self._cross_ref_agent = Agent(
             LLM_MODEL,
@@ -144,12 +179,25 @@ class LoreResearcher:
             Use this after finding interesting URLs via web search to get
             the complete page content for lore extraction.
             """
+            # Normalize URL for dedup (strip trailing slashes and fragments)
+            cache_key = _normalize_url(url)
+
+            # URL dedup: return cached content if already crawled this zone
+            if cache_key in self._crawl_cache:
+                content = self._crawl_cache[cache_key]
+                ctx.deps.raw_content.append(content)
+                ctx.deps.sources.append(_make_source_ref(url))
+                truncated = content[:CRAWL_CONTENT_TRUNCATE_CHARS]
+                if len(content) > CRAWL_CONTENT_TRUNCATE_CHARS:
+                    return truncated + "\n\n[... cached, full version captured ...]"
+                return content
+
             result = await rest_crawl_url(url)
             content = result.get("content")
             if content:
+                self._crawl_cache[cache_key] = content
                 ctx.deps.raw_content.append(content)
                 ctx.deps.sources.append(_make_source_ref(url))
-                # Return truncated content to the agent's context window
                 if len(content) > CRAWL_CONTENT_TRUNCATE_CHARS:
                     return content[:CRAWL_CONTENT_TRUNCATE_CHARS] + "\n\n[... content truncated, full version captured ...]"
                 return content
@@ -169,9 +217,10 @@ class LoreResearcher:
         """Total tokens used since last reset."""
         return self._zone_tokens
 
-    def reset_zone_tokens(self) -> None:
-        """Reset the per-zone token counter."""
+    def reset_zone_state(self) -> None:
+        """Reset per-zone state: token counter and crawl cache."""
         self._zone_tokens = 0
+        self._crawl_cache.clear()
 
     async def research_zone(
         self, zone_name: str, instructions: str = ""
@@ -196,7 +245,7 @@ class LoreResearcher:
                 prompt,
                 deps=context,
                 usage_limits=UsageLimits(
-                    response_tokens_limit=PER_ZONE_TOKEN_BUDGET
+                    output_tokens_limit=PER_ZONE_TOKEN_BUDGET
                 ),
             )
 
@@ -208,28 +257,35 @@ class LoreResearcher:
             summary=result.output,
         )
 
-    async def extract_zone_data(
+    async def extract_category[T: BaseModel](
         self,
+        category: str,
         zone_name: str,
-        raw_content: list[str],
+        content: str,
         sources: list[SourceReference],
-    ) -> ZoneExtraction:
-        """Extract structured lore data from raw crawled content."""
+    ) -> T:
+        """Extract structured data for one category from summarized content.
+
+        Returns the output_type associated with this category in EXTRACTION_CATEGORIES.
+        The generic return type enables type-safe access at call sites via cast().
+        """
+        _, prompt_name, token_share = EXTRACTION_CATEGORIES[category]
+        agent = self._extraction_agents[category]
+
         source_info = "\n".join(
             f"- {s.url} (tier: {s.tier.value})" for s in sources
         )
-        template = load_prompt(__file__, "extract_zone_data")
+        template = load_prompt(__file__, prompt_name)
         prompt = template.format(
             zone_name=zone_name,
             source_info=source_info,
-            raw_content="\n\n---\n\n".join(raw_content[:MAX_RAW_CONTENT_BLOCKS]),
+            raw_content=content,
         )
 
-        result = await self._extraction_agent.run(
+        budget = int(PER_ZONE_TOKEN_BUDGET * token_share)
+        result = await agent.run(
             prompt,
-            usage_limits=UsageLimits(
-                response_tokens_limit=PER_ZONE_TOKEN_BUDGET
-            ),
+            usage_limits=UsageLimits(output_tokens_limit=budget),
         )
         self._zone_tokens += result.usage().total_tokens or 0
         return result.output
@@ -252,7 +308,7 @@ class LoreResearcher:
         result = await self._cross_ref_agent.run(
             prompt,
             usage_limits=UsageLimits(
-                response_tokens_limit=PER_ZONE_TOKEN_BUDGET // 2
+                output_tokens_limit=PER_ZONE_TOKEN_BUDGET // 2
             ),
         )
         self._zone_tokens += result.usage().total_tokens or 0
@@ -272,7 +328,7 @@ class LoreResearcher:
             result = await self._zone_discovery_agent.run(
                 prompt,
                 usage_limits=UsageLimits(
-                    response_tokens_limit=PER_ZONE_TOKEN_BUDGET // 4
+                    output_tokens_limit=PER_ZONE_TOKEN_BUDGET // 4
                 ),
             )
 

@@ -6,11 +6,17 @@ import pytest
 
 from src.agent import (
     CrossReferenceResult,
+    FactionExtractionResult,
+    LoreExtractionResult,
     LoreResearcher,
+    NPCExtractionResult,
+    NarrativeItemExtractionResult,
     ResearchResult,
     ZoneExtraction,
 )
 from src.models import (
+    FactionRelation,
+    FactionStance,
     MessageEnvelope,
     ResearchCheckpoint,
     SourceReference,
@@ -24,7 +30,11 @@ from src.models import (
 )
 from src.pipeline import (
     PIPELINE_STEPS,
+    RESEARCH_TOPICS,
+    TOPIC_SCHEMA_HINTS,
     TOPIC_SECTION_HEADERS,
+    _apply_confidence_caps,
+    _compute_quality_warnings,
     _reconstruct_labeled_content,
     run_pipeline,
     step_zone_overview_research,
@@ -57,13 +67,20 @@ def _mock_researcher() -> MagicMock:
         summary="Researched zone overview.",
     ))
 
-    researcher.extract_zone_data = AsyncMock(return_value=ZoneExtraction(
-        zone=ZoneData(name="Elwynn Forest", game="wow", narrative_arc="Starting zone"),
-        npcs=[NPCData(name="Marshal Dughan")],
-        factions=[FactionData(name="Stormwind Guard")],
-        lore=[LoreData(title="History of Elwynn")],
-        narrative_items=[NarrativeItemData(name="Hogger's Claw")],
-    ))
+    # Per-category extraction results
+    async def _fake_extract_category(category, zone_name, content, sources):
+        results = {
+            "zone": ZoneData(name="Elwynn Forest", game="wow", narrative_arc="Starting zone"),
+            "npcs": NPCExtractionResult(npcs=[NPCData(name="Marshal Dughan")]),
+            "factions": FactionExtractionResult(factions=[FactionData(name="Stormwind Guard")]),
+            "lore": LoreExtractionResult(lore=[LoreData(title="History of Elwynn")]),
+            "narrative_items": NarrativeItemExtractionResult(
+                narrative_items=[NarrativeItemData(name="Hogger's Claw")]
+            ),
+        }
+        return results[category]
+
+    researcher.extract_category = AsyncMock(side_effect=_fake_extract_category)
 
     researcher.cross_reference = AsyncMock(return_value=CrossReferenceResult(
         is_consistent=True,
@@ -174,12 +191,33 @@ class TestResearchSteps:
 
 class TestExtractAll:
     @pytest.mark.asyncio
-    async def test_stores_extraction_from_labeled_content(self):
+    async def test_calls_extract_category_five_times(self):
         cp = _fresh_checkpoint()
         cp.step_data["research_raw_content"] = [
             {"topic": "zone_overview_research", "content": "Elwynn Forest is a peaceful zone."},
             {"topic": "npc_research", "content": "Marshal Dughan guards Goldshire."},
             {"topic": "faction_research", "content": "Stormwind Guard patrols the area."},
+            {"topic": "lore_research", "content": "History of the zone."},
+            {"topic": "narrative_items_research", "content": "Hogger's Claw is notable."},
+        ]
+        cp.step_data["research_sources"] = [
+            {"url": "https://wowpedia.fandom.com/wiki/Elwynn", "domain": "wowpedia.fandom.com", "tier": "official", "accessed_at": "2026-01-01T00:00:00"},
+        ]
+        researcher = _mock_researcher()
+
+        await step_extract_all(cp, researcher)
+
+        assert researcher.extract_category.call_count == 5
+        categories_called = [call[0][0] for call in researcher.extract_category.call_args_list]
+        assert categories_called == ["zone", "npcs", "factions", "lore", "narrative_items"]
+
+    @pytest.mark.asyncio
+    async def test_assembles_zone_extraction(self):
+        cp = _fresh_checkpoint()
+        cp.step_data["research_raw_content"] = [
+            {"topic": "zone_overview_research", "content": "Zone content."},
+            {"topic": "npc_research", "content": "NPC content."},
+            {"topic": "faction_research", "content": "Faction content."},
         ]
         cp.step_data["research_sources"] = [
             {"url": "https://wowpedia.fandom.com/wiki/Elwynn", "domain": "wowpedia.fandom.com", "tier": "official", "accessed_at": "2026-01-01T00:00:00"},
@@ -192,15 +230,100 @@ class TestExtractAll:
         extraction = ZoneExtraction.model_validate(cp.step_data["extraction"])
         assert extraction.zone.name == "Elwynn Forest"
         assert len(extraction.npcs) == 1
-        researcher.extract_zone_data.assert_called_once()
+        assert extraction.npcs[0].name == "Marshal Dughan"
+        assert len(extraction.factions) == 1
+        assert len(extraction.lore) == 1
+        assert len(extraction.narrative_items) == 1
 
-        # Verify labeled sections were reconstructed with headers
-        call_args = researcher.extract_zone_data.call_args
-        raw_content_arg = call_args[0][1]  # second positional arg
-        assert len(raw_content_arg) == 3
-        assert raw_content_arg[0].startswith("## ZONE OVERVIEW")
-        assert raw_content_arg[1].startswith("## NPCs AND NOTABLE CHARACTERS")
-        assert raw_content_arg[2].startswith("## FACTIONS AND ORGANIZATIONS")
+    @pytest.mark.asyncio
+    async def test_passes_correct_content_per_category(self):
+        cp = _fresh_checkpoint()
+        cp.step_data["research_raw_content"] = [
+            {"topic": "zone_overview_research", "content": "Zone info here."},
+            {"topic": "npc_research", "content": "NPC info here."},
+        ]
+        cp.step_data["research_sources"] = []
+        researcher = _mock_researcher()
+
+        await step_extract_all(cp, researcher)
+
+        # Zone call should get zone content with header
+        zone_call = researcher.extract_category.call_args_list[0]
+        assert "## ZONE OVERVIEW" in zone_call[0][2]
+        assert "Zone info here." in zone_call[0][2]
+
+        # NPC call should get npc content with header
+        npc_call = researcher.extract_category.call_args_list[1]
+        assert "## NPCs AND NOTABLE CHARACTERS" in npc_call[0][2]
+        assert "NPC info here." in npc_call[0][2]
+
+        # Faction call gets empty string (no faction topic in raw content)
+        faction_call = researcher.extract_category.call_args_list[2]
+        assert faction_call[0][2] == ""
+
+
+# --- RESEARCH_TOPICS content ---
+
+
+class TestResearchTopics:
+    def test_has_five_topics(self):
+        assert len(RESEARCH_TOPICS) == 5
+
+    def test_zone_overview_has_two_phases(self):
+        topic = RESEARCH_TOPICS["zone_overview_research"]
+        assert "Phase 1" in topic
+        assert "Phase 2" in topic
+
+    def test_npc_research_has_hostile_emphasis(self):
+        topic = RESEARCH_TOPICS["npc_research"]
+        assert "hostile NPCs" in topic
+        assert "bosses" in topic.lower()
+        assert "antagonist" in topic.lower()
+
+    def test_faction_research_has_hostile_emphasis(self):
+        topic = RESEARCH_TOPICS["faction_research"]
+        assert "hostile factions" in topic
+        assert "enemy factions" in topic
+        assert "criminal" in topic.lower()
+
+    def test_all_topics_have_format_placeholders(self):
+        for key, topic in RESEARCH_TOPICS.items():
+            assert "{zone}" in topic, f"{key} missing {{zone}}"
+            assert "{game}" in topic, f"{key} missing {{game}}"
+
+    def test_narrative_items_has_significance_filter(self):
+        topic = RESEARCH_TOPICS["narrative_items_research"]
+        assert "NOT crafting recipes" in topic
+        assert "empty result" in topic.lower()
+
+
+# --- TOPIC_SCHEMA_HINTS content ---
+
+
+class TestTopicSchemaHints:
+    def test_has_five_hints(self):
+        assert len(TOPIC_SCHEMA_HINTS) == 5
+
+    def test_all_hints_have_must_preserve(self):
+        for key, hint in TOPIC_SCHEMA_HINTS.items():
+            assert "MUST PRESERVE" in hint, f"{key} missing MUST PRESERVE"
+
+    def test_npc_hints_preserve_personality(self):
+        hint = TOPIC_SCHEMA_HINTS["npc_research"]
+        assert "personality" in hint.lower()
+        assert "motivations" in hint.lower()
+        assert "proper names" in hint.lower()
+
+    def test_faction_hints_preserve_ideology(self):
+        hint = TOPIC_SCHEMA_HINTS["faction_research"]
+        assert "ideology" in hint.lower()
+        assert "origin story" in hint.lower()
+        assert "proper names" in hint.lower()
+
+    def test_lore_hints_preserve_causal_chains(self):
+        hint = TOPIC_SCHEMA_HINTS["lore_research"]
+        assert "causal chains" in hint.lower()
+        assert "proper nouns" in hint.lower()
 
 
 # --- Labeled content reconstruction ---
@@ -292,6 +415,214 @@ class TestCrossReference:
         researcher.cross_reference.assert_called_once()
 
 
+# --- Confidence caps ---
+
+
+class TestApplyConfidenceCaps:
+    def test_zero_npcs_caps_to_02(self):
+        extraction = ZoneExtraction(zone=ZoneData(name="Test"))
+        confidence = {"npcs": 0.9, "factions": 0.8}
+        result = _apply_confidence_caps(extraction, confidence)
+        assert result["npcs"] == 0.2
+
+    def test_zero_factions_caps_to_02(self):
+        extraction = ZoneExtraction(
+            zone=ZoneData(name="Test"),
+            npcs=[NPCData(name="NPC1", personality="brave", role="guard")],
+        )
+        confidence = {"npcs": 0.9, "factions": 0.8}
+        result = _apply_confidence_caps(extraction, confidence)
+        assert result["factions"] == 0.2
+        assert result["npcs"] == 0.9  # NPCs not capped
+
+    def test_majority_empty_personality_caps_to_04(self):
+        extraction = ZoneExtraction(
+            zone=ZoneData(name="Test"),
+            npcs=[
+                NPCData(name="NPC1", personality="", role="guard"),
+                NPCData(name="NPC2", personality="", role="vendor"),
+                NPCData(name="NPC3", personality="brave", role="boss"),
+            ],
+        )
+        confidence = {"npcs": 0.85}
+        result = _apply_confidence_caps(extraction, confidence)
+        # 2/3 empty personality > 50%
+        assert result["npcs"] == 0.4
+
+    def test_majority_empty_role_caps_to_04(self):
+        extraction = ZoneExtraction(
+            zone=ZoneData(name="Test"),
+            npcs=[
+                NPCData(name="NPC1", personality="brave", role=""),
+                NPCData(name="NPC2", personality="shy", role=""),
+                NPCData(name="NPC3", personality="bold", role="guard"),
+            ],
+        )
+        confidence = {"npcs": 0.85}
+        result = _apply_confidence_caps(extraction, confidence)
+        assert result["npcs"] == 0.4
+
+    def test_normal_data_passes_through(self):
+        extraction = ZoneExtraction(
+            zone=ZoneData(name="Test"),
+            npcs=[NPCData(name="NPC1", personality="brave", role="guard")],
+            factions=[FactionData(name="Faction1")],
+        )
+        confidence = {"npcs": 0.9, "factions": 0.85, "zone": 0.95}
+        result = _apply_confidence_caps(extraction, confidence)
+        assert result["npcs"] == 0.9
+        assert result["factions"] == 0.85
+        assert result["zone"] == 0.95
+
+    def test_already_low_confidence_not_raised(self):
+        extraction = ZoneExtraction(zone=ZoneData(name="Test"))
+        confidence = {"npcs": 0.1}
+        result = _apply_confidence_caps(extraction, confidence)
+        # 0.1 < 0.2 cap, so min(0.1, 0.2) = 0.1
+        assert result["npcs"] == 0.1
+
+
+# --- Quality warnings ---
+
+
+class TestComputeQualityWarnings:
+    def test_shallow_narrative_arc(self):
+        extraction = ZoneExtraction(
+            zone=ZoneData(name="Test", narrative_arc="Short arc."),
+        )
+        warnings = _compute_quality_warnings(extraction)
+        assert "shallow_narrative_arc" in warnings
+
+    def test_no_shallow_warning_for_long_arc(self):
+        extraction = ZoneExtraction(
+            zone=ZoneData(name="Test", narrative_arc="A" * 200),
+        )
+        warnings = _compute_quality_warnings(extraction)
+        assert "shallow_narrative_arc" not in warnings
+
+    def test_no_npc_personality_data(self):
+        extraction = ZoneExtraction(
+            zone=ZoneData(name="Test", narrative_arc="A" * 200),
+            npcs=[
+                NPCData(name="NPC1", personality=""),
+                NPCData(name="NPC2", personality=""),
+            ],
+        )
+        warnings = _compute_quality_warnings(extraction)
+        assert "no_npc_personality_data" in warnings
+
+    def test_no_personality_warning_when_some_have_data(self):
+        extraction = ZoneExtraction(
+            zone=ZoneData(name="Test", narrative_arc="A" * 200),
+            npcs=[
+                NPCData(name="NPC1", personality="brave"),
+                NPCData(name="NPC2", personality=""),
+            ],
+        )
+        warnings = _compute_quality_warnings(extraction)
+        assert "no_npc_personality_data" not in warnings
+
+    def test_no_personality_warning_when_no_npcs(self):
+        extraction = ZoneExtraction(
+            zone=ZoneData(name="Test", narrative_arc="A" * 200),
+        )
+        warnings = _compute_quality_warnings(extraction)
+        assert "no_npc_personality_data" not in warnings
+
+    def test_missing_antagonists_dungeon_zone(self):
+        extraction = ZoneExtraction(
+            zone=ZoneData(
+                name="Test",
+                narrative_arc="This zone has a dungeon called The Deadmines. " + "A" * 200,
+            ),
+            npcs=[NPCData(name="NPC1", role="quest_giver")],
+            factions=[FactionData(name="Faction1")],
+        )
+        warnings = _compute_quality_warnings(extraction)
+        assert "missing_antagonists" in warnings
+
+    def test_no_missing_antagonists_when_boss_exists(self):
+        extraction = ZoneExtraction(
+            zone=ZoneData(
+                name="Test",
+                narrative_arc="This zone has a dungeon. " + "A" * 200,
+            ),
+            npcs=[NPCData(name="Boss1", role="boss")],
+        )
+        warnings = _compute_quality_warnings(extraction)
+        assert "missing_antagonists" not in warnings
+
+    def test_no_missing_antagonists_when_hostile_faction_exists(self):
+        extraction = ZoneExtraction(
+            zone=ZoneData(
+                name="Test",
+                narrative_arc="This zone has a dungeon. " + "A" * 200,
+            ),
+            factions=[FactionData(
+                name="Defias Brotherhood",
+                inter_faction=[FactionRelation(
+                    faction_id="stormwind",
+                    stance=FactionStance.HOSTILE,
+                    description="Enemies of Stormwind",
+                )],
+            )],
+        )
+        warnings = _compute_quality_warnings(extraction)
+        assert "missing_antagonists" not in warnings
+
+    def test_no_missing_antagonists_no_dungeon_mention(self):
+        extraction = ZoneExtraction(
+            zone=ZoneData(
+                name="Test",
+                narrative_arc="A peaceful zone with farms and fields. " + "A" * 200,
+            ),
+        )
+        warnings = _compute_quality_warnings(extraction)
+        assert "missing_antagonists" not in warnings
+
+    def test_lore_dungeon_mention_triggers_check(self):
+        extraction = ZoneExtraction(
+            zone=ZoneData(name="Test", narrative_arc="A" * 200),
+            lore=[LoreData(
+                title="The Deadmines",
+                content="A dungeon beneath Moonbrook.",
+            )],
+            npcs=[NPCData(name="NPC1", role="quest_giver")],
+        )
+        warnings = _compute_quality_warnings(extraction)
+        assert "missing_antagonists" in warnings
+
+
+# --- Cross-reference with confidence caps ---
+
+
+class TestCrossReferenceWithCaps:
+    @pytest.mark.asyncio
+    async def test_applies_confidence_caps(self):
+        cp = _fresh_checkpoint()
+        # Extraction with no factions — should cap factions confidence
+        extraction = ZoneExtraction(
+            zone=ZoneData(name="Elwynn Forest"),
+            npcs=[NPCData(name="Marshal Dughan", personality="stern", role="guard")],
+        )
+        cp.step_data["extraction"] = extraction.model_dump(mode="json")
+        researcher = _mock_researcher()
+        # Mock returns high confidence for factions
+        researcher.cross_reference = AsyncMock(return_value=CrossReferenceResult(
+            is_consistent=True,
+            confidence={"zone": 0.9, "npcs": 0.85, "factions": 0.8},
+        ))
+
+        await step_cross_reference(cp, researcher)
+
+        cr = CrossReferenceResult.model_validate(cp.step_data["cross_reference"])
+        # Factions should be capped to 0.2 (zero factions)
+        assert cr.confidence["factions"] == 0.2
+        # NPCs and zone should not be capped
+        assert cr.confidence["npcs"] == 0.85
+        assert cr.confidence["zone"] == 0.9
+
+
 # --- Step 8: Discover connected zones (pure discovery) ---
 
 
@@ -379,6 +710,31 @@ class TestPackageAndSend:
         # Should not raise even without publish_fn
         await step_package_and_send(cp, researcher, None)
         assert "package" in cp.step_data
+
+    @pytest.mark.asyncio
+    async def test_includes_quality_warnings(self):
+        """Package includes quality_warnings computed from extraction."""
+        cp = _fresh_checkpoint()
+        # Short narrative arc should trigger shallow_narrative_arc
+        extraction = ZoneExtraction(
+            zone=ZoneData(name="Test Zone", game="wow", narrative_arc="Short."),
+            npcs=[NPCData(name="NPC1")],
+            factions=[FactionData(name="Faction1")],
+        )
+        cr_result = CrossReferenceResult(
+            is_consistent=True,
+            confidence={"zone": 0.9},
+        )
+        cp.step_data["extraction"] = extraction.model_dump(mode="json")
+        cp.step_data["cross_reference"] = cr_result.model_dump(mode="json")
+        cp.step_data["research_sources"] = []
+        researcher = _mock_researcher()
+
+        await step_package_and_send(cp, researcher)
+
+        pkg = cp.step_data["package"]
+        assert "quality_warnings" in pkg
+        assert "shallow_narrative_arc" in pkg["quality_warnings"]
 
 
 # --- Full pipeline ---
@@ -479,7 +835,7 @@ class TestRunPipeline:
 
         assert result.current_step == 9
         # extract_all and cross_reference were skipped — originals still in step_data
-        researcher.extract_zone_data.assert_not_called()
+        researcher.extract_category.assert_not_called()
         researcher.cross_reference.assert_not_called()
         researcher.discover_connected_zones.assert_not_called()
 

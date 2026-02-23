@@ -14,10 +14,15 @@ from __future__ import annotations
 
 import logging
 from collections.abc import Awaitable, Callable
+from typing import cast
 
 from src.agent import (
     CrossReferenceResult,
+    FactionExtractionResult,
+    LoreExtractionResult,
     LoreResearcher,
+    NPCExtractionResult,
+    NarrativeItemExtractionResult,
     ResearchResult,
     ZoneExtraction,
 )
@@ -25,11 +30,13 @@ from src.checkpoint import save_checkpoint
 from src.config import AGENT_ID, GAME_NAME, MCP_SUMMARIZER_URL
 from src.mcp_client import mcp_call
 from src.models import (
+    FactionStance,
     MessageEnvelope,
     MessageType,
     ResearchCheckpoint,
     ResearchPackage,
     SourceReference,
+    ZoneData,
 )
 
 logger = logging.getLogger(__name__)
@@ -134,26 +141,68 @@ def _accumulate_research(
 
 RESEARCH_TOPICS = {
     "zone_overview_research": (
-        "zone overview for {zone} in {game}: "
-        "level range, narrative arc, political climate, access gating, "
-        "phase states, and general atmosphere."
+        "Focus on zone overview for {zone} in {game}.\n\n"
+        "Phase 1 — Search for the zone's main wiki page and overview articles. "
+        "Extract: level range, expansion era, narrative arc (the FULL story — "
+        "political backstory, primary conflict, factional tensions, and resolution, "
+        "not just a one-sentence summary), political climate (governing factions, "
+        "neglected populations, power struggles), access gating, phase states "
+        "(Cataclysm changes, quest progression phases), sub-areas and landmarks.\n\n"
+        "Phase 2 — If the zone has a major storyline or dungeon, search for and crawl "
+        "the dedicated wiki page for that storyline or dungeon (e.g., 'The Deadmines' "
+        "page, not just the zone page that mentions it)."
     ),
     "npc_research": (
-        "NPCs and notable characters in {zone} in {game}: "
-        "names, faction allegiance, personality, motivations, relationships, "
-        "quest involvement, and phased states."
+        "Focus on NPCs and notable characters in {zone} in {game}.\n\n"
+        "Phase 1 — Search for NPC lists, zone quest givers, and notable characters. "
+        "Crawl category/overview pages to discover NPC NAMES.\n\n"
+        "Phase 2 — For the 10-15 most important NPCs discovered, search for and crawl "
+        "each NPC's INDIVIDUAL wiki page. Extract from each page: personality, "
+        "motivations, relationships to other NPCs, role (quest giver, vendor, boss, "
+        "antagonist, faction leader), quest chains, phased/expansion appearances.\n\n"
+        "CRITICAL: Search for BOTH friendly and hostile NPCs:\n"
+        "- Quest givers, vendors, flight masters, innkeepers\n"
+        "- Dungeon bosses and raid bosses associated with this zone\n"
+        "- Antagonist leaders and villain NPCs\n"
+        "- Faction leaders (both allied and enemy)\n"
+        "Do NOT stop at quest-giver lists. Explicitly search for "
+        "'{zone} bosses', '{zone} antagonists', and '{zone} dungeon bosses'."
     ),
     "faction_research": (
-        "factions and organizations in {zone} in {game}: "
-        "hierarchy, inter-faction relationships, mutual exclusions, ideology, goals."
+        "Focus on factions and organizations in {zone} in {game}.\n\n"
+        "Phase 1 — Search for factions active in this zone. Crawl overview pages "
+        "to discover faction NAMES.\n\n"
+        "Phase 2 — For EVERY named faction discovered, search for and crawl the "
+        "faction's INDIVIDUAL wiki page. Extract: ideology, core beliefs, origin "
+        "story (how and why the faction formed), goals, key members and leaders, "
+        "inter-faction relationships (allied, hostile, neutral — name the specific "
+        "factions), hierarchy (parent factions, sub-factions), mutual exclusions.\n\n"
+        "CRITICAL: Search for BOTH friendly and hostile factions:\n"
+        "- Allied organizations and militia groups\n"
+        "- Antagonist factions, criminal organizations, hostile forces\n"
+        "- Governing authorities and their local presence\n"
+        "Do NOT stop at allied faction pages. Explicitly search for "
+        "'{zone} enemy factions', '{zone} hostile organizations'."
     ),
     "lore_research": (
-        "lore, history, mythology, and cosmology of {zone} in {game}: "
-        "historical events, power sources, cosmic rules, world-shaping moments."
+        "Focus on lore, history, mythology, and cosmology of {zone} in {game}.\n\n"
+        "Phase 1 — Search for the zone's lore and history articles. Crawl overview "
+        "pages to identify major lore EVENTS and FIGURES.\n\n"
+        "Phase 2 — For each major lore event or figure, search for and crawl its "
+        "INDIVIDUAL wiki page. Extract: what happened, WHY it happened (causes), "
+        "what it caused (consequences), named actors involved, era/timeline placement.\n\n"
+        "Prioritize causal chains: the sequence of events that created the zone's "
+        "current state. Include origin stories for major factions and conflicts."
     ),
     "narrative_items_research": (
-        "legendary items, artifacts, and narrative objects in {zone} "
-        "in {game}: story arcs, wielder lineage, power descriptions, significance."
+        "Focus on narrative items and artifacts in {zone} in {game}.\n\n"
+        "Search for legendary items, quest items with story significance, "
+        "dungeon loot with narrative context, and artifacts tied to the zone's lore.\n\n"
+        "Extract: story arc, wielder lineage, power description, significance tier.\n\n"
+        "ONLY include items with genuine narrative significance — NOT crafting recipes, "
+        "cooking items, vendor trash, or generic consumables. If the zone has no "
+        "truly significant narrative items, that is acceptable — an empty result "
+        "is better than padding with irrelevant items."
     ),
 }
 
@@ -168,7 +217,7 @@ def _make_research_step(topic_key: str):
         publish_fn: Callable | None = None,
     ) -> ResearchCheckpoint:
         zone_name = checkpoint.zone_name.replace("_", " ")
-        instructions = "Focus on " + template.format(zone=zone_name, game=GAME_NAME)
+        instructions = template.format(zone=zone_name, game=GAME_NAME)
         result = await researcher.research_zone(zone_name, instructions=instructions)
         _accumulate_research(checkpoint, result, topic_key)
         return checkpoint
@@ -198,24 +247,49 @@ TOPIC_SECTION_HEADERS = {
 
 TOPIC_SCHEMA_HINTS = {
     "zone_overview_research": (
-        "zone metadata: name, level range, narrative arc, political climate, "
-        "access gating, phase states, atmosphere, sub-areas"
+        "zone metadata: name, level range, expansion era. "
+        "MUST PRESERVE: narrative arc (full storyline — political backstory, "
+        "primary conflict, factional tensions, and resolution — not a tagline), "
+        "political climate (governing factions, neglected populations, power "
+        "struggles), phase states (Cataclysm changes, quest progression phases), "
+        "sub-areas and landmarks. "
+        "Preserve ALL proper nouns (NPC names, faction names, place names) "
+        "even when compressing surrounding text."
     ),
     "npc_research": (
-        "NPCs: names, titles, faction allegiance, personality, motivations, "
-        "relationships, quest involvement, phased states"
+        "NPCs: names, titles, faction allegiance. "
+        "MUST PRESERVE per NPC: personality traits and demeanor, motivations "
+        "and goals, relationships to other NPCs (allies, rivals, family, mentors), "
+        "role classification (quest giver, vendor, boss, antagonist, faction leader), "
+        "quest chains they give or participate in, phased/expansion appearances. "
+        "Include BOTH friendly and hostile NPCs — quest givers AND dungeon bosses, "
+        "antagonist leaders, faction leaders. "
+        "Preserve ALL NPC proper names even when compressing other text."
     ),
     "faction_research": (
-        "factions: names, hierarchy, inter-faction relationships, mutual "
-        "exclusions, ideology, goals, key members"
+        "factions: names, type (major faction, guild, cult, military). "
+        "MUST PRESERVE: ideology and core beliefs, stated goals, "
+        "origin story (how and why the faction formed), key members and leaders, "
+        "inter-faction relationships (allied/hostile/neutral — name specific factions), "
+        "mutual exclusions, hierarchy (parent factions, sub-factions). "
+        "Include BOTH friendly and hostile factions — allied organizations AND "
+        "antagonist groups, criminal organizations, hostile forces. "
+        "Preserve ALL faction and leader proper names."
     ),
     "lore_research": (
-        "lore: historical events, mythology, cosmology, power sources, "
-        "world-shaping moments, timelines"
+        "lore: event titles, era/timeline placement. "
+        "MUST PRESERVE: major historical events with causal chains (what happened, "
+        "why it happened, what it caused), named actors in each event, "
+        "mythology and cosmological rules, power sources and their origins. "
+        "Preserve chronological ordering and cause-effect relationships. "
+        "Keep ALL proper nouns (people, places, artifacts, faction names)."
     ),
     "narrative_items_research": (
-        "legendary items and artifacts: names, story arcs, wielder lineage, "
-        "power descriptions, quest significance"
+        "items and artifacts: names, significance tier (legendary, epic, quest, notable). "
+        "MUST PRESERVE: story arc (how the item fits into the zone's narrative), "
+        "wielder lineage, power description, quest relevance. "
+        "EXCLUDE crafting recipes, cooking items, vendor trash, generic consumables. "
+        "An empty result is better than irrelevant items."
     ),
 }
 
@@ -329,9 +403,45 @@ async def step_extract_all(
     source_dicts = checkpoint.step_data.get("research_sources", [])
     sources = [SourceReference(**sd) for sd in source_dicts]
 
+    # Reconstruct and summarize
     sections = _reconstruct_labeled_content(raw_blocks)
-    labeled_content = await _maybe_summarize_sections(sections)
-    extraction = await researcher.extract_zone_data(zone_name, labeled_content, sources)
+    summarized = await _maybe_summarize_sections(sections)
+
+    # Build topic -> summarized content map
+    section_content: dict[str, str] = {}
+    for (topic, _, _), content in zip(sections, summarized):
+        section_content[topic] = content
+
+    # Per-category extraction
+    zone_data = cast(ZoneData, await researcher.extract_category(
+        "zone", zone_name,
+        section_content.get("zone_overview_research", ""), sources,
+    ))
+    npcs_result = cast(NPCExtractionResult, await researcher.extract_category(
+        "npcs", zone_name,
+        section_content.get("npc_research", ""), sources,
+    ))
+    factions_result = cast(FactionExtractionResult, await researcher.extract_category(
+        "factions", zone_name,
+        section_content.get("faction_research", ""), sources,
+    ))
+    lore_result = cast(LoreExtractionResult, await researcher.extract_category(
+        "lore", zone_name,
+        section_content.get("lore_research", ""), sources,
+    ))
+    items_result = cast(NarrativeItemExtractionResult, await researcher.extract_category(
+        "narrative_items", zone_name,
+        section_content.get("narrative_items_research", ""), sources,
+    ))
+
+    # Assemble ZoneExtraction from per-category results
+    extraction = ZoneExtraction(
+        zone=zone_data,
+        npcs=npcs_result.npcs,
+        factions=factions_result.factions,
+        lore=lore_result.lore,
+        narrative_items=items_result.narrative_items,
+    )
     checkpoint.step_data["extraction"] = extraction.model_dump(mode="json")
     return checkpoint
 
@@ -339,6 +449,32 @@ async def step_extract_all(
 # ---------------------------------------------------------------------------
 # Step 7: Cross-reference
 # ---------------------------------------------------------------------------
+
+
+def _apply_confidence_caps(
+    extraction: ZoneExtraction,
+    confidence: dict[str, float],
+) -> dict[str, float]:
+    """Apply mechanical confidence caps based on field completeness."""
+    capped = dict(confidence)
+
+    # Zero-entity caps: if a category extracted nothing, cap low
+    if not extraction.npcs:
+        capped["npcs"] = min(capped.get("npcs", 0.0), 0.2)
+    else:
+        total = len(extraction.npcs)
+        empty_personality = sum(1 for n in extraction.npcs if not n.personality)
+        empty_role = sum(1 for n in extraction.npcs if not n.role)
+
+        if empty_personality / total > 0.5:
+            capped["npcs"] = min(capped.get("npcs", 0.0), 0.4)
+        if empty_role / total > 0.5:
+            capped["npcs"] = min(capped.get("npcs", 0.0), 0.4)
+
+    if not extraction.factions:
+        capped["factions"] = min(capped.get("factions", 0.0), 0.2)
+
+    return capped
 
 
 async def step_cross_reference(
@@ -350,6 +486,10 @@ async def step_cross_reference(
     extraction = ZoneExtraction.model_validate(extraction_dict)
 
     cr_result = await researcher.cross_reference(extraction)
+
+    # Apply mechanical confidence caps
+    cr_result.confidence = _apply_confidence_caps(extraction, cr_result.confidence)
+
     checkpoint.step_data["cross_reference"] = cr_result.model_dump(mode="json")
     return checkpoint
 
@@ -374,6 +514,45 @@ async def step_discover_connected_zones(
 # ---------------------------------------------------------------------------
 
 
+def _compute_quality_warnings(extraction: ZoneExtraction) -> list[str]:
+    """Compute quality warnings based on content thresholds."""
+    warnings: list[str] = []
+
+    # Shallow narrative arc
+    if len(extraction.zone.narrative_arc) < 200:
+        warnings.append("shallow_narrative_arc")
+
+    # No NPC personality data
+    if extraction.npcs and all(not n.personality for n in extraction.npcs):
+        warnings.append("no_npc_personality_data")
+
+    # Missing antagonists (heuristic: check for boss/antagonist roles + hostile factions)
+    has_antagonist_npc = any(
+        n.role and any(
+            keyword in n.role.lower()
+            for keyword in ("boss", "antagonist", "villain")
+        )
+        for n in extraction.npcs
+    )
+    has_hostile_faction = any(
+        any(r.stance == FactionStance.HOSTILE for r in f.inter_faction)
+        for f in extraction.factions
+    )
+    zone_mentions_dungeon = any(
+        keyword in extraction.zone.narrative_arc.lower()
+        for keyword in ("dungeon", "raid", "instance", "mine", "mines")
+    ) or any(
+        keyword in entry.content.lower()
+        for entry in extraction.lore
+        for keyword in ("dungeon", "raid", "instance")
+    )
+
+    if zone_mentions_dungeon and not has_antagonist_npc and not has_hostile_faction:
+        warnings.append("missing_antagonists")
+
+    return warnings
+
+
 async def step_package_and_send(
     checkpoint: ResearchCheckpoint,
     researcher: LoreResearcher,
@@ -391,6 +570,8 @@ async def step_package_and_send(
     source_dicts = checkpoint.step_data.get("research_sources", [])
     all_sources = [SourceReference(**sd) for sd in source_dicts]
 
+    warnings = _compute_quality_warnings(extraction)
+
     package = ResearchPackage(
         zone_name=zone_name,
         zone_data=extraction.zone,
@@ -401,6 +582,7 @@ async def step_package_and_send(
         sources=all_sources,
         confidence=cr_result.confidence,
         conflicts=cr_result.conflicts,
+        quality_warnings=warnings,
     )
 
     checkpoint.step_data["package"] = package.model_dump(mode="json")

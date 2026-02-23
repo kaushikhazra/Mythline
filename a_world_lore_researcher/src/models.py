@@ -232,6 +232,7 @@ class ResearchPackage(BaseModel):
     sources: list[SourceReference] = Field(default_factory=list)
     confidence: dict[str, float] = Field(default_factory=dict)
     conflicts: list[Conflict] = Field(default_factory=list)
+    quality_warnings: list[str] = Field(default_factory=list)
 
 
 class ValidationResult(BaseModel):
