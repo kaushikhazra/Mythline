@@ -2,7 +2,7 @@
 name: dryrun-code
 description: Dry-run implemented code to find bugs, missing error handling, contract violations, and gaps against the design. Use after implementing a feature to validate correctness before testing.
 argument-hint: "[file-path, folder-path, or feature-name]"
-allowed-tools: Read, Grep, Glob, Task, Bash
+allowed-tools: Read, Grep, Glob, Task, Write, Bash
 ---
 
 # Code Dry-Run Agent
@@ -22,6 +22,26 @@ Always look for the corresponding design document. Check:
 1. `.claude/specs/{feature}/design.md` (if feature name is clear from the folder)
 2. The project's `CLAUDE.md` for architectural rules
 3. `.claude/blueprints/` for structural patterns the code should follow
+
+## Taskyn Integration
+
+Before running the dry-run passes, set up tracking:
+
+1. **Locate the spec** — search Taskyn for the spec node matching this feature
+2. **Find the task node** — find the `task` node that is a child of the spec
+3. **Create a new todo** — create a `todo` node under the task node:
+   - **title**: "Code dry-run #{N}" (where N = count of existing dryrun todos under this task + 1)
+   - **description**: "Dry-run review of implemented code. Report: `.claude/specs/{slug}/dryrun-code-{N}.md`"
+4. **Start the todo** — use `pm_start_node` (starts timer)
+
+After the dry-run completes:
+
+5. **Update the todo** — use `pm_update_node` to set the description to include the verdict and finding counts
+6. **Complete the todo** — use `pm_complete_node` (stops timer)
+
+**Every invocation creates a new todo.** Never reuse an existing todo. This tracks how many iterations it took to get the code right.
+
+If the spec or task node can't be found in Taskyn, proceed with the dry-run without tracking — the review is still valuable. Log a note that Taskyn tracking was skipped.
 
 ## Dry-Run Process
 
@@ -85,52 +105,76 @@ Execute these passes systematically. Do NOT skip any pass.
 - Are secrets/credentials handled safely (not logged, not in error messages)?
 - Are there any OWASP Top 10 vulnerabilities?
 
-## Output Format
+## Output
 
-Structure your findings exactly like this:
+### Write the Report File
 
+Write the full report to `.claude/specs/{slug}/dryrun-code-{N}.md` where N matches the todo number.
+
+### Report Format
+
+Structure the report exactly like this:
+
+```markdown
+# Code Dry-Run Report #{N}
+
+**Scope**: {file or folder path}
+**Design**: {design doc path, if found}
+**Reviewed**: {date}
+
+---
+
+## Bugs (will cause incorrect behavior)
+
+### [B1] {title}
+- **File**: {path}:{line}
+- **Pass**: {which pass found this}
+- **What**: {the bug}
+- **Impact**: {what goes wrong}
+- **Fix**: {exact fix, with code if short}
+
+---
+
+## Gaps (missing implementation)
+
+### [G1] {title}
+- **File**: {path}:{line} (or "missing file")
+- **Pass**: {which pass found this}
+- **What**: {what's missing}
+- **Design ref**: {section in design doc, if applicable}
+
+---
+
+## Warnings (potential issues)
+
+### [W1] {title}
+- **File**: {path}:{line}
+- **Pass**: {which pass found this}
+- **What**: {the concern}
+- **Risk**: {when this becomes a problem}
+
+---
+
+## Style (code quality, conventions)
+
+### [S1] {title}
+- **File**: {path}:{line}
+- **What**: {the issue}
+
+---
+
+## Summary
+
+| Bugs | Gaps | Warnings | Style |
+|------|------|----------|-------|
+| {count} | {count} | {count} | {count} |
+
+**Verdict**: {PASS / PASS WITH WARNINGS / FAIL — has bugs or critical gaps}
 ```
-=== CODE DRY-RUN REPORT ===
-Scope: {file or folder path}
-Design: {design doc path, if found}
-Reviewed: {date}
 
---- BUGS (will cause incorrect behavior) ---
+### Display to User
 
-[B1] {title}
-     File: {path}:{line}
-     Pass: {which pass found this}
-     What: {the bug}
-     Impact: {what goes wrong}
-     Fix:  {exact fix, with code if short}
-
---- GAPS (missing implementation) ---
-
-[G1] {title}
-     File: {path}:{line} (or "missing file")
-     Pass: {which pass found this}
-     What: {what's missing}
-     Design ref: {section in design doc, if applicable}
-
---- WARNINGS (potential issues) ---
-
-[W1] {title}
-     File: {path}:{line}
-     Pass: {which pass found this}
-     What: {the concern}
-     Risk: {when this becomes a problem}
-
---- STYLE (code quality, conventions) ---
-
-[S1] {title}
-     File: {path}:{line}
-     What: {the issue}
-
---- SUMMARY ---
-
-Bugs: {count} | Gaps: {count} | Warnings: {count} | Style: {count}
-Verdict: {PASS / PASS WITH WARNINGS / FAIL — has bugs or critical gaps}
-```
+Also output the report summary (verdict + counts) to the conversation so the user sees it immediately.
 
 ## Rules
 

@@ -2,7 +2,7 @@
 name: dryrun-design
 description: Dry-run a design document to find gaps, missing paths, and architectural risks before implementation begins. Use when reviewing specs, design docs, or architecture decisions.
 argument-hint: "[spec-path or feature-name]"
-allowed-tools: Read, Grep, Glob, Task, WebSearch
+allowed-tools: Read, Grep, Glob, Task, Write, WebSearch
 ---
 
 # Design Dry-Run Agent
@@ -18,6 +18,26 @@ The user provides either:
 If the argument looks like a feature name (no file extension, no path separators), resolve it to `.claude/specs/$ARGUMENTS/design.md`.
 
 Read the design document. Also read the corresponding `requirement.md` and `task.md` if they exist in the same directory — you need the full picture.
+
+## Taskyn Integration
+
+Before running the dry-run passes, set up tracking:
+
+1. **Locate the spec** — search Taskyn for the spec node matching this feature
+2. **Find the design node** — find the `design` node that is a child of the spec
+3. **Create a new todo** — create a `todo` node under the design node:
+   - **title**: "Design dry-run #{N}" (where N = count of existing dryrun todos under this design + 1)
+   - **description**: "Dry-run review of design.md. Report: `.claude/specs/{slug}/dryrun-design-{N}.md`"
+4. **Start the todo** — use `pm_start_node` (starts timer)
+
+After the dry-run completes:
+
+5. **Update the todo** — use `pm_update_node` to set the description to include the verdict and finding counts
+6. **Complete the todo** — use `pm_complete_node` (stops timer)
+
+**Every invocation creates a new todo.** Never reuse an existing todo. This tracks how many iterations it took to get the design right.
+
+If the spec or design node can't be found in Taskyn, proceed with the dry-run without tracking — the review is still valuable. Log a note that Taskyn tracking was skipped.
 
 ## Dry-Run Process
 
@@ -70,41 +90,63 @@ Execute these passes systematically. Do NOT skip any pass.
 - Are there design decisions that have no corresponding task?
 - Are there tasks that reference design elements that don't exist?
 
-## Output Format
+## Output
 
-Structure your findings exactly like this:
+### Write the Report File
 
+Write the full report to `.claude/specs/{slug}/dryrun-design-{N}.md` where N matches the todo number.
+
+### Report Format
+
+Structure the report exactly like this:
+
+```markdown
+# Design Dry-Run Report #{N}
+
+**Document**: {path}
+**Reviewed**: {date}
+
+---
+
+## Critical Gaps (must fix before implementation)
+
+### [C1] {title}
+- **Pass**: {which pass found this}
+- **What**: {what's missing or broken}
+- **Risk**: {what goes wrong if not fixed}
+- **Fix**: {suggested resolution}
+
+---
+
+## Warnings (should fix, may cause issues)
+
+### [W1] {title}
+- **Pass**: {which pass found this}
+- **What**: {the concern}
+- **Risk**: {potential impact}
+- **Suggestion**: {how to address}
+
+---
+
+## Observations (worth discussing)
+
+### [O1] {title}
+{description}
+
+---
+
+## Summary
+
+| Critical | Warnings | Observations |
+|----------|----------|--------------|
+| {count}  | {count}  | {count}      |
+
+**Verdict**: {PASS / PASS WITH WARNINGS / FAIL — needs revision}
 ```
-=== DESIGN DRY-RUN REPORT ===
-Document: {path}
-Reviewed: {date}
 
---- CRITICAL GAPS (must fix before implementation) ---
+### Display to User
 
-[C1] {title}
-     Pass: {which pass found this}
-     What: {what's missing or broken}
-     Risk: {what goes wrong if not fixed}
-     Fix:  {suggested resolution}
-
---- WARNINGS (should fix, may cause issues) ---
-
-[W1] {title}
-     Pass: {which pass found this}
-     What: {the concern}
-     Risk: {potential impact}
-     Suggestion: {how to address}
-
---- OBSERVATIONS (worth discussing) ---
-
-[O1] {title}
-     {description}
-
---- SUMMARY ---
-
-Critical: {count} | Warnings: {count} | Observations: {count}
-Verdict: {PASS / PASS WITH WARNINGS / FAIL — needs revision}
-```
+Also output the report summary (verdict + counts) to the conversation so the user sees it immediately.
 
 ## Rules
 
