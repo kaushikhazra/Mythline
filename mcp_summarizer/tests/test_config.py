@@ -22,7 +22,7 @@ def test_default_llm_model(monkeypatch):
     monkeypatch.delenv("LLM_MODEL", raising=False)
     import src.config as cfg
     importlib.reload(cfg)
-    assert cfg.LLM_MODEL == "openai/gpt-4o-mini"
+    assert cfg.LLM_MODEL == "openrouter:openai/gpt-4o-mini"
 
 
 def test_custom_llm_model(monkeypatch):
@@ -30,20 +30,6 @@ def test_custom_llm_model(monkeypatch):
     import src.config as cfg
     importlib.reload(cfg)
     assert cfg.LLM_MODEL == "google/gemini-2.0-flash"
-
-
-def test_default_api_key_empty(monkeypatch):
-    monkeypatch.delenv("OPENROUTER_API_KEY", raising=False)
-    import src.config as cfg
-    importlib.reload(cfg)
-    assert cfg.OPENROUTER_API_KEY == ""
-
-
-def test_default_base_url(monkeypatch):
-    monkeypatch.delenv("OPENROUTER_BASE_URL", raising=False)
-    import src.config as cfg
-    importlib.reload(cfg)
-    assert cfg.OPENROUTER_BASE_URL == "https://openrouter.ai/api/v1"
 
 
 def test_default_chunk_size(monkeypatch):

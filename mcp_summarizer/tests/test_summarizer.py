@@ -19,13 +19,11 @@ from src.tokens import count_tokens
 # --- Helpers ---
 
 
-def _make_mock_response(content: str):
-    """Create a mock OpenAI response object."""
-    choice = MagicMock()
-    choice.message.content = content
-    response = MagicMock()
-    response.choices = [choice]
-    return response
+def _make_mock_result(output: str):
+    """Create a mock pydantic-ai RunResult object."""
+    result = MagicMock()
+    result.output = output
+    return result
 
 
 # --- _llm_call ---
@@ -33,61 +31,49 @@ def _make_mock_response(content: str):
 
 @pytest.mark.asyncio
 async def test_llm_call_returns_content():
-    mock_response = _make_mock_response("Summary text.")
-    with patch("src.summarizer.client") as mock_client:
-        mock_client.chat.completions.create = AsyncMock(return_value=mock_response)
+    mock_result = _make_mock_result("Summary text.")
+    with patch("src.summarizer._agent") as mock_agent:
+        mock_agent.run = AsyncMock(return_value=mock_result)
         result = await _llm_call("Summarize this.", max_tokens=500)
     assert result == "Summary text."
 
 
 @pytest.mark.asyncio
-async def test_llm_call_returns_empty_on_none_content():
-    choice = MagicMock()
-    choice.message.content = None
-    response = MagicMock()
-    response.choices = [choice]
-    with patch("src.summarizer.client") as mock_client:
-        mock_client.chat.completions.create = AsyncMock(return_value=response)
-        result = await _llm_call("Summarize this.", max_tokens=500)
-    assert result == ""
-
-
-@pytest.mark.asyncio
 async def test_llm_call_passes_correct_params():
-    mock_response = _make_mock_response("OK")
-    with patch("src.summarizer.client") as mock_client:
-        mock_client.chat.completions.create = AsyncMock(return_value=mock_response)
+    mock_result = _make_mock_result("OK")
+    with patch("src.summarizer._agent") as mock_agent:
+        mock_agent.run = AsyncMock(return_value=mock_result)
         await _llm_call("test prompt", max_tokens=1000)
-        call_kwargs = mock_client.chat.completions.create.call_args[1]
-        assert call_kwargs["messages"] == [{"role": "user", "content": "test prompt"}]
-        assert call_kwargs["max_tokens"] == 1000
-        assert call_kwargs["temperature"] == 0.1
+        call_args = mock_agent.run.call_args
+        assert call_args[0][0] == "test prompt"
+        model_settings = call_args[1]["model_settings"]
+        assert model_settings["max_tokens"] == 1000
+        assert model_settings["temperature"] == 0.1
 
 
 @pytest.mark.asyncio
 async def test_llm_call_retries_on_failure():
-    mock_response = _make_mock_response("Got it.")
-    with patch("src.summarizer.client") as mock_client:
-        mock_client.chat.completions.create = AsyncMock(
-            side_effect=[Exception("API error"), Exception("API error"), mock_response]
+    mock_result = _make_mock_result("Got it.")
+    with patch("src.summarizer._agent") as mock_agent:
+        mock_agent.run = AsyncMock(
+            side_effect=[Exception("API error"), Exception("API error"), mock_result]
         )
-        # Patch tenacity wait to avoid real delays
         with patch("src.summarizer._llm_call.retry.wait", return_value=0):
             result = await _llm_call("Summarize this.", max_tokens=500)
     assert result == "Got it."
-    assert mock_client.chat.completions.create.call_count == 3
+    assert mock_agent.run.call_count == 3
 
 
 @pytest.mark.asyncio
 async def test_llm_call_raises_after_max_retries():
-    with patch("src.summarizer.client") as mock_client:
-        mock_client.chat.completions.create = AsyncMock(
+    with patch("src.summarizer._agent") as mock_agent:
+        mock_agent.run = AsyncMock(
             side_effect=Exception("Persistent failure")
         )
         with patch("src.summarizer._llm_call.retry.wait", return_value=0):
             with pytest.raises(RetryError):
                 await _llm_call("Summarize this.", max_tokens=500)
-    assert mock_client.chat.completions.create.call_count == 3
+    assert mock_agent.run.call_count == 3
 
 
 # --- _summarize_chunk ---

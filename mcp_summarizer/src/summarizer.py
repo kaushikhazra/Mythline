@@ -3,7 +3,8 @@
 import asyncio
 import logging
 
-from openai import AsyncOpenAI
+from pydantic_ai import Agent
+from pydantic_ai.settings import ModelSettings
 from tenacity import retry, stop_after_attempt, wait_exponential
 
 from src.chunker import chunk_content
@@ -11,17 +12,12 @@ from src.config import (
     DEFAULT_CHUNK_OVERLAP_TOKENS,
     DEFAULT_CHUNK_SIZE_TOKENS,
     LLM_MODEL,
-    OPENROUTER_API_KEY,
-    OPENROUTER_BASE_URL,
 )
 from src.tokens import count_tokens
 
 logger = logging.getLogger(__name__)
 
-client = AsyncOpenAI(
-    api_key=OPENROUTER_API_KEY,
-    base_url=OPENROUTER_BASE_URL,
-)
+_agent = Agent(LLM_MODEL, output_type=str)
 
 MAX_REDUCE_PASSES = 3
 MAX_CONCURRENT_LLM_CALLS = 5
@@ -31,13 +27,11 @@ _llm_semaphore = asyncio.Semaphore(MAX_CONCURRENT_LLM_CALLS)
 @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=2, max=30))
 async def _llm_call(prompt: str, max_tokens: int) -> str:
     """Call the LLM with retry. Raises on persistent failure."""
-    response = await client.chat.completions.create(
-        model=LLM_MODEL,
-        messages=[{"role": "user", "content": prompt}],
-        max_tokens=max_tokens,
-        temperature=0.1,
+    result = await _agent.run(
+        prompt,
+        model_settings=ModelSettings(max_tokens=max_tokens, temperature=0.1),
     )
-    return response.choices[0].message.content or ""
+    return result.output
 
 
 async def _summarize_chunk(
