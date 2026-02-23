@@ -22,8 +22,7 @@ from src.agent import (
     ZoneExtraction,
 )
 from src.checkpoint import save_checkpoint
-from src.config import AGENT_ID, GAME_NAME, MCP_SUMMARIZER_URL
-from src.mcp_client import mcp_call
+from src.config import AGENT_ID, GAME_NAME
 from src.models import (
     MessageEnvelope,
     MessageType,
@@ -158,58 +157,6 @@ RESEARCH_TOPICS = {
 }
 
 
-async def _summarize_research_result(
-    result: ResearchResult, topic_key: str, zone_name: str = ""
-) -> ResearchResult:
-    """Compress raw content blocks via MCP summarizer before accumulation.
-
-    Concatenates all raw content blocks, sends to the summarizer with the
-    topic's research focus as the schema_hint, and returns a new
-    ResearchResult with a single summarized block.
-
-    On failure: returns the original result unchanged (graceful degradation).
-    """
-    if not result.raw_content or not MCP_SUMMARIZER_URL:
-        return result
-
-    combined = "\n\n---\n\n".join(result.raw_content)
-    template = RESEARCH_TOPICS.get(topic_key, "")
-    schema_hint = template.format(zone=zone_name, game=GAME_NAME) if template else ""
-
-    summary = await mcp_call(
-        MCP_SUMMARIZER_URL,
-        "summarize_for_extraction",
-        {"content": combined, "schema_hint": schema_hint},
-        timeout=120.0,
-        sse_read_timeout=300.0,
-    )
-
-    summary = str(summary) if summary is not None else None
-
-    if summary is None:
-        logger.warning(
-            "summarizer_failed_graceful_degradation",
-            extra={"topic": topic_key, "raw_blocks": len(result.raw_content)},
-        )
-        return result
-
-    logger.info(
-        "research_content_summarized",
-        extra={
-            "topic": topic_key,
-            "raw_blocks": len(result.raw_content),
-            "raw_chars": len(combined),
-            "summary_chars": len(summary),
-        },
-    )
-
-    return ResearchResult(
-        raw_content=[summary],
-        sources=result.sources,
-        summary=result.summary,
-    )
-
-
 def _make_research_step(topic_key: str):
     """Factory that returns an async step function for a research topic."""
     template = RESEARCH_TOPICS[topic_key]
@@ -222,7 +169,6 @@ def _make_research_step(topic_key: str):
         zone_name = checkpoint.zone_name.replace("_", " ")
         instructions = "Focus on " + template.format(zone=zone_name, game=GAME_NAME)
         result = await researcher.research_zone(zone_name, instructions=instructions)
-        result = await _summarize_research_result(result, topic_key, zone_name)
         _accumulate_research(checkpoint, result, topic_key)
         return checkpoint
 

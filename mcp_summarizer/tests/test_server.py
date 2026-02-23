@@ -3,6 +3,21 @@
 from unittest.mock import AsyncMock, patch
 
 import pytest
+from starlette.testclient import TestClient
+
+
+# --- health check endpoint ---
+
+
+def test_health_endpoint():
+    """GET /health returns 200 with status ok."""
+    from src.server import server
+
+    app = server.streamable_http_app()
+    client = TestClient(app)
+    response = client.get("/health")
+    assert response.status_code == 200
+    assert response.json() == {"status": "ok"}
 
 
 # --- summarize tool ---

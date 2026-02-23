@@ -70,19 +70,20 @@ The service follows Mythline's MCP conventions: FastMCP server, StreamableHTTP t
 - Model choice is transparent to callers — the MCP tool interface is the same regardless of backend model
 - Default model is a fast, cheap option suitable for summarization (not a frontier reasoning model)
 
-### MS-5: Pipeline Integration via MCP Tool Calls
+### MS-5: Agent-Driven Summarization (Summarize at Source)
 
-**As the** World Lore Researcher pipeline,
-**I want to** call the summarizer MCP service after each research step to compress crawled content before accumulation,
-**so that** the extraction step (step 6) receives ~25k tokens of summaries instead of ~200k tokens of raw content.
+**As the** World Lore Researcher agent,
+**I want to** have access to a summarization tool during my research runs,
+**so that** I can compress large crawled content at the point of research, returning already-summarized content to the pipeline.
 
 **Acceptance Criteria:**
-- The pipeline calls the summarizer via `mcp_call()` (StreamableHTTP, same pattern as storage/search MCP calls)
-- Summarization happens at the pipeline orchestration level (inside `_accumulate_research()`), not inside the research agent's reasoning loop
-- Each research step's raw content blocks are summarized with the step's topic as focus area
-- The summarized content replaces raw content in `checkpoint.step_data["research_raw_content"]`
-- The research agent continues to see truncated content (5k chars) during its own reasoning — no change to agent behavior
-- Summarizer URL configured via `MCP_SUMMARIZER_URL` env var in the researcher's config (not added to agent's `mcp_config.json` — consistent with storage MCP pattern where pipeline-called services use `mcp_call()` directly)
+- The summarizer MCP service is added to the agent's `config/mcp_config.json` alongside web search — Pydantic AI exposes `summarize` and `summarize_for_extraction` as agent tools
+- The agent's system prompt instructs it to use `summarize_for_extraction` when crawled content is large (~5000+ characters), passing the research topic as `schema_hint`
+- The agent autonomously decides when to summarize — small content is left as-is, large content is compressed
+- The pipeline does NOT call the summarizer — it just accumulates whatever the agent returns (already summarized at source)
+- `_summarize_research_result()` is removed from the pipeline; `_make_research_step()` simplified to `research_zone()` → `_accumulate_research()`
+- Summarizer URL configured via `MCP_SUMMARIZER_URL` env var, consumed by `mcp_config.json` via `${MCP_SUMMARIZER_URL}` substitution
+- This pattern generalizes across all researcher agents — same MCP config entry, same system prompt section
 
 ### MS-6: Structured Logging and Error Resilience
 
@@ -95,6 +96,21 @@ The service follows Mythline's MCP conventions: FastMCP server, StreamableHTTP t
 - On LLM failure (rate limit, timeout, API error): retries with exponential backoff (max 3 retries)
 - On persistent failure: returns the original content unchanged (graceful degradation — better to attempt extraction on too-large content than to lose the content entirely)
 - All log events include `service_id: "mcp_summarizer"` for filtering
+
+### MS-7: Health Check Endpoint
+
+**As a** Docker operator,
+**I want** the MCP Summarizer to expose a `/health` HTTP endpoint,
+**so that** Docker can determine service readiness via a simple `curl` command instead of relying on the current hack of hitting `/mcp` and interpreting a 406 error.
+
+**Acceptance Criteria:**
+- Exposes a `GET /health` HTTP endpoint on the same port as the MCP service (8007)
+- Returns HTTP 200 with JSON body `{"status": "ok"}` when the service is running and ready to accept requests
+- Uses FastMCP's `@server.custom_route("/health", methods=["GET"])` decorator (built-in support for custom HTTP routes)
+- The `docker-compose.yml` healthcheck for `mcp-summarizer` is updated to use `curl -f http://localhost:8007/health` instead of the current Python urllib hack
+- The endpoint does not require authentication or MCP protocol headers
+- Response time is under 100ms (no heavy computation — just a readiness signal)
+- This pattern should also be applied to `mcp-storage` and `mcp-web-search` for consistency, but those changes are tracked separately
 
 ---
 
@@ -131,7 +147,7 @@ DEFAULT_MAX_OUTPUT_TOKENS=<target-summary-size>  # Default: 5000
 MCP_SUMMARIZER_URL=http://mcp-summarizer:8007/mcp
 ```
 
-The summarizer is called by the pipeline via `mcp_call()`, not through the agent's LLM toolset. It is NOT added to `config/mcp_config.json` (consistent with the storage MCP pattern).
+The summarizer is added to the agent's `config/mcp_config.json` as an MCP toolset — the agent calls it autonomously during research runs. The `MCP_SUMMARIZER_URL` env var is consumed by `mcp_config.json` via `${MCP_SUMMARIZER_URL}` substitution (same pattern as `MCP_WEB_SEARCH_URL`).
 
 ---
 

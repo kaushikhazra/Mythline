@@ -90,7 +90,7 @@ services:
       LLM_MODEL: ${SUMMARIZER_LLM_MODEL:-openrouter:openai/gpt-4o-mini}
       OPENROUTER_API_KEY: ${OPENROUTER_API_KEY:-}
     healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request,urllib.error;exec('try:\\n urllib.request.urlopen(\"http://localhost:8007/mcp\")\\nexcept urllib.error.HTTPError as e:\\n exit(0 if e.code==406 else 1)')"]
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8007/health')"]
       interval: 15s
       timeout: 5s
       retries: 3

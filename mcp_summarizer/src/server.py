@@ -4,6 +4,8 @@ import logging
 
 from mcp.server.fastmcp import FastMCP
 from shared.prompt_loader import load_prompt
+from starlette.requests import Request
+from starlette.responses import JSONResponse
 from src.config import DEFAULT_MAX_OUTPUT_TOKENS, MCP_SUMMARIZER_PORT
 from src.logging_config import setup_logging
 from src.summarizer import map_reduce_summarize
@@ -18,6 +20,12 @@ server = FastMCP(name="Summarizer Service", host="0.0.0.0", port=MCP_SUMMARIZER_
 _chunk_template = load_prompt(__file__, "summarize_chunk")
 _extraction_template = load_prompt(__file__, "summarize_chunk_extraction")
 _merge_template = load_prompt(__file__, "merge_summaries")
+
+
+@server.custom_route("/health", methods=["GET"])
+async def health(request: Request) -> JSONResponse:
+    """Health check endpoint for Docker container readiness."""
+    return JSONResponse({"status": "ok"})
 
 
 @server.tool()

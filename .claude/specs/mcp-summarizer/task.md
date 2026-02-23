@@ -29,11 +29,18 @@
 - [x] Velasari implements `src/server.py` with FastMCP `summarize` and `summarize_for_extraction` tools, bypass logic, try/except graceful degradation in `mcp_summarizer` — _MS-1, MS-2, MS-6_
 - [x] Velasari writes unit tests for server tools: bypass, template routing, graceful degradation, parameter handling in `mcp_summarizer/tests/test_server.py` — _MS-1, MS-2, MS-6_
 
-## 5. Pipeline Integration and Docker Wiring
+## 5. Agent Integration and Docker Wiring (revised — summarize at source)
 
 - [x] Velasari adds `MCP_SUMMARIZER_URL` env var to `a_world_lore_researcher/src/config.py` — _MS-5_
-- [x] Velasari adds `_summarize_research_result()` to `a_world_lore_researcher/src/pipeline.py` — _MS-5_
-- [x] Velasari modifies `_make_research_step()` to call `_summarize_research_result()` after `research_zone()` in `a_world_lore_researcher/src/pipeline.py` — _MS-5_
 - [x] Velasari updates `a_world_lore_researcher/.env.example` with `MCP_SUMMARIZER_URL` — _MS-5_
 - [x] Velasari adds `mcp-summarizer` service block to `docker-compose.yml` with healthcheck and researcher dependency — _MS-5_
-- [x] Velasari writes unit tests for `_summarize_research_result()`: graceful degradation, URL empty, success path in `a_world_lore_researcher/tests/test_pipeline.py` — _MS-5_
+- [x] Velasari adds `summarizer` entry to `a_world_lore_researcher/config/mcp_config.json` pointing to `${MCP_SUMMARIZER_URL:-http://localhost:8007/mcp}` with 120s timeout — _MS-5_
+- [x] Velasari adds "Content Summarization" section to `a_world_lore_researcher/prompts/system_prompt.md` instructing agent to use `summarize_for_extraction` for large crawled content — _MS-5_
+- [x] Velasari removes `_summarize_research_result()` and summarizer imports from `a_world_lore_researcher/src/pipeline.py`, simplifying `_make_research_step()` to `research_zone()` → `_accumulate_research()` — _MS-5_
+- [x] Velasari removes summarizer-related pipeline tests from `a_world_lore_researcher/tests/test_pipeline.py`, updates `test_shared.py` to expect 2 MCP servers — _MS-5_
+
+## 6. Health Check Endpoint
+
+- [x] Velasari adds `@server.custom_route("/health")` endpoint returning `JSONResponse({"status": "ok"})` to `mcp_summarizer/src/server.py` — _MS-7_
+- [x] Velasari updates `docker-compose.yml` `mcp-summarizer` healthcheck to use `urllib.request.urlopen("http://localhost:8007/health")` — _MS-7_
+- [x] Velasari adds `httpx` dev dependency to `mcp_summarizer/pyproject.toml` and `test_health_endpoint` to `mcp_summarizer/tests/test_server.py` — _MS-7_

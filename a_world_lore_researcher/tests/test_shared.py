@@ -54,9 +54,9 @@ class TestLoadMcpConfig:
 
         servers = load_mcp_config(agent_module.__file__)
 
-        assert len(servers) == 1
+        assert len(servers) == 2
         prefixes = {s.tool_prefix for s in servers}
-        assert prefixes == {"search"}
+        assert prefixes == {"search", "summarizer"}
 
     def test_timeout_passed_through(self, monkeypatch):
         monkeypatch.setenv("MCP_WEB_SEARCH_URL", "http://localhost:8006/mcp")

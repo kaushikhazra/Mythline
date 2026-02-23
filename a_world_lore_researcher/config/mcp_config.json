@@ -3,6 +3,10 @@
     "search": {
       "url": "${MCP_WEB_SEARCH_URL}",
       "timeout": 30
+    },
+    "summarizer": {
+      "url": "${MCP_SUMMARIZER_URL:-http://localhost:8007/mcp}",
+      "timeout": 120
     }
   }
 }

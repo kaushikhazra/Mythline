@@ -11,10 +11,11 @@
 | D5 | Bypass logic — return content unchanged if below target size | No unnecessary LLM calls. Saves tokens and latency for small content. (MS-1) |
 | D6 | Use `openai` SDK directly (not pydantic-ai) for LLM calls | Summarizer makes simple prompt-to-response calls with no tools or structured output. OpenRouter is OpenAI-compatible. pydantic-ai adds unnecessary complexity for a stateless MCP service. (MS-4) |
 | D7 | Build context from repo root (like mcp_storage) to include `shared/` | Prompts use `shared.prompt_loader.load_prompt()`. Structural rule: no hardcoded prompts in Python. (MS-1, MS-2) |
-| D8 | Summarize per-step in the pipeline (not all-at-once before extraction) | Each step's content is focused on one topic. Summarizing per-step with the topic as schema_hint produces better domain-aware compression than a monolithic summarization of all content. (MS-5) |
+| D8 | ~~Summarize per-step in the pipeline~~ → **Agent summarizes at source via MCP tool** | The research agent already has the raw content in context from crawling — it's best positioned to decide when and what to summarize. Moving summarization into the agent is more agentic, reduces data movement (content compressed before returning to pipeline), and generalizes across all researcher agents via the same pattern: add summarizer to MCP config + mention in system prompt. (MS-5) |
 | D9 | Concurrency limiter (semaphore) on concurrent LLM calls | Prevents overwhelming OpenRouter API with burst requests when chunk count is high (~25 chunks). Max 5 concurrent. (MS-6) |
-| D10 | Summarizer NOT added to researcher's mcp_config.json | mcp_config.json feeds the pydantic-ai agent toolset. The summarizer is called by the pipeline via `mcp_call()`, not by the agent. Storage MCP follows the same pattern (called via `mcp_call`, not in mcp_config.json). (MS-5) |
+| D10 | ~~Summarizer NOT added to mcp_config.json~~ → **Summarizer added to researcher's mcp_config.json as agent tool** | The agent autonomously decides when to summarize large crawled content. The summarizer MCP tools (`summarize`, `summarize_for_extraction`) appear as regular tools alongside web search. System prompt instructs the agent to use the summarizer for large content. Pipeline no longer calls the summarizer — it just accumulates what the agent returns. (MS-5) |
 | D11 | Dedicated `logging_config.py` with JSON formatter and `service_id` | All log events include `service_id: "mcp_summarizer"` for filtering in aggregated log streams. Log extras include the LLM model name for debugging quality changes across model switches. (MS-6) |
+| D12 | Use Python `urllib` for Docker healthcheck instead of `curl` | `python:3.12-slim` doesn't include `curl`. Adding `curl` means an `apt-get` layer (~5MB, slower builds). Since Python is already in the image, `urllib.request.urlopen("http://localhost:8007/health")` is zero-cost and clean — the `/health` endpoint returns 200 directly, so no 406 exception handling hack is needed. (MS-7) |
 
 ---
 
@@ -713,67 +714,50 @@ asyncio_mode = "auto"
 
 ---
 
-## 6. Pipeline Integration
+## 6. Agent Integration (Summarize at Source)
 
-### Changes to `_make_research_step` in `a_world_lore_researcher/src/pipeline.py`
+### Design Shift
 
-Add a summarization call between `research_zone()` and `_accumulate_research()`:
+The summarizer is a tool available to the research agent, not a pipeline post-processing step. The agent autonomously decides when to summarize large crawled content during its research run. This is more agentic — the agent has context about what it just crawled and knows when content is too large for useful accumulation.
 
-```python
-from src.config import MCP_SUMMARIZER_URL
-from src.mcp_client import mcp_call
+### Agent MCP Config Change — `a_world_lore_researcher/config/mcp_config.json`
 
+Add the summarizer alongside web search:
 
-async def _summarize_research_result(
-    result: ResearchResult, topic_key: str
-) -> ResearchResult:
-    """Compress raw content blocks via MCP summarizer before accumulation.
-
-    Concatenates all raw content blocks, sends to the summarizer with the
-    topic's research focus as the schema_hint, and returns a new
-    ResearchResult with a single summarized block.
-
-    On failure: returns the original result unchanged (graceful degradation).
-    """
-    if not result.raw_content or not MCP_SUMMARIZER_URL:
-        return result
-
-    combined = "\n\n---\n\n".join(result.raw_content)
-    schema_hint = RESEARCH_TOPICS.get(topic_key, "")
-
-    summary = await mcp_call(
-        MCP_SUMMARIZER_URL,
-        "summarize_for_extraction",
-        {"content": combined, "schema_hint": schema_hint},
-        timeout=120.0,
-        sse_read_timeout=300.0,
-    )
-
-    if summary is None:
-        logger.warning(
-            "summarizer_failed_graceful_degradation",
-            extra={"topic": topic_key, "raw_blocks": len(result.raw_content)},
-        )
-        return result
-
-    logger.info(
-        "research_content_summarized",
-        extra={
-            "topic": topic_key,
-            "raw_blocks": len(result.raw_content),
-            "raw_chars": len(combined),
-            "summary_chars": len(summary),
-        },
-    )
-
-    return ResearchResult(
-        raw_content=[summary],
-        sources=result.sources,
-        summary=result.summary,
-    )
+```json
+{
+  "mcpServers": {
+    "search": {
+      "url": "${MCP_WEB_SEARCH_URL}",
+      "timeout": 30
+    },
+    "summarizer": {
+      "url": "${MCP_SUMMARIZER_URL}",
+      "timeout": 120
+    }
+  }
+}
 ```
 
-Modify `_make_research_step`:
+The higher timeout (120s) accounts for map-reduce processing of large content.
+
+### System Prompt Change — all researcher agents
+
+Add a section to the system prompt instructing the agent to use the summarizer:
+
+```markdown
+### Content Summarization
+
+You have access to a summarization tool (`summarize_for_extraction`). When you crawl a page and the content is large (over ~5000 characters), use the summarizer to compress it before moving on. Pass the research topic as the `schema_hint` so the summarizer preserves domain-relevant details.
+
+Do NOT summarize short content — only use the tool when crawled content is substantial. The summarizer handles chunking and compression internally; just pass the full content.
+```
+
+This generalizes across all researcher agents — same pattern, same system prompt section.
+
+### Pipeline Simplification — `a_world_lore_researcher/src/pipeline.py`
+
+Remove `_summarize_research_result()` and the summarizer-related imports. The step factory becomes:
 
 ```python
 def _make_research_step(topic_key: str):
@@ -787,25 +771,20 @@ def _make_research_step(topic_key: str):
         zone_name = checkpoint.zone_name.replace("_", " ")
         instructions = "Focus on " + template.format(zone=zone_name, game=GAME_NAME)
         result = await researcher.research_zone(zone_name, instructions=instructions)
-        result = await _summarize_research_result(result, topic_key)  # <-- NEW
-        _accumulate_research(checkpoint, result, topic_key)
+        _accumulate_research(checkpoint, result, topic_key)  # already summarized at source
         return checkpoint
 
     step.__name__ = f"step_{topic_key}"
     return step
 ```
 
-### Config Changes in `a_world_lore_researcher/src/config.py`
+### Config Changes — `a_world_lore_researcher/src/config.py`
 
-```python
-MCP_SUMMARIZER_URL = os.getenv("MCP_SUMMARIZER_URL", "")
-```
-
-Empty default means summarization is opt-in — if the URL is not set, `_summarize_research_result` returns the original result unchanged.
+`MCP_SUMMARIZER_URL` stays as an env var but is now consumed by the MCP config loader (via `${MCP_SUMMARIZER_URL}` in mcp_config.json), not by pipeline code directly.
 
 ### Docker Compose Changes
 
-Add the MCP summarizer service and update the researcher's environment:
+The `mcp-summarizer` service block stays the same. The researcher's environment still needs `MCP_SUMMARIZER_URL` but it's consumed by the agent's MCP config, not by `mcp_call()`:
 
 ```yaml
 mcp-summarizer:
@@ -819,7 +798,7 @@ mcp-summarizer:
     LLM_MODEL: ${SUMMARIZER_LLM_MODEL:-openai/gpt-4o-mini}
     OPENROUTER_API_KEY: ${OPENROUTER_API_KEY:-}
   healthcheck:
-    test: ["CMD", "python", "-c", "import urllib.request,urllib.error;exec('try:\\n urllib.request.urlopen(\"http://localhost:8007/mcp\")\\nexcept urllib.error.HTTPError as e:\\n exit(0 if e.code==406 else 1)')"]
+    test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8007/health')"]
     interval: 15s
     timeout: 5s
     retries: 3
@@ -880,16 +859,95 @@ mcp-summarizer:
 | File | Change |
 |------|--------|
 | `docker-compose.yml` | Add `mcp-summarizer` service block (port 8007). Add `MCP_SUMMARIZER_URL` to `world-lore-researcher` environment. Add `mcp-summarizer` to researcher's `depends_on`. |
-| `a_world_lore_researcher/src/pipeline.py` | Add `_summarize_research_result()` function. Modify `_make_research_step()` to call it after `research_zone()` and before `_accumulate_research()`. Add imports for `MCP_SUMMARIZER_URL` and `mcp_call`. |
-| `a_world_lore_researcher/src/config.py` | Add `MCP_SUMMARIZER_URL` env var (empty default = opt-in). |
-| `a_world_lore_researcher/.env.example` | Add `MCP_SUMMARIZER_URL` documentation. |
+| `a_world_lore_researcher/config/mcp_config.json` | Add `summarizer` entry pointing to `${MCP_SUMMARIZER_URL}` with 120s timeout. |
+| `a_world_lore_researcher/prompts/system_prompt.md` | Add "Content Summarization" section instructing the agent to use `summarize_for_extraction` for large crawled content. |
+| `a_world_lore_researcher/src/pipeline.py` | Remove `_summarize_research_result()`, remove summarizer imports (`MCP_SUMMARIZER_URL`, `mcp_call` for summarizer). `_make_research_step()` simplified to just `research_zone()` → `_accumulate_research()`. |
+| `a_world_lore_researcher/src/config.py` | `MCP_SUMMARIZER_URL` stays (consumed by mcp_config.json via env var substitution). |
+| `a_world_lore_researcher/.env.example` | `MCP_SUMMARIZER_URL` documentation stays. |
 
 ---
 
-## 9. Future Work (Out of Scope)
+## 9. Health Check Endpoint
+
+Module: `src/server.py` (addition to existing file)
+
+### 9.1 Endpoint Implementation
+
+Uses FastMCP's built-in `custom_route` decorator to add an HTTP endpoint outside the MCP protocol. The endpoint is public (no auth required) — FastMCP documents this as the intended use for health checks.
+
+```python
+from starlette.requests import Request
+from starlette.responses import JSONResponse
+
+
+@server.custom_route("/health", methods=["GET"])
+async def health(request: Request) -> JSONResponse:
+    """Health check endpoint for Docker container readiness."""
+    return JSONResponse({"status": "ok"})
+```
+
+The endpoint returns:
+- **HTTP 200** with `{"status": "ok"}` — the service is running and ready
+- If the server process isn't running, Docker gets a connection refused — that's the "unhealthy" signal
+
+No deep health checks (LLM connectivity, tiktoken availability) — the summarizer is stateless with graceful degradation on LLM failures (MS-6). If the HTTP server is up, the service is healthy.
+
+### 9.2 Docker Compose Healthcheck
+
+Replace the current Python urllib hack (which catches 406 from `/mcp`) with a clean call to `/health`:
+
+```yaml
+healthcheck:
+  test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8007/health')"]
+  interval: 15s
+  timeout: 5s
+  retries: 3
+  start_period: 10s
+```
+
+Why Python instead of `curl`: `python:3.12-slim` doesn't include `curl`. Python is already in the image at zero cost. The call is trivial — `urlopen` returns successfully on HTTP 200, raises on connection refused or non-2xx.
+
+### 9.3 Dockerfile
+
+No changes needed. The endpoint uses `starlette` (already a dependency of `mcp`) and Python stdlib `urllib`. No new packages required.
+
+### 9.4 Test
+
+Add a test in `mcp_summarizer/tests/test_server.py` that verifies the `/health` endpoint:
+
+```python
+import pytest
+from starlette.testclient import TestClient
+
+
+def test_health_endpoint(test_client: TestClient):
+    """GET /health returns 200 with status ok."""
+    response = test_client.get("/health")
+    assert response.status_code == 200
+    assert response.json() == {"status": "ok"}
+```
+
+The `test_client` fixture creates a Starlette `TestClient` from `server.streamable_http_app()`. If the fixture doesn't exist yet, create it in `conftest.py`.
+
+---
+
+## 10. Files Changed (MS-7)
+
+### Modified Files
+
+| File | Change |
+|------|--------|
+| `mcp_summarizer/src/server.py` | Add `health` endpoint using `@server.custom_route("/health", methods=["GET"])`. Add imports for `Request` and `JSONResponse` from starlette. |
+| `docker-compose.yml` | Update `mcp-summarizer` healthcheck test to `["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8007/health')"]` |
+| `mcp_summarizer/tests/test_server.py` | Add `test_health_endpoint` test case |
+
+---
+
+## 11. Future Work (Out of Scope)
 
 - **Summary caching** — if the same page is crawled by multiple steps or multiple research jobs, the summarizer currently re-summarizes it every time. A cache keyed on content hash would avoid duplicate work. Deferred until profiling shows it matters.
 - **Hierarchical/RAPTOR-style recursive summarization** — for content corpora exceeding ~1M tokens, single-level map-reduce may not compress enough. The recursive approach (summarize summaries in a tree) is well-understood but overkill at our current ~200k scale.
 - **Per-call model selection** — currently the model is service-wide config. A future `model` parameter on the tools could allow callers to choose cheaper or more capable models per request.
 - **Streaming responses** — for very large content, streaming summaries back as they complete (chunk by chunk) could improve perceived latency. Not needed for the pipeline use case where the caller awaits the full result.
 - **MCP blueprint** — once the second MCP service with LLM calls exists, extract the shared patterns (prompt loading, OpenAI client, retry, health check) into an MCP blueprint in `.claude/blueprints/mcp-service/`.
+- **Cross-service `/health` consistency** — apply the same `@server.custom_route("/health")` pattern to `mcp-storage` and `mcp-web-search`, replacing their identical 406-based healthchecks. Tracked separately from MS-7.
