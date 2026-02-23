@@ -216,11 +216,15 @@ class TestReconstructLabeledContent:
         sections = _reconstruct_labeled_content(blocks)
 
         assert len(sections) == 2
-        assert sections[0].startswith("## ZONE OVERVIEW")
-        assert "Zone info here." in sections[0]
-        assert "More zone info." in sections[0]
-        assert sections[1].startswith("## NPCs AND NOTABLE CHARACTERS")
-        assert "NPC info here." in sections[1]
+        topic0, header0, body0 = sections[0]
+        topic1, header1, body1 = sections[1]
+        assert topic0 == "zone_overview_research"
+        assert header0 == "## ZONE OVERVIEW"
+        assert "Zone info here." in body0
+        assert "More zone info." in body0
+        assert topic1 == "npc_research"
+        assert header1 == "## NPCs AND NOTABLE CHARACTERS"
+        assert "NPC info here." in body1
 
     def test_preserves_topic_order(self):
         blocks = [
@@ -231,8 +235,8 @@ class TestReconstructLabeledContent:
 
         assert len(sections) == 2
         # NPC came first in input, should be first in output
-        assert sections[0].startswith("## NPCs AND NOTABLE CHARACTERS")
-        assert sections[1].startswith("## ZONE OVERVIEW")
+        assert sections[0][1] == "## NPCs AND NOTABLE CHARACTERS"
+        assert sections[1][1] == "## ZONE OVERVIEW"
 
     def test_all_five_topics(self):
         blocks = [
@@ -245,7 +249,7 @@ class TestReconstructLabeledContent:
         sections = _reconstruct_labeled_content(blocks)
 
         assert len(sections) == 5
-        headers = [s.split("\n")[0] for s in sections]
+        headers = [header for _, header, _ in sections]
         assert headers == [
             TOPIC_SECTION_HEADERS["zone_overview_research"],
             TOPIC_SECTION_HEADERS["npc_research"],
@@ -262,7 +266,7 @@ class TestReconstructLabeledContent:
         sections = _reconstruct_labeled_content(blocks)
 
         assert len(sections) == 1
-        assert sections[0].startswith("## MYSTERY_TOPIC")
+        assert sections[0][1] == "## MYSTERY_TOPIC"
 
 
 # --- Step 7: Cross-reference ---

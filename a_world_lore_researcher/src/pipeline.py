@@ -22,7 +22,8 @@ from src.agent import (
     ZoneExtraction,
 )
 from src.checkpoint import save_checkpoint
-from src.config import AGENT_ID, GAME_NAME
+from src.config import AGENT_ID, GAME_NAME, MCP_SUMMARIZER_URL
+from src.mcp_client import mcp_call
 from src.models import (
     MessageEnvelope,
     MessageType,
@@ -195,12 +196,38 @@ TOPIC_SECTION_HEADERS = {
     "narrative_items_research": "## LEGENDARY ITEMS AND NARRATIVE OBJECTS",
 }
 
+TOPIC_SCHEMA_HINTS = {
+    "zone_overview_research": (
+        "zone metadata: name, level range, narrative arc, political climate, "
+        "access gating, phase states, atmosphere, sub-areas"
+    ),
+    "npc_research": (
+        "NPCs: names, titles, faction allegiance, personality, motivations, "
+        "relationships, quest involvement, phased states"
+    ),
+    "faction_research": (
+        "factions: names, hierarchy, inter-faction relationships, mutual "
+        "exclusions, ideology, goals, key members"
+    ),
+    "lore_research": (
+        "lore: historical events, mythology, cosmology, power sources, "
+        "world-shaping moments, timelines"
+    ),
+    "narrative_items_research": (
+        "legendary items and artifacts: names, story arcs, wielder lineage, "
+        "power descriptions, quest significance"
+    ),
+}
 
-def _reconstruct_labeled_content(raw_blocks: list[dict]) -> list[str]:
+# Maximum total characters of raw content before summarization kicks in.
+# ~75K tokens at ~4 chars/token. Leaves room for prompt template + output.
+_EXTRACT_CONTENT_CHAR_LIMIT = 300_000
+
+
+def _reconstruct_labeled_content(raw_blocks: list[dict]) -> list[tuple[str, str, str]]:
     """Group labeled content blocks by topic and prepend section headers.
 
-    Returns a list of strings, one per topic section, with the section
-    header followed by all content blocks for that topic.
+    Returns a list of (topic_key, header, body) tuples, one per topic section.
     """
     from collections import OrderedDict
 
@@ -212,10 +239,84 @@ def _reconstruct_labeled_content(raw_blocks: list[dict]) -> list[str]:
     sections = []
     for topic, contents in grouped.items():
         header = TOPIC_SECTION_HEADERS.get(topic, f"## {topic.upper()}")
-        section = header + "\n\n" + "\n\n".join(contents)
-        sections.append(section)
+        body = "\n\n".join(contents)
+        sections.append((topic, header, body))
 
     return sections
+
+
+async def _maybe_summarize_sections(
+    sections: list[tuple[str, str, str]],
+) -> list[str]:
+    """Summarize sections if total content exceeds the context budget.
+
+    Each section is a (topic_key, header, body) tuple. If total body chars
+    exceed _EXTRACT_CONTENT_CHAR_LIMIT, every section is compressed via the
+    MCP Summarizer using topic-specific schema hints.
+
+    Returns a list of ready-to-use section strings (header + body).
+    """
+    total_chars = sum(len(body) for _, _, body in sections)
+
+    if total_chars <= _EXTRACT_CONTENT_CHAR_LIMIT:
+        logger.info(
+            "content_within_budget",
+            extra={"total_chars": total_chars, "limit": _EXTRACT_CONTENT_CHAR_LIMIT},
+        )
+        return [f"{header}\n\n{body}" for _, header, body in sections]
+
+    logger.info(
+        "content_over_budget_summarizing",
+        extra={"total_chars": total_chars, "limit": _EXTRACT_CONTENT_CHAR_LIMIT},
+    )
+
+    if not MCP_SUMMARIZER_URL:
+        logger.warning("no_summarizer_url_truncating_content")
+        return [f"{header}\n\n{body}" for _, header, body in sections]
+
+    # Per-section token budget: distribute evenly across sections.
+    # Target ~75K total tokens across all sections.
+    per_section_tokens = 75_000 // max(len(sections), 1)
+
+    char_limit = per_section_tokens * 4  # ~4 chars per token
+
+    summarized: list[str] = []
+    for topic, header, body in sections:
+        schema_hint = TOPIC_SCHEMA_HINTS.get(topic, topic)
+        result = await mcp_call(
+            MCP_SUMMARIZER_URL,
+            "summarize_for_extraction",
+            {
+                "content": body,
+                "schema_hint": schema_hint,
+                "max_output_tokens": per_section_tokens,
+            },
+            timeout=30.0,
+            sse_read_timeout=300.0,
+        )
+
+        # Detect whether summarization actually reduced the content.
+        # The summarizer returns original content on failure, so check size.
+        if result and isinstance(result, str) and len(result) < len(body):
+            logger.info(
+                "section_summarized",
+                extra={
+                    "topic": topic,
+                    "original_chars": len(body),
+                    "summarized_chars": len(result),
+                },
+            )
+            summarized.append(f"{header}\n\n{result}")
+        else:
+            # Summarization failed or returned full content — truncate.
+            logger.warning(
+                "section_summarize_failed_truncating",
+                extra={"topic": topic, "char_limit": char_limit},
+            )
+            truncated = body[:char_limit] if len(body) > char_limit else body
+            summarized.append(f"{header}\n\n{truncated}")
+
+    return summarized
 
 
 async def step_extract_all(
@@ -228,7 +329,8 @@ async def step_extract_all(
     source_dicts = checkpoint.step_data.get("research_sources", [])
     sources = [SourceReference(**sd) for sd in source_dicts]
 
-    labeled_content = _reconstruct_labeled_content(raw_blocks)
+    sections = _reconstruct_labeled_content(raw_blocks)
+    labeled_content = await _maybe_summarize_sections(sections)
     extraction = await researcher.extract_zone_data(zone_name, labeled_content, sources)
     checkpoint.step_data["extraction"] = extraction.model_dump(mode="json")
     return checkpoint

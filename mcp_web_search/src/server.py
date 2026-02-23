@@ -1,10 +1,13 @@
 """Web Search MCP Service — DuckDuckGo search integration for Mythline."""
 
 import asyncio
+import logging
 import os
 
 from ddgs import DDGS
 from mcp.server.fastmcp import FastMCP
+
+logger = logging.getLogger(__name__)
 
 MCP_WEB_SEARCH_PORT = int(os.getenv("MCP_WEB_SEARCH_PORT", "8006"))
 SEARCH_MAX_RESULTS = int(os.getenv("SEARCH_MAX_RESULTS", "10"))
@@ -15,7 +18,11 @@ server = FastMCP(name="Web Search Service", host="0.0.0.0", port=MCP_WEB_SEARCH_
 
 def _search_sync(query: str, max_results: int) -> list[dict]:
     """Run DuckDuckGo text search synchronously."""
-    results = DDGS().text(query, max_results=max_results, backend=SEARCH_BACKEND)
+    try:
+        results = DDGS().text(query, max_results=max_results, backend=SEARCH_BACKEND)
+    except Exception as exc:
+        logger.warning("DuckDuckGo text search failed for %r: %s", query, exc)
+        return []
     return [
         {
             "title": r.get("title", ""),
@@ -28,7 +35,11 @@ def _search_sync(query: str, max_results: int) -> list[dict]:
 
 def _search_news_sync(query: str, max_results: int, timelimit: str) -> list[dict]:
     """Run DuckDuckGo news search synchronously."""
-    results = DDGS().news(query, max_results=max_results, timelimit=timelimit, backend=SEARCH_BACKEND)
+    try:
+        results = DDGS().news(query, max_results=max_results, timelimit=timelimit, backend=SEARCH_BACKEND)
+    except Exception as exc:
+        logger.warning("DuckDuckGo news search failed for %r: %s", query, exc)
+        return []
     return [
         {
             "title": r.get("title", ""),
