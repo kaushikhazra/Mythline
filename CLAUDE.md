@@ -466,6 +466,11 @@ The first researcher (World Lore) naturally forces us to build most infrastructu
 
 | Skill | Location | Purpose |
 |-------|----------|---------|
+| `/research` | `.claude/skills/research/SKILL.md` | Research any topic via web search, produce structured document in `.claude/research/` |
+| `/spec` | `.claude/skills/spec/SKILL.md` | Create spec scaffolding — Taskyn node + `.claude/specs/{slug}/` folder with placeholders |
+| `/requirement` | `.claude/skills/requirement/SKILL.md` | Create requirements under a spec — user stories, acceptance criteria, time-tracked todos |
+| `/design` | `.claude/skills/design/SKILL.md` | Create design under a spec — architecture, data models, decisions log, time-tracked todos |
+| `/implement` | `.claude/skills/implement/SKILL.md` | Implement a spec — task.md upfront, code + unit tests per todo, time-tracked |
 | `/dryrun-design` | `.claude/skills/dryrun-design/SKILL.md` | Dry-run a design doc — 8-pass review for gaps, missing paths, architectural risks |
 | `/dryrun-code` | `.claude/skills/dryrun-code/SKILL.md` | Dry-run implemented code — 9-pass review for bugs, missing handling, contract violations |
 

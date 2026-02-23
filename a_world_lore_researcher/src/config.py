@@ -31,6 +31,7 @@ RABBITMQ_URL = os.getenv("RABBITMQ_URL", "amqp://mythline:mythline@localhost:567
 MCP_STORAGE_URL = os.getenv("MCP_STORAGE_URL", "http://localhost:8005/mcp")
 MCP_WEB_SEARCH_URL = os.getenv("MCP_WEB_SEARCH_URL", "http://localhost:8006/mcp")
 MCP_WEB_CRAWLER_URL = os.getenv("MCP_WEB_CRAWLER_URL", "http://localhost:11235")
+MCP_SUMMARIZER_URL = os.getenv("MCP_SUMMARIZER_URL", "")
 
 LLM_MODEL = os.getenv("LLM_MODEL", "openrouter:openai/gpt-4o-mini")
 

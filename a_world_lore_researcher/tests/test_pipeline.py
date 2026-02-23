@@ -26,6 +26,7 @@ from src.pipeline import (
     PIPELINE_STEPS,
     TOPIC_SECTION_HEADERS,
     _reconstruct_labeled_content,
+    _summarize_research_result,
     run_pipeline,
     step_zone_overview_research,
     step_npc_research,
@@ -510,3 +511,127 @@ class TestRunPipeline:
         assert len(progress_calls) == 2
         assert progress_calls[0] == ("discover_connected_zones", 8, 9)
         assert progress_calls[1] == ("package_and_send", 9, 9)
+
+
+# --- _summarize_research_result ---
+
+
+class TestSummarizeResearchResult:
+    @pytest.mark.asyncio
+    async def test_returns_original_when_url_empty(self):
+        """When MCP_SUMMARIZER_URL is empty, return result unchanged."""
+        result = ResearchResult(
+            raw_content=["Block 1", "Block 2"],
+            sources=[SourceReference(
+                url="https://example.com",
+                domain="example.com",
+                tier=SourceTier.OFFICIAL,
+            )],
+            summary="Summary.",
+        )
+
+        with pytest.MonkeyPatch.context() as m:
+            m.setattr("src.pipeline.MCP_SUMMARIZER_URL", "")
+            output = await _summarize_research_result(result, "zone_overview_research", "elwynn forest")
+
+        assert output is result
+
+    @pytest.mark.asyncio
+    async def test_returns_original_when_no_raw_content(self):
+        """When raw_content is empty, return result unchanged."""
+        result = ResearchResult(raw_content=[], sources=[], summary="")
+
+        with pytest.MonkeyPatch.context() as m:
+            m.setattr("src.pipeline.MCP_SUMMARIZER_URL", "http://localhost:8007/mcp")
+            output = await _summarize_research_result(result, "npc_research", "elwynn forest")
+
+        assert output is result
+
+    @pytest.mark.asyncio
+    async def test_returns_original_on_mcp_call_failure(self):
+        """When mcp_call returns None, return original result unchanged."""
+        result = ResearchResult(
+            raw_content=["Content block."],
+            sources=[SourceReference(
+                url="https://example.com",
+                domain="example.com",
+                tier=SourceTier.OFFICIAL,
+            )],
+            summary="Summary.",
+        )
+
+        with pytest.MonkeyPatch.context() as m:
+            m.setattr("src.pipeline.MCP_SUMMARIZER_URL", "http://localhost:8007/mcp")
+            m.setattr("src.pipeline.mcp_call", AsyncMock(return_value=None))
+            output = await _summarize_research_result(result, "zone_overview_research", "elwynn forest")
+
+        assert output is result
+        assert output.raw_content == ["Content block."]
+
+    @pytest.mark.asyncio
+    async def test_replaces_raw_content_with_summary(self):
+        """On success, raw_content should be replaced with single summary block."""
+        result = ResearchResult(
+            raw_content=["Block 1", "Block 2", "Block 3"],
+            sources=[SourceReference(
+                url="https://example.com",
+                domain="example.com",
+                tier=SourceTier.OFFICIAL,
+            )],
+            summary="Original summary.",
+        )
+
+        mock_mcp = AsyncMock(return_value="Compressed summary of all blocks.")
+
+        with pytest.MonkeyPatch.context() as m:
+            m.setattr("src.pipeline.MCP_SUMMARIZER_URL", "http://localhost:8007/mcp")
+            m.setattr("src.pipeline.mcp_call", mock_mcp)
+            output = await _summarize_research_result(result, "zone_overview_research", "elwynn forest")
+
+        assert output.raw_content == ["Compressed summary of all blocks."]
+        assert output.sources == result.sources
+        assert output.summary == result.summary
+
+        # Verify mcp_call was called with correct arguments
+        call_kwargs = mock_mcp.call_args
+        assert call_kwargs[0][1] == "summarize_for_extraction"
+        assert "content" in call_kwargs[0][2]
+        assert "schema_hint" in call_kwargs[0][2]
+
+    @pytest.mark.asyncio
+    async def test_concatenates_raw_blocks_with_separator(self):
+        """Raw content blocks should be joined with --- separator."""
+        result = ResearchResult(
+            raw_content=["Block A", "Block B"],
+            sources=[],
+            summary="",
+        )
+
+        mock_mcp = AsyncMock(return_value="Summary.")
+
+        with pytest.MonkeyPatch.context() as m:
+            m.setattr("src.pipeline.MCP_SUMMARIZER_URL", "http://localhost:8007/mcp")
+            m.setattr("src.pipeline.mcp_call", mock_mcp)
+            await _summarize_research_result(result, "npc_research", "elwynn forest")
+
+        content_arg = mock_mcp.call_args[0][2]["content"]
+        assert "Block A" in content_arg
+        assert "Block B" in content_arg
+        assert "---" in content_arg
+
+    @pytest.mark.asyncio
+    async def test_passes_topic_schema_hint(self):
+        """schema_hint should be formatted with zone and game names."""
+        result = ResearchResult(raw_content=["Data."], sources=[], summary="")
+        mock_mcp = AsyncMock(return_value="Summary.")
+
+        with pytest.MonkeyPatch.context() as m:
+            m.setattr("src.pipeline.MCP_SUMMARIZER_URL", "http://localhost:8007/mcp")
+            m.setattr("src.pipeline.mcp_call", mock_mcp)
+            await _summarize_research_result(result, "faction_research", "elwynn forest")
+
+        schema_hint = mock_mcp.call_args[0][2]["schema_hint"]
+        assert "factions" in schema_hint.lower()
+        assert "elwynn forest" in schema_hint
+        assert "{zone}" not in schema_hint
+        assert "{game}" not in schema_hint
