@@ -45,3 +45,13 @@
 - [x] Velasari implements `_compute_quality_warnings()` function in `a_world_lore_researcher/src/pipeline.py` — _RD-7_
 - [x] Velasari wires `_compute_quality_warnings()` into `step_package_and_send` and adds `quality_warnings` to `ResearchPackage` construction in `a_world_lore_researcher/src/pipeline.py` — _RD-7_
 - [x] Velasari writes unit tests for confidence caps, quality warnings, and full pipeline integration in `a_world_lore_researcher/tests/test_pipeline.py` — _RD-5, RD-7_
+
+## 6. Agent Blueprint Compliance
+
+- [x] Velasari extracts `crawl_webpage`, `normalize_url`, `make_source_ref`, `CRAWL_CONTENT_TRUNCATE_CHARS` from `agent.py` to new `a_world_lore_researcher/src/tools.py` per blueprint anatomy.md `tools.py` pattern — _Blueprint constraint_
+- [x] Velasari moves `crawl_cache` from `LoreResearcher._crawl_cache` closure to `ResearchContext.crawl_cache` deps field in `a_world_lore_researcher/src/agent.py` — _Blueprint constraint: tools access shared state via ctx.deps_
+- [x] Velasari moves `ZoneExtraction`, `NPCExtractionResult`, `FactionExtractionResult`, `LoreExtractionResult`, `NarrativeItemExtractionResult`, `CrossReferenceResult`, `ResearchResult`, `ConnectedZonesResult` from `agent.py` to `a_world_lore_researcher/src/models.py` — _Blueprint constraint #3: no BaseModel outside models.py_
+- [x] Velasari updates imports in `pipeline.py` to source all models from `src.models` instead of `src.agent` in `a_world_lore_researcher/src/pipeline.py` — _Blueprint constraint #3_
+- [x] Velasari creates `a_world_lore_researcher/tests/test_tools.py` with tests for `normalize_url`, `make_source_ref`, `crawl_webpage` (cache, dedup, truncation, errors) — _Blueprint constraint: every module has tests_
+- [x] Velasari updates `test_agent.py` and `test_pipeline.py` imports to source models from `src.models` in `a_world_lore_researcher/tests/` — _Blueprint constraint #3_
+- [x] Velasari verifies 229 unit tests pass, 0 failures — _Regression gate_

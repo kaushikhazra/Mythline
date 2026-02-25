@@ -4,37 +4,36 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
-from src.agent import (
-    CrossReferenceResult,
-    FactionExtractionResult,
-    LoreExtractionResult,
-    LoreResearcher,
-    NPCExtractionResult,
-    NarrativeItemExtractionResult,
-    ResearchResult,
-    ZoneExtraction,
-)
+from src.agent import LoreResearcher
 from src.models import (
+    Conflict,
+    CrossReferenceResult,
+    FactionData,
+    FactionExtractionResult,
     FactionRelation,
     FactionStance,
+    LoreData,
+    LoreExtractionResult,
     MessageEnvelope,
+    NPCData,
+    NPCExtractionResult,
+    NarrativeItemData,
+    NarrativeItemExtractionResult,
     ResearchCheckpoint,
+    ResearchResult,
     SourceReference,
     SourceTier,
     ZoneData,
-    NPCData,
-    FactionData,
-    LoreData,
-    NarrativeItemData,
-    Conflict,
+    ZoneExtraction,
 )
 from src.pipeline import (
     PIPELINE_STEPS,
-    RESEARCH_TOPICS,
-    TOPIC_SCHEMA_HINTS,
-    TOPIC_SECTION_HEADERS,
+    _TOPICS_CONFIG,
     _apply_confidence_caps,
     _compute_quality_warnings,
+    _get_topic_instructions,
+    _get_topic_schema_hints,
+    _get_topic_section_header,
     _reconstruct_labeled_content,
     run_pipeline,
     step_zone_overview_research,
@@ -267,32 +266,33 @@ class TestExtractAll:
 
 class TestResearchTopics:
     def test_has_five_topics(self):
-        assert len(RESEARCH_TOPICS) == 5
+        assert len(_TOPICS_CONFIG) == 5
 
     def test_zone_overview_has_two_phases(self):
-        topic = RESEARCH_TOPICS["zone_overview_research"]
+        topic = _get_topic_instructions("zone_overview_research")
         assert "Phase 1" in topic
         assert "Phase 2" in topic
 
     def test_npc_research_has_hostile_emphasis(self):
-        topic = RESEARCH_TOPICS["npc_research"]
+        topic = _get_topic_instructions("npc_research")
         assert "hostile NPCs" in topic
         assert "bosses" in topic.lower()
         assert "antagonist" in topic.lower()
 
     def test_faction_research_has_hostile_emphasis(self):
-        topic = RESEARCH_TOPICS["faction_research"]
+        topic = _get_topic_instructions("faction_research")
         assert "hostile factions" in topic
         assert "enemy factions" in topic
         assert "criminal" in topic.lower()
 
     def test_all_topics_have_format_placeholders(self):
-        for key, topic in RESEARCH_TOPICS.items():
+        for key in _TOPICS_CONFIG:
+            topic = _get_topic_instructions(key)
             assert "{zone}" in topic, f"{key} missing {{zone}}"
             assert "{game}" in topic, f"{key} missing {{game}}"
 
     def test_narrative_items_has_significance_filter(self):
-        topic = RESEARCH_TOPICS["narrative_items_research"]
+        topic = _get_topic_instructions("narrative_items_research")
         assert "NOT crafting recipes" in topic
         assert "empty result" in topic.lower()
 
@@ -302,26 +302,27 @@ class TestResearchTopics:
 
 class TestTopicSchemaHints:
     def test_has_five_hints(self):
-        assert len(TOPIC_SCHEMA_HINTS) == 5
+        assert len(_TOPICS_CONFIG) == 5
 
     def test_all_hints_have_must_preserve(self):
-        for key, hint in TOPIC_SCHEMA_HINTS.items():
+        for key in _TOPICS_CONFIG:
+            hint = _get_topic_schema_hints(key)
             assert "MUST PRESERVE" in hint, f"{key} missing MUST PRESERVE"
 
     def test_npc_hints_preserve_personality(self):
-        hint = TOPIC_SCHEMA_HINTS["npc_research"]
+        hint = _get_topic_schema_hints("npc_research")
         assert "personality" in hint.lower()
         assert "motivations" in hint.lower()
         assert "proper names" in hint.lower()
 
     def test_faction_hints_preserve_ideology(self):
-        hint = TOPIC_SCHEMA_HINTS["faction_research"]
+        hint = _get_topic_schema_hints("faction_research")
         assert "ideology" in hint.lower()
         assert "origin story" in hint.lower()
         assert "proper names" in hint.lower()
 
     def test_lore_hints_preserve_causal_chains(self):
-        hint = TOPIC_SCHEMA_HINTS["lore_research"]
+        hint = _get_topic_schema_hints("lore_research")
         assert "causal chains" in hint.lower()
         assert "proper nouns" in hint.lower()
 
@@ -374,11 +375,11 @@ class TestReconstructLabeledContent:
         assert len(sections) == 5
         headers = [header for _, header, _ in sections]
         assert headers == [
-            TOPIC_SECTION_HEADERS["zone_overview_research"],
-            TOPIC_SECTION_HEADERS["npc_research"],
-            TOPIC_SECTION_HEADERS["faction_research"],
-            TOPIC_SECTION_HEADERS["lore_research"],
-            TOPIC_SECTION_HEADERS["narrative_items_research"],
+            _get_topic_section_header("zone_overview_research"),
+            _get_topic_section_header("npc_research"),
+            _get_topic_section_header("faction_research"),
+            _get_topic_section_header("lore_research"),
+            _get_topic_section_header("narrative_items_research"),
         ]
 
     def test_empty_blocks(self):

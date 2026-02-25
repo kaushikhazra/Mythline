@@ -12,9 +12,14 @@ from __future__ import annotations
 import json
 from datetime import date
 
-from src.config import AGENT_ID, MCP_STORAGE_URL, DAILY_TOKEN_BUDGET
+from src.config import AGENT_ID, DAILY_TOKEN_BUDGET, MCP_STORAGE_URL
 from src.mcp_client import mcp_call
 from src.models import BudgetState, ResearchCheckpoint
+
+
+# ---------------------------------------------------------------------------
+# Checkpoint CRUD
+# ---------------------------------------------------------------------------
 
 
 async def save_checkpoint(checkpoint: ResearchCheckpoint, checkpoint_key: str) -> None:
@@ -81,7 +86,9 @@ async def list_checkpoints(prefix: str) -> list[str]:
     return []
 
 
-# --- Budget State ---
+# ---------------------------------------------------------------------------
+# Budget state
+# ---------------------------------------------------------------------------
 
 
 async def save_budget(budget: BudgetState) -> None:
@@ -115,7 +122,9 @@ async def load_budget() -> BudgetState:
     return BudgetState(**data)
 
 
-# --- Budget Helpers ---
+# ---------------------------------------------------------------------------
+# Budget helpers
+# ---------------------------------------------------------------------------
 
 
 def check_daily_budget_reset(budget: BudgetState) -> BudgetState:

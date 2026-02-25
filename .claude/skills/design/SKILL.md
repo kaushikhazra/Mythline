@@ -1,6 +1,6 @@
 ---
 name: design
-description: Create a design under a spec — reads the requirement, plans the work as todos, executes them one at a time with time tracking, and produces the design.md content. Use after /requirement has produced the requirements.
+description: Create a design under a spec — reads the requirement, plans the work as todos, executes them with time tracking, and produces the design.md content. Use after /requirement has produced the requirements.
 argument-hint: "[spec-name] description of the design focus"
 allowed-tools: Read, Grep, Glob, Write, Edit, Task, WebSearch, WebFetch, Bash
 ---
@@ -74,7 +74,7 @@ Rules for todos:
 
 Create the todos in Taskyn as `todo` nodes under the `design` node. All start in `todo` status.
 
-### Step 6: Execute Todos (One at a Time)
+### Step 6: Execute Todos
 
 For each todo, in order:
 
@@ -83,11 +83,11 @@ For each todo, in order:
 3. **Complete the todo** — use `pm_complete_node` (stops timer + sets status to `done`)
 4. **Move to the next todo**
 
-**Critical: Only one todo active at a time.** Taskyn tracks one timer at a time. Never start a new todo before completing the current one.
+**Parallelism:** Independent todos (no dependency between them) can be executed in parallel — start multiple, work them concurrently, complete as they finish. Dependent todos must still be sequential.
 
 During execution, you may:
 - Use WebSearch/WebFetch if the design requires technical research
-- Use Task tool with subagents for parallel research (but the todo itself stays single-threaded)
+- Use Task tool with subagents for parallel research
 - Read existing code, configs, or research docs for context
 - Refer to completed todos' output when working on later ones
 
@@ -158,7 +158,7 @@ Use code blocks for:
 
 - **Requirements drive design.** Every design decision must trace back to a requirement or an architectural constraint from CLAUDE.md. If you can't justify a design element, it's scope creep.
 - **Todos track time, not content sections.** A todo is "Design the retry and fallback strategy" not "Error Handling section."
-- **One todo at a time.** Start → work → complete. Then next. No parallelism in todo execution.
+- **Respect dependencies.** Dependent todos run sequentially. Independent todos can run in parallel.
 - **Minimum 1 todo.** Every design has at least one tracked work item.
 - **Be precise enough to implement.** A design that says "store in the database" without specifying the schema, table, or access pattern is incomplete. If a developer (or AI) could read the design two ways, it's ambiguous — fix it.
 - **Decisions log is mandatory.** Every non-obvious decision gets an entry with rationale.

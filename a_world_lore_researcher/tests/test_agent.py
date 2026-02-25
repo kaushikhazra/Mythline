@@ -7,27 +7,25 @@ import pytest
 import src.agent as agent_module
 from src.agent import (
     EXTRACTION_CATEGORIES,
-    ZoneExtraction,
-    CrossReferenceResult,
-    ResearchResult,
     ResearchContext,
-    ConnectedZonesResult,
-    NPCExtractionResult,
-    FactionExtractionResult,
-    LoreExtractionResult,
-    NarrativeItemExtractionResult,
-    _make_source_ref,
-    _normalize_url,
 )
 from shared.prompt_loader import load_prompt
 from src.models import (
-    ZoneData,
-    NPCData,
+    ConnectedZonesResult,
+    CrossReferenceResult,
     FactionData,
+    FactionExtractionResult,
     LoreData,
+    LoreExtractionResult,
+    NPCData,
+    NPCExtractionResult,
     NarrativeItemData,
+    NarrativeItemExtractionResult,
+    ResearchResult,
     SourceReference,
     SourceTier,
+    ZoneData,
+    ZoneExtraction,
     Conflict,
 )
 
@@ -294,6 +292,7 @@ class TestResearchContext:
         ctx = ResearchContext()
         assert ctx.raw_content == []
         assert ctx.sources == []
+        assert ctx.crawl_cache == {}
 
     def test_accumulates(self):
         ctx = ResearchContext()
@@ -302,39 +301,11 @@ class TestResearchContext:
         assert len(ctx.raw_content) == 1
         assert len(ctx.sources) == 1
 
-
-# --- Helper ---
-
-
-class TestMakeSourceRef:
-    def test_known_domain(self):
-        ref = _make_source_ref("https://wowpedia.fandom.com/wiki/Elwynn")
-        assert ref.domain == "wowpedia.fandom.com"
-
-    def test_unknown_domain_defaults_tertiary(self):
-        ref = _make_source_ref("https://random-blog.com/wow-guide")
-        assert ref.domain == "random-blog.com"
-        assert ref.tier == SourceTier.TERTIARY
-
-
-class TestNormalizeUrl:
-    def test_strips_trailing_slash(self):
-        assert _normalize_url("https://wiki.gg/page/") == "https://wiki.gg/page"
-
-    def test_strips_fragment(self):
-        assert _normalize_url("https://wiki.gg/page#section") == "https://wiki.gg/page"
-
-    def test_strips_both(self):
-        assert _normalize_url("https://wiki.gg/page/#section") == "https://wiki.gg/page"
-
-    def test_no_change_needed(self):
-        assert _normalize_url("https://wiki.gg/page") == "https://wiki.gg/page"
-
-    def test_preserves_query_params(self):
-        assert _normalize_url("https://wiki.gg/page?id=1") == "https://wiki.gg/page?id=1"
-
-    def test_empty_fragment(self):
-        assert _normalize_url("https://wiki.gg/page#") == "https://wiki.gg/page"
+    def test_shared_crawl_cache(self):
+        shared_cache = {"https://wiki.gg/page": "cached content"}
+        ctx = ResearchContext(crawl_cache=shared_cache)
+        ctx.crawl_cache["https://wiki.gg/other"] = "new content"
+        assert len(shared_cache) == 2
 
 
 # --- LoreResearcher init ---
