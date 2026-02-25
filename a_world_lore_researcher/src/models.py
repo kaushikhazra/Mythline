@@ -1,6 +1,14 @@
 """Pydantic models for the World Lore Researcher agent.
 
-Message models (RabbitMQ communication) and data models (domain schema).
+All BaseModel subclasses and enums live here. No business logic.
+
+Sections:
+  1. Enums
+  2. Sub-models (shared building blocks)
+  3. Domain models (World Lore schema)
+  4. Message models (RabbitMQ communication + job queue)
+  5. Checkpoint
+  6. Agent output models (LLM structured output)
 """
 
 from __future__ import annotations
@@ -18,6 +26,11 @@ def _uuid() -> str:
 
 def _now() -> datetime:
     return datetime.now()
+
+
+# ---------------------------------------------------------------------------
+# 1. Enums
+# ---------------------------------------------------------------------------
 
 
 class SourceTier(str, Enum):
@@ -56,7 +69,19 @@ class MessageType(str, Enum):
     USER_DECISION_RESPONSE = "user_decision_response"
 
 
-# --- Shared Sub-Models ---
+class JobStatus(str, Enum):
+    ACCEPTED = "accepted"
+    ZONE_STARTED = "zone_started"
+    STEP_PROGRESS = "step_progress"
+    ZONE_COMPLETED = "zone_completed"
+    JOB_COMPLETED = "job_completed"
+    JOB_PARTIAL_COMPLETED = "job_partial_completed"
+    JOB_FAILED = "job_failed"
+
+
+# ---------------------------------------------------------------------------
+# 2. Sub-models
+# ---------------------------------------------------------------------------
 
 
 class SourceReference(BaseModel):
@@ -99,53 +124,9 @@ class ValidationFeedback(BaseModel):
     suggestion: str = ""
 
 
-# --- Job Queue Models ---
-
-
-class ResearchJob(BaseModel):
-    job_id: str
-    zone_name: str = Field(min_length=1)
-    depth: int = Field(default=0, ge=0, le=5)
-    game: str = "wow"
-    requested_by: str = ""
-    requested_at: datetime = Field(default_factory=_now)
-
-
-class JobStatus(str, Enum):
-    ACCEPTED = "accepted"
-    ZONE_STARTED = "zone_started"
-    STEP_PROGRESS = "step_progress"
-    ZONE_COMPLETED = "zone_completed"
-    JOB_COMPLETED = "job_completed"
-    JOB_PARTIAL_COMPLETED = "job_partial_completed"
-    JOB_FAILED = "job_failed"
-
-
-class ZoneFailure(BaseModel):
-    zone_name: str
-    error: str
-
-
-class JobStatusUpdate(BaseModel):
-    job_id: str
-    status: JobStatus
-    zone_name: str = ""
-    step_name: str = ""
-    step_number: int = 0
-    total_steps: int = 0
-    zones_completed: int = 0
-    zones_total: int = 0
-    zones_failed: list[ZoneFailure] = Field(default_factory=list)
-    error: str = ""
-    timestamp: datetime = Field(default_factory=_now)
-
-
-class BudgetState(BaseModel):
-    daily_tokens_used: int = 0
-    last_reset_date: str = ""
-
-
-# --- Domain Data Models ---
+# ---------------------------------------------------------------------------
+# 3. Domain models
+# ---------------------------------------------------------------------------
 
 
 class ZoneData(BaseModel):
@@ -209,7 +190,42 @@ class NarrativeItemData(BaseModel):
     confidence: float = 0.0
 
 
-# --- Message Models (RabbitMQ) ---
+# ---------------------------------------------------------------------------
+# 4. Message models (RabbitMQ communication + job queue)
+# ---------------------------------------------------------------------------
+
+
+class ResearchJob(BaseModel):
+    job_id: str
+    zone_name: str = Field(min_length=1)
+    depth: int = Field(default=0, ge=0, le=5)
+    game: str = "wow"
+    requested_by: str = ""
+    requested_at: datetime = Field(default_factory=_now)
+
+
+class ZoneFailure(BaseModel):
+    zone_name: str
+    error: str
+
+
+class JobStatusUpdate(BaseModel):
+    job_id: str
+    status: JobStatus
+    zone_name: str = ""
+    step_name: str = ""
+    step_number: int = 0
+    total_steps: int = 0
+    zones_completed: int = 0
+    zones_total: int = 0
+    zones_failed: list[ZoneFailure] = Field(default_factory=list)
+    error: str = ""
+    timestamp: datetime = Field(default_factory=_now)
+
+
+class BudgetState(BaseModel):
+    daily_tokens_used: int = 0
+    last_reset_date: str = ""
 
 
 class MessageEnvelope(BaseModel):
@@ -232,6 +248,7 @@ class ResearchPackage(BaseModel):
     sources: list[SourceReference] = Field(default_factory=list)
     confidence: dict[str, float] = Field(default_factory=dict)
     conflicts: list[Conflict] = Field(default_factory=list)
+    quality_warnings: list[str] = Field(default_factory=list)
 
 
 class ValidationResult(BaseModel):
@@ -253,7 +270,9 @@ class UserDecisionResponse(BaseModel):
     choice: str
 
 
-# --- Checkpoint Model ---
+# ---------------------------------------------------------------------------
+# 5. Checkpoint
+# ---------------------------------------------------------------------------
 
 
 class ResearchCheckpoint(BaseModel):
@@ -262,3 +281,51 @@ class ResearchCheckpoint(BaseModel):
     current_step: int = 0
     wave_depth: int = 0
     step_data: dict = Field(default_factory=dict)
+
+
+# ---------------------------------------------------------------------------
+# 6. Agent output models (LLM structured output)
+# ---------------------------------------------------------------------------
+
+
+class ZoneExtraction(BaseModel):
+    zone: ZoneData
+    npcs: list[NPCData] = Field(default_factory=list)
+    factions: list[FactionData] = Field(default_factory=list)
+    lore: list[LoreData] = Field(default_factory=list)
+    narrative_items: list[NarrativeItemData] = Field(default_factory=list)
+
+
+class NPCExtractionResult(BaseModel):
+    npcs: list[NPCData] = Field(default_factory=list)
+
+
+class FactionExtractionResult(BaseModel):
+    factions: list[FactionData] = Field(default_factory=list)
+
+
+class LoreExtractionResult(BaseModel):
+    lore: list[LoreData] = Field(default_factory=list)
+
+
+class NarrativeItemExtractionResult(BaseModel):
+    narrative_items: list[NarrativeItemData] = Field(default_factory=list)
+
+
+class CrossReferenceResult(BaseModel):
+    is_consistent: bool = True
+    conflicts: list[Conflict] = Field(default_factory=list)
+    confidence: dict[str, float] = Field(default_factory=dict)
+    notes: str = ""
+
+
+class ResearchResult(BaseModel):
+    """Returned by research_zone() — raw crawled content + source references."""
+    raw_content: list[str] = Field(default_factory=list)
+    sources: list[SourceReference] = Field(default_factory=list)
+    summary: str = ""
+
+
+class ConnectedZonesResult(BaseModel):
+    """Returned by _zone_discovery_agent — slugified zone names."""
+    zone_slugs: list[str] = Field(default_factory=list)

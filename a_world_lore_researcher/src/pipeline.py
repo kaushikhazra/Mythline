@@ -13,26 +13,44 @@ Step 9: Package and send (assemble ResearchPackage, publish to RabbitMQ).
 from __future__ import annotations
 
 import logging
+from collections import OrderedDict
 from collections.abc import Awaitable, Callable
+from typing import cast
 
-from src.agent import (
-    CrossReferenceResult,
-    LoreResearcher,
-    ResearchResult,
-    ZoneExtraction,
-)
+from src.agent import LoreResearcher
 from src.checkpoint import save_checkpoint
-from src.config import AGENT_ID, GAME_NAME, MCP_SUMMARIZER_URL
+from src.config import (
+    AGENT_ID,
+    EXTRACT_CONTENT_CHAR_LIMIT,
+    GAME_NAME,
+    MCP_SUMMARIZER_URL,
+    load_research_topics,
+)
 from src.mcp_client import mcp_call
 from src.models import (
+    CrossReferenceResult,
+    FactionExtractionResult,
+    FactionStance,
+    LoreExtractionResult,
     MessageEnvelope,
     MessageType,
+    NPCExtractionResult,
+    NarrativeItemExtractionResult,
     ResearchCheckpoint,
     ResearchPackage,
+    ResearchResult,
     SourceReference,
+    ZoneData,
+    ZoneExtraction,
 )
 
 logger = logging.getLogger(__name__)
+
+
+# ---------------------------------------------------------------------------
+# Pipeline steps and topic configuration
+# ---------------------------------------------------------------------------
+
 
 PIPELINE_STEPS = [
     "zone_overview_research",
@@ -45,6 +63,28 @@ PIPELINE_STEPS = [
     "discover_connected_zones",
     "package_and_send",
 ]
+
+_TOPICS_CONFIG = load_research_topics()["topics"]
+
+
+def _get_topic_instructions(topic_key: str) -> str:
+    """Return the research instructions template for a topic."""
+    return _TOPICS_CONFIG[topic_key]["instructions"]
+
+
+def _get_topic_section_header(topic_key: str) -> str:
+    """Return the section header for a topic."""
+    return _TOPICS_CONFIG[topic_key]["section_header"]
+
+
+def _get_topic_schema_hints(topic_key: str) -> str:
+    """Return the schema hints for a topic."""
+    return _TOPICS_CONFIG[topic_key]["schema_hints"]
+
+
+# ---------------------------------------------------------------------------
+# Pipeline runner
+# ---------------------------------------------------------------------------
 
 
 async def run_pipeline(
@@ -132,43 +172,17 @@ def _accumulate_research(
 # Steps 1-5: Per-topic research (data-driven)
 # ---------------------------------------------------------------------------
 
-RESEARCH_TOPICS = {
-    "zone_overview_research": (
-        "zone overview for {zone} in {game}: "
-        "level range, narrative arc, political climate, access gating, "
-        "phase states, and general atmosphere."
-    ),
-    "npc_research": (
-        "NPCs and notable characters in {zone} in {game}: "
-        "names, faction allegiance, personality, motivations, relationships, "
-        "quest involvement, and phased states."
-    ),
-    "faction_research": (
-        "factions and organizations in {zone} in {game}: "
-        "hierarchy, inter-faction relationships, mutual exclusions, ideology, goals."
-    ),
-    "lore_research": (
-        "lore, history, mythology, and cosmology of {zone} in {game}: "
-        "historical events, power sources, cosmic rules, world-shaping moments."
-    ),
-    "narrative_items_research": (
-        "legendary items, artifacts, and narrative objects in {zone} "
-        "in {game}: story arcs, wielder lineage, power descriptions, significance."
-    ),
-}
-
 
 def _make_research_step(topic_key: str):
     """Factory that returns an async step function for a research topic."""
-    template = RESEARCH_TOPICS[topic_key]
-
     async def step(
         checkpoint: ResearchCheckpoint,
         researcher: LoreResearcher,
         publish_fn: Callable | None = None,
     ) -> ResearchCheckpoint:
         zone_name = checkpoint.zone_name.replace("_", " ")
-        instructions = "Focus on " + template.format(zone=zone_name, game=GAME_NAME)
+        template = _get_topic_instructions(topic_key)
+        instructions = template.format(zone=zone_name, game=GAME_NAME)
         result = await researcher.research_zone(zone_name, instructions=instructions)
         _accumulate_research(checkpoint, result, topic_key)
         return checkpoint
@@ -188,49 +202,12 @@ step_narrative_items_research = _make_research_step("narrative_items_research")
 # Step 6: Extract all structured data from accumulated raw content
 # ---------------------------------------------------------------------------
 
-TOPIC_SECTION_HEADERS = {
-    "zone_overview_research": "## ZONE OVERVIEW",
-    "npc_research": "## NPCs AND NOTABLE CHARACTERS",
-    "faction_research": "## FACTIONS AND ORGANIZATIONS",
-    "lore_research": "## LORE, HISTORY, AND MYTHOLOGY",
-    "narrative_items_research": "## LEGENDARY ITEMS AND NARRATIVE OBJECTS",
-}
-
-TOPIC_SCHEMA_HINTS = {
-    "zone_overview_research": (
-        "zone metadata: name, level range, narrative arc, political climate, "
-        "access gating, phase states, atmosphere, sub-areas"
-    ),
-    "npc_research": (
-        "NPCs: names, titles, faction allegiance, personality, motivations, "
-        "relationships, quest involvement, phased states"
-    ),
-    "faction_research": (
-        "factions: names, hierarchy, inter-faction relationships, mutual "
-        "exclusions, ideology, goals, key members"
-    ),
-    "lore_research": (
-        "lore: historical events, mythology, cosmology, power sources, "
-        "world-shaping moments, timelines"
-    ),
-    "narrative_items_research": (
-        "legendary items and artifacts: names, story arcs, wielder lineage, "
-        "power descriptions, quest significance"
-    ),
-}
-
-# Maximum total characters of raw content before summarization kicks in.
-# ~75K tokens at ~4 chars/token. Leaves room for prompt template + output.
-_EXTRACT_CONTENT_CHAR_LIMIT = 300_000
-
 
 def _reconstruct_labeled_content(raw_blocks: list[dict]) -> list[tuple[str, str, str]]:
     """Group labeled content blocks by topic and prepend section headers.
 
     Returns a list of (topic_key, header, body) tuples, one per topic section.
     """
-    from collections import OrderedDict
-
     grouped: OrderedDict[str, list[str]] = OrderedDict()
     for block in raw_blocks:
         topic = block.get("topic", "unknown")
@@ -238,7 +215,7 @@ def _reconstruct_labeled_content(raw_blocks: list[dict]) -> list[tuple[str, str,
 
     sections = []
     for topic, contents in grouped.items():
-        header = TOPIC_SECTION_HEADERS.get(topic, f"## {topic.upper()}")
+        header = _get_topic_section_header(topic) if topic in _TOPICS_CONFIG else f"## {topic.upper()}"
         body = "\n\n".join(contents)
         sections.append((topic, header, body))
 
@@ -251,38 +228,35 @@ async def _maybe_summarize_sections(
     """Summarize sections if total content exceeds the context budget.
 
     Each section is a (topic_key, header, body) tuple. If total body chars
-    exceed _EXTRACT_CONTENT_CHAR_LIMIT, every section is compressed via the
+    exceed EXTRACT_CONTENT_CHAR_LIMIT, every section is compressed via the
     MCP Summarizer using topic-specific schema hints.
 
     Returns a list of ready-to-use section strings (header + body).
     """
     total_chars = sum(len(body) for _, _, body in sections)
 
-    if total_chars <= _EXTRACT_CONTENT_CHAR_LIMIT:
+    if total_chars <= EXTRACT_CONTENT_CHAR_LIMIT:
         logger.info(
             "content_within_budget",
-            extra={"total_chars": total_chars, "limit": _EXTRACT_CONTENT_CHAR_LIMIT},
+            extra={"total_chars": total_chars, "limit": EXTRACT_CONTENT_CHAR_LIMIT},
         )
         return [f"{header}\n\n{body}" for _, header, body in sections]
 
     logger.info(
         "content_over_budget_summarizing",
-        extra={"total_chars": total_chars, "limit": _EXTRACT_CONTENT_CHAR_LIMIT},
+        extra={"total_chars": total_chars, "limit": EXTRACT_CONTENT_CHAR_LIMIT},
     )
 
     if not MCP_SUMMARIZER_URL:
         logger.warning("no_summarizer_url_truncating_content")
         return [f"{header}\n\n{body}" for _, header, body in sections]
 
-    # Per-section token budget: distribute evenly across sections.
-    # Target ~75K total tokens across all sections.
     per_section_tokens = 75_000 // max(len(sections), 1)
-
-    char_limit = per_section_tokens * 4  # ~4 chars per token
+    char_limit = per_section_tokens * 4
 
     summarized: list[str] = []
     for topic, header, body in sections:
-        schema_hint = TOPIC_SCHEMA_HINTS.get(topic, topic)
+        schema_hint = _get_topic_schema_hints(topic) if topic in _TOPICS_CONFIG else topic
         result = await mcp_call(
             MCP_SUMMARIZER_URL,
             "summarize_for_extraction",
@@ -295,8 +269,6 @@ async def _maybe_summarize_sections(
             sse_read_timeout=300.0,
         )
 
-        # Detect whether summarization actually reduced the content.
-        # The summarizer returns original content on failure, so check size.
         if result and isinstance(result, str) and len(result) < len(body):
             logger.info(
                 "section_summarized",
@@ -308,7 +280,6 @@ async def _maybe_summarize_sections(
             )
             summarized.append(f"{header}\n\n{result}")
         else:
-            # Summarization failed or returned full content — truncate.
             logger.warning(
                 "section_summarize_failed_truncating",
                 extra={"topic": topic, "char_limit": char_limit},
@@ -330,8 +301,40 @@ async def step_extract_all(
     sources = [SourceReference(**sd) for sd in source_dicts]
 
     sections = _reconstruct_labeled_content(raw_blocks)
-    labeled_content = await _maybe_summarize_sections(sections)
-    extraction = await researcher.extract_zone_data(zone_name, labeled_content, sources)
+    summarized = await _maybe_summarize_sections(sections)
+
+    section_content: dict[str, str] = {}
+    for (topic, _, _), content in zip(sections, summarized):
+        section_content[topic] = content
+
+    zone_data = cast(ZoneData, await researcher.extract_category(
+        "zone", zone_name,
+        section_content.get("zone_overview_research", ""), sources,
+    ))
+    npcs_result = cast(NPCExtractionResult, await researcher.extract_category(
+        "npcs", zone_name,
+        section_content.get("npc_research", ""), sources,
+    ))
+    factions_result = cast(FactionExtractionResult, await researcher.extract_category(
+        "factions", zone_name,
+        section_content.get("faction_research", ""), sources,
+    ))
+    lore_result = cast(LoreExtractionResult, await researcher.extract_category(
+        "lore", zone_name,
+        section_content.get("lore_research", ""), sources,
+    ))
+    items_result = cast(NarrativeItemExtractionResult, await researcher.extract_category(
+        "narrative_items", zone_name,
+        section_content.get("narrative_items_research", ""), sources,
+    ))
+
+    extraction = ZoneExtraction(
+        zone=zone_data,
+        npcs=npcs_result.npcs,
+        factions=factions_result.factions,
+        lore=lore_result.lore,
+        narrative_items=items_result.narrative_items,
+    )
     checkpoint.step_data["extraction"] = extraction.model_dump(mode="json")
     return checkpoint
 
@@ -339,6 +342,31 @@ async def step_extract_all(
 # ---------------------------------------------------------------------------
 # Step 7: Cross-reference
 # ---------------------------------------------------------------------------
+
+
+def _apply_confidence_caps(
+    extraction: ZoneExtraction,
+    confidence: dict[str, float],
+) -> dict[str, float]:
+    """Apply mechanical confidence caps based on field completeness."""
+    capped = dict(confidence)
+
+    if not extraction.npcs:
+        capped["npcs"] = min(capped.get("npcs", 0.0), 0.2)
+    else:
+        total = len(extraction.npcs)
+        empty_personality = sum(1 for n in extraction.npcs if not n.personality)
+        empty_role = sum(1 for n in extraction.npcs if not n.role)
+
+        if empty_personality / total > 0.5:
+            capped["npcs"] = min(capped.get("npcs", 0.0), 0.4)
+        if empty_role / total > 0.5:
+            capped["npcs"] = min(capped.get("npcs", 0.0), 0.4)
+
+    if not extraction.factions:
+        capped["factions"] = min(capped.get("factions", 0.0), 0.2)
+
+    return capped
 
 
 async def step_cross_reference(
@@ -350,6 +378,8 @@ async def step_cross_reference(
     extraction = ZoneExtraction.model_validate(extraction_dict)
 
     cr_result = await researcher.cross_reference(extraction)
+    cr_result.confidence = _apply_confidence_caps(extraction, cr_result.confidence)
+
     checkpoint.step_data["cross_reference"] = cr_result.model_dump(mode="json")
     return checkpoint
 
@@ -374,6 +404,42 @@ async def step_discover_connected_zones(
 # ---------------------------------------------------------------------------
 
 
+def _compute_quality_warnings(extraction: ZoneExtraction) -> list[str]:
+    """Compute quality warnings based on content thresholds."""
+    warnings: list[str] = []
+
+    if len(extraction.zone.narrative_arc) < 200:
+        warnings.append("shallow_narrative_arc")
+
+    if extraction.npcs and all(not n.personality for n in extraction.npcs):
+        warnings.append("no_npc_personality_data")
+
+    has_antagonist_npc = any(
+        n.role and any(
+            keyword in n.role.lower()
+            for keyword in ("boss", "antagonist", "villain")
+        )
+        for n in extraction.npcs
+    )
+    has_hostile_faction = any(
+        any(r.stance == FactionStance.HOSTILE for r in f.inter_faction)
+        for f in extraction.factions
+    )
+    zone_mentions_dungeon = any(
+        keyword in extraction.zone.narrative_arc.lower()
+        for keyword in ("dungeon", "raid", "instance", "mine", "mines")
+    ) or any(
+        keyword in entry.content.lower()
+        for entry in extraction.lore
+        for keyword in ("dungeon", "raid", "instance")
+    )
+
+    if zone_mentions_dungeon and not has_antagonist_npc and not has_hostile_faction:
+        warnings.append("missing_antagonists")
+
+    return warnings
+
+
 async def step_package_and_send(
     checkpoint: ResearchCheckpoint,
     researcher: LoreResearcher,
@@ -381,7 +447,6 @@ async def step_package_and_send(
 ) -> ResearchCheckpoint:
     zone_name = checkpoint.zone_name
 
-    # Rebuild structured data from step_data
     extraction_dict = checkpoint.step_data.get("extraction", {})
     extraction = ZoneExtraction.model_validate(extraction_dict)
 
@@ -390,6 +455,8 @@ async def step_package_and_send(
 
     source_dicts = checkpoint.step_data.get("research_sources", [])
     all_sources = [SourceReference(**sd) for sd in source_dicts]
+
+    warnings = _compute_quality_warnings(extraction)
 
     package = ResearchPackage(
         zone_name=zone_name,
@@ -401,11 +468,11 @@ async def step_package_and_send(
         sources=all_sources,
         confidence=cr_result.confidence,
         conflicts=cr_result.conflicts,
+        quality_warnings=warnings,
     )
 
     checkpoint.step_data["package"] = package.model_dump(mode="json")
 
-    # Publish to RabbitMQ
     if publish_fn:
         envelope = MessageEnvelope(
             source_agent=LoreResearcher.AGENT_ID,

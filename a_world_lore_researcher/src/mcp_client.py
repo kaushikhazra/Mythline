@@ -23,6 +23,11 @@ from src.config import MCP_WEB_CRAWLER_URL
 logger = logging.getLogger(__name__)
 
 
+# ---------------------------------------------------------------------------
+# MCP StreamableHTTP calls
+# ---------------------------------------------------------------------------
+
+
 async def mcp_call(
     url: str,
     tool_name: str,
@@ -52,6 +57,7 @@ async def mcp_call(
 # ---------------------------------------------------------------------------
 # Web Crawler helpers (crawl4ai REST API)
 # ---------------------------------------------------------------------------
+
 
 async def crawl_url(url: str, include_links: bool = True, include_tables: bool = True) -> dict:
     """Crawl a single URL via crawl4ai's REST API and return markdown content.
@@ -90,6 +96,7 @@ async def crawl_url(url: str, include_links: bool = True, include_tables: bool =
 # Result parsing (for MCP calls)
 # ---------------------------------------------------------------------------
 
+
 def _parse_result(result) -> dict | list | str | None:
     """Parse a CallToolResult into Python objects.
 
@@ -110,7 +117,6 @@ def _parse_result(result) -> dict | list | str | None:
         except (json.JSONDecodeError, TypeError):
             return texts[0]
 
-    # Multiple blocks — each is a separate JSON value (FastMCP list[dict] behavior)
     parsed = []
     for text in texts:
         try:

@@ -4,9 +4,89 @@ This is the architectural blueprint for building any Mythline agent. It captures
 
 ## Index
 
-- [readme.md](readme.md) — This file. Folder structure, wiring, and constraints.
+- [readme.md](readme.md) — This file. Design philosophy, folder structure, wiring, and constraints.
 - [anatomy.md](anatomy.md) — Detailed file-by-file anatomy with purpose and patterns.
 - [docker.md](docker.md) — Dockerfile and docker-compose conventions.
+
+---
+
+## Design Philosophy: Single Responsibility + Composition at Every Level
+
+Three principles govern every agent design decision:
+
+1. **Know the patterns** — the catalog below lists agentic design patterns with rough domain fit and source links. Use them as a compass when designing agent interactions.
+2. **Compose freely** — real problems cross domain lines. Mix patterns as needed. The domain groupings are guidance, not fences.
+3. **Single Responsibility governs every agent** — each agent has one responsibility. An orchestrator orchestrates — it does not also do web search. If it needs web search, it calls a web search agent as a tool. If a class or agent accumulates a second responsibility, decompose it into smaller single-responsibility pieces and compose them via an aggregator (traditional code) or orchestrator with tools (agentic code).
+
+### Agentic Design Patterns Catalog
+
+The domains below are fuzzy — patterns can serve multiple purposes and often combine.
+
+#### Hierarchical Task Management
+
+Breaking down and delegating complex work.
+
+| Pattern | Core Idea | Source |
+|---------|-----------|--------|
+| **Orchestrator-Workers** | Central agent dynamically decomposes and delegates to sub-agents | [Anthropic — Building Effective Agents](https://www.anthropic.com/research/building-effective-agents) |
+| **Supervisor / Hierarchical** | Manager oversees a predefined roster of specialist agents | [CrewAI Docs](https://docs.crewai.com/en/concepts/agents), [LangGraph Blog](https://blog.langchain.com/langgraph-multi-agent-workflows/) |
+
+#### Job Handling
+
+Executing work — serial, parallel, or hybrid.
+
+| Pattern | Core Idea | Source |
+|---------|-----------|--------|
+| **Sequential Pipeline** | Fixed linear chain — output of one feeds the next | [Azure AI Patterns](https://learn.microsoft.com/en-us/azure/architecture/ai-ml/guide/ai-agent-design-patterns), [Anthropic](https://www.anthropic.com/research/building-effective-agents) |
+| **Fan-out / Fan-in** | Same input to multiple agents simultaneously, results merge | [Azure AI Patterns](https://learn.microsoft.com/en-us/azure/architecture/ai-ml/guide/ai-agent-design-patterns), [Anthropic](https://www.anthropic.com/research/building-effective-agents) |
+| **Handoff** | Mid-task transfer of control + context to another agent | [OpenAI Agents SDK](https://openai.github.io/openai-agents-python/handoffs/), [AutoGen Docs](https://microsoft.github.io/autogen/stable//user-guide/core-user-guide/design-patterns/handoffs.html) |
+| **Swarm** | Decentralized peer network — any agent can hand off to any other, no coordinator | [OpenAI Swarm](https://github.com/openai/swarm) |
+
+#### Research
+
+Exploring a problem space, converging on answers.
+
+| Pattern | Core Idea | Source |
+|---------|-----------|--------|
+| **Group Chat / Roundtable** | Shared conversation thread with a chat manager controlling turns | [Azure AI Patterns](https://learn.microsoft.com/en-us/azure/architecture/ai-ml/guide/ai-agent-design-patterns), [AutoGen Docs](https://microsoft.github.io/autogen/stable//user-guide/core-user-guide/design-patterns/intro.html) |
+| **Multi-Agent Debate** | Adversarial argumentation — agents critique each other, judge decides | [AutoGen Docs](https://microsoft.github.io/autogen/stable//user-guide/core-user-guide/design-patterns/intro.html), [ACL 2025](https://arxiv.org/abs/2502.19130) |
+| **Voting / Quorum / Consensus** | Independent answers + decision protocol (majority, weighted, unanimity) | [ACL 2025](https://arxiv.org/abs/2502.19130) |
+| **Blackboard** | Agents collaborate through shared state, not messages — read/write structured data | [Classical AI](https://en.wikipedia.org/wiki/Blackboard_system), [arXiv 2025](https://arxiv.org/html/2507.01701v1) |
+
+#### Output Validation
+
+Quality assurance — applies across all domains.
+
+| Pattern | Core Idea | Source |
+|---------|-----------|--------|
+| **Reflection / Self-Critique** | Single agent reviews its own output and revises | [Andrew Ng](https://x.com/AndrewYNg/status/1773393357022298617), [AutoGen Docs](https://microsoft.github.io/autogen/stable//user-guide/core-user-guide/design-patterns/intro.html) |
+| **Evaluator-Optimizer** | Generator + Critic in a feedback loop until quality threshold | [Anthropic](https://www.anthropic.com/research/building-effective-agents), [AWS Prescriptive Guidance](https://docs.aws.amazon.com/prescriptive-guidance/latest/agentic-ai-patterns/evaluator-reflect-refine-loop-patterns.html) |
+| **Voting / Quorum / Consensus** | Cross-cutting — also used for validation via independent agreement | (same as Research) |
+
+#### Heterogeneous Problems
+
+When the problem requires fundamentally different skills combined.
+
+| Pattern | Core Idea | Source |
+|---------|-----------|--------|
+| **Mixture of Agents (MoA)** | Layered aggregation — neural-net-inspired layers of proposers and aggregators | [Together AI Paper](https://arxiv.org/abs/2406.04692), [AutoGen Docs](https://microsoft.github.io/autogen/stable//user-guide/core-user-guide/design-patterns/mixture-of-agents.html) |
+
+#### Guarded Decisions
+
+When autonomous choice carries risk.
+
+| Pattern | Core Idea | Source |
+|---------|-----------|--------|
+| **Human-in-the-Loop Gate** | Autonomous execution with approval checkpoints at risk points | [Anthropic](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents), [Azure AI Patterns](https://learn.microsoft.com/en-us/azure/architecture/ai-ml/guide/ai-agent-design-patterns) |
+
+#### Dynamic Agent Environment
+
+Agents aren't known upfront, discovered or dispatched at runtime.
+
+| Pattern | Core Idea | Source |
+|---------|-----------|--------|
+| **A2A Discovery** | Protocol-based capability cards — agents advertise, discover, and delegate dynamically | [Google A2A Protocol](https://a2a-protocol.org/latest/) |
+| **Routing / Triage** | Classifier dispatches incoming requests to the right specialist | [Anthropic](https://www.anthropic.com/research/building-effective-agents), [OpenAI Swarm](https://github.com/openai/swarm) |
 
 ---
 
@@ -166,9 +246,10 @@ These are hard rules. Push back if anyone suggests violating them.
 
 1. **No prompt strings in Python** — all in `.md` files under `prompts/`
 2. **No MCP server construction in Python** — all in `config/mcp_config.json`
-3. **No inline imports** — all imports at the top of the file
-4. **No emojis in code**
-5. **Every module has tests** — no untested source files
-6. **Integration tests are gated** — never run in CI without explicit opt-in
-7. **Each agent is self-contained** — own Dockerfile, .env, pyproject.toml, venv
-8. **Shared code goes in `shared/`** — never duplicate utilities across agents
+3. **No Pydantic models outside `models.py`** — every `BaseModel` subclass lives in `models.py`. Agent output types, extraction wrappers, result containers — all in `models.py`. Dataclasses used as agent runtime deps (e.g., `ResearchContext`) stay in `agent.py`.
+4. **No inline imports** — all imports at the top of the file
+5. **No emojis in code**
+6. **Every module has tests** — no untested source files
+7. **Integration tests are gated** — never run in CI without explicit opt-in
+8. **Each agent is self-contained** — own Dockerfile, .env, pyproject.toml, venv
+9. **Shared code goes in `shared/`** — never duplicate utilities across agents

@@ -1,6 +1,6 @@
 ---
 name: requirement
-description: Create a requirement under a spec — plans the work as todos, executes them one at a time with time tracking, and produces the requirement.md content. Use after /spec has created the scaffolding.
+description: Create a requirement under a spec — plans the work as todos, executes them with time tracking, and produces the requirement.md content. Use after /spec has created the scaffolding.
 argument-hint: "[spec-name] description of the requirement"
 allowed-tools: Read, Grep, Glob, Write, Edit, Task, WebSearch, WebFetch, Bash
 ---
@@ -72,7 +72,7 @@ Rules for todos:
 
 Create the todos in Taskyn as `todo` nodes under the `requirement` node. All start in `todo` status.
 
-### Step 5: Execute Todos (One at a Time)
+### Step 5: Execute Todos
 
 For each todo, in order:
 
@@ -81,11 +81,11 @@ For each todo, in order:
 3. **Complete the todo** — use `pm_complete_node` (stops timer + sets status to `done`)
 4. **Move to the next todo**
 
-**Critical: Only one todo active at a time.** Taskyn tracks one timer at a time. Never start a new todo before completing the current one.
+**Parallelism:** Independent todos (no dependency between them) can be executed in parallel — start multiple, work them concurrently, complete as they finish. Dependent todos must still be sequential.
 
 During execution, you may:
 - Use WebSearch/WebFetch if the todo requires research
-- Use Task tool with subagents for parallel research (but the todo itself stays single-threaded)
+- Use Task tool with subagents for parallel research
 - Read existing code, configs, or docs for context
 - Refer to completed todos' output when working on later ones
 
@@ -170,7 +170,7 @@ path/to/config.yml    # Purpose
 ## Rules
 
 - **Todos track time, not content sections.** A todo is "Draft user stories for the validation workflow" not "User Stories section."
-- **One todo at a time.** Start → work → complete. Then next. No parallelism in todo execution.
+- **Respect dependencies.** Dependent todos run sequentially. Independent todos can run in parallel.
 - **Minimum 1 todo.** Every requirement has at least one tracked work item.
 - **User stories must be testable.** Every acceptance criterion should be verifiable — no vague "should work well" criteria.
 - **Don't invent scope.** The requirement captures what the spec needs. Don't add features the user didn't ask for. If something seems missing, note it in an "Open Questions" section rather than inventing requirements.

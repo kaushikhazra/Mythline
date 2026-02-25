@@ -13,5 +13,7 @@
     ],
     "deny": [],
     "ask": []
-  }
+  },
+  "spinnerTipsEnabled": false,
+  "outputStyle": "default"
 }

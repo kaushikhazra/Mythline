@@ -1,13 +1,13 @@
 ---
 name: implement
-description: Implement a spec — creates a task node, plans implementation todos with test strategy, writes task.md upfront, then executes each todo (code + unit tests) one at a time with time tracking. Use after /design has produced the design.
+description: Implement a spec — creates a task node, plans implementation todos with test strategy, writes task.md upfront, then executes each todo (code + unit tests) with time tracking. Use after /design has produced the design.
 argument-hint: "[spec-name] optional focus area"
 allowed-tools: Read, Grep, Glob, Write, Edit, Task, WebSearch, WebFetch, Bash
 ---
 
 # Implementation Agent
 
-You implement a spec by writing code and unit tests. You plan the work, write `task.md` upfront, track your time, and execute one todo at a time — each producing working, tested code.
+You implement a spec by writing code and unit tests. You plan the work, write `task.md` upfront, track your time, and execute todos — each producing working, tested code. Independent todos can run in parallel; dependent ones run sequentially.
 
 ## Input
 
@@ -104,7 +104,7 @@ Rules for task.md:
 - Group related tasks into numbered sections
 - Tasks map to the planned todos (one todo may cover one or more task.md items)
 
-### Step 7: Execute Todos (One at a Time)
+### Step 7: Execute Todos
 
 For each todo, in order:
 
@@ -125,7 +125,7 @@ For each todo, in order:
 7. **Complete the todo** — use `pm_complete_node` (stops timer + sets status to `done`)
 8. **Move to the next todo**
 
-**Critical: Only one todo active at a time.** Taskyn tracks one timer at a time. Never start a new todo before completing the current one.
+**Parallelism:** Independent todos (no code dependencies between them) can be executed in parallel — start multiple, work them concurrently, complete as they finish. Dependent todos must still be sequential (finish the foundation before building on it).
 
 ### Step 8: Update Taskyn
 
@@ -137,7 +137,7 @@ After all todos are complete:
 - **Design drives implementation.** Every piece of code must trace back to the design document. If the design is ambiguous, flag it — don't guess.
 - **Tests are not optional.** Every todo produces code AND tests. No "I'll add tests later."
 - **90% coverage target.** If not achievable, document why in the Taskyn todo — not silently skip. Common valid reasons: external service calls that need integration tests, generated code, platform-specific branches.
-- **One todo at a time.** Start → code → test → complete. Then next. No parallelism in todo execution.
+- **Respect dependencies.** Dependent todos run sequentially. Independent todos can run in parallel.
 - **task.md is a living document.** Written upfront with `[ ]`, updated to `[-]` when starting, `[x]` when done. It should reflect real-time progress.
 - **Actor/action/target in every task.** Per CLAUDE.md: "If a task can be read two ways — one that follows the architecture and one that shortcuts it — it will be shortcut." Be explicit.
 - **Requirement traceability.** Every task.md item ends with `_{ABBR}-N_` referencing the requirement it satisfies.

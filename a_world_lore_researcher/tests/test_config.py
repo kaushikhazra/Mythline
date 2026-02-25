@@ -1,23 +1,28 @@
-"""Tests for configuration module — env var loading and source priority."""
+"""Tests for configuration module — env var loading, source priority, and research topics."""
 
 from src.config import (
     AGENT_ID,
     AGENT_ROLE,
+    CRAWL_CONTENT_TRUNCATE_CHARS,
     DAILY_TOKEN_BUDGET,
+    EXTRACT_CONTENT_CHAR_LIMIT,
     GAME_NAME,
     JOB_QUEUE,
     MAX_RESEARCH_VALIDATE_ITERATIONS,
     MCP_STORAGE_URL,
+    MCP_SUMMARIZER_URL,
     MCP_WEB_CRAWLER_URL,
     MCP_WEB_SEARCH_URL,
     PER_ZONE_TOKEN_BUDGET,
     RABBITMQ_URL,
     RATE_LIMIT_REQUESTS_PER_MINUTE,
     STATUS_QUEUE,
+    VALIDATOR_QUEUE,
     get_all_trusted_domains,
     get_source_domains_by_tier,
     get_source_tier_for_domain,
     get_source_weight,
+    load_research_topics,
     load_sources_config,
 )
 
@@ -50,6 +55,14 @@ class TestEnvVarDefaults:
     def test_queue_defaults(self):
         assert JOB_QUEUE == "agent.world_lore_researcher.jobs"
         assert STATUS_QUEUE == "agent.world_lore_researcher.status"
+
+    def test_summarizer_url(self):
+        assert "8007" in MCP_SUMMARIZER_URL
+
+    def test_centralized_constants(self):
+        assert EXTRACT_CONTENT_CHAR_LIMIT == 300_000
+        assert CRAWL_CONTENT_TRUNCATE_CHARS == 5_000
+        assert VALIDATOR_QUEUE == "agent.world_lore_validator"
 
 
 class TestSourcesConfig:
@@ -92,3 +105,52 @@ class TestSourcesConfig:
 
     def test_get_source_weight_unknown_tier(self):
         assert get_source_weight("nonexistent") == 0.0
+
+
+class TestResearchTopics:
+    def test_load_research_topics_returns_dict(self):
+        config = load_research_topics()
+        assert isinstance(config, dict)
+        assert "topics" in config
+
+    def test_all_five_topics_present(self):
+        topics = load_research_topics()["topics"]
+        expected = {
+            "zone_overview_research",
+            "npc_research",
+            "faction_research",
+            "lore_research",
+            "narrative_items_research",
+        }
+        assert set(topics.keys()) == expected
+
+    def test_each_topic_has_required_fields(self):
+        topics = load_research_topics()["topics"]
+        for key, topic in topics.items():
+            assert "section_header" in topic, f"{key} missing section_header"
+            assert "schema_hints" in topic, f"{key} missing schema_hints"
+            assert "instructions" in topic, f"{key} missing instructions"
+
+    def test_instructions_have_placeholders(self):
+        topics = load_research_topics()["topics"]
+        for key, topic in topics.items():
+            assert "{zone}" in topic["instructions"], f"{key} missing {{zone}} placeholder"
+            assert "{game}" in topic["instructions"], f"{key} missing {{game}} placeholder"
+
+    def test_section_headers_are_markdown(self):
+        topics = load_research_topics()["topics"]
+        for key, topic in topics.items():
+            assert topic["section_header"].startswith("## "), f"{key} header not markdown h2"
+
+    def test_schema_hints_contain_must_preserve(self):
+        topics = load_research_topics()["topics"]
+        for key, topic in topics.items():
+            if key != "narrative_items_research":
+                assert "MUST PRESERVE" in topic["schema_hints"], f"{key} missing MUST PRESERVE"
+
+    def test_instructions_format_with_zone_and_game(self):
+        topics = load_research_topics()["topics"]
+        for key, topic in topics.items():
+            formatted = topic["instructions"].format(zone="Westfall", game="wow")
+            assert "Westfall" in formatted
+            assert "wow" in formatted

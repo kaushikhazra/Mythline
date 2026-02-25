@@ -46,6 +46,7 @@ EVENT_TYPES = [
 
 
 class StructuredJsonFormatter(logging.Formatter):
+    """Formats log records as JSON with correlation metadata."""
 
     _DEFAULT_RECORD_KEYS = frozenset(
         logging.LogRecord("", 0, "", 0, "", (), None).__dict__
@@ -81,6 +82,7 @@ class StructuredJsonFormatter(logging.Formatter):
 
 
 def setup_logging(level: int = logging.INFO) -> None:
+    """Configure root logger with structured JSON output."""
     handler = logging.StreamHandler(sys.stdout)
     handler.setFormatter(StructuredJsonFormatter())
 

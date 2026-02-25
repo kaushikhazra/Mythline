@@ -160,6 +160,16 @@ class TestResearchPackage:
         assert pkg.zone_name == "elwynn_forest"
         assert pkg.npcs == []
         assert pkg.conflicts == []
+        assert pkg.quality_warnings == []
+
+    def test_quality_warnings_field(self):
+        pkg = ResearchPackage(
+            zone_name="westfall",
+            zone_data=ZoneData(name="Westfall"),
+            quality_warnings=["shallow_narrative_arc", "missing_antagonists"],
+        )
+        assert len(pkg.quality_warnings) == 2
+        assert "shallow_narrative_arc" in pkg.quality_warnings
 
     def test_full_package_roundtrip(self):
         source = SourceReference(url="https://wowpedia.fandom.com/wiki/Elwynn", domain="wowpedia.fandom.com", tier=SourceTier.OFFICIAL)

@@ -1,0 +1,79 @@
+# Research topic configuration for the World Lore Researcher pipeline.
+#
+# Each topic defines:
+#   section_header  — heading used to delimit content sections for extraction
+#   schema_hints    — MUST PRESERVE directives for the MCP Summarizer
+#   instructions    — two-phase research instructions with {zone} and {game} placeholders
+
+topics:
+  zone_overview_research:
+    section_header: "## ZONE OVERVIEW"
+    schema_hints: |
+      zone metadata: name, level range, expansion era. MUST PRESERVE: narrative arc (full storyline — political backstory, primary conflict, factional tensions, and resolution — not a tagline), political climate (governing factions, neglected populations, power struggles), phase states (Cataclysm changes, quest progression phases), sub-areas and landmarks. Preserve ALL proper nouns (NPC names, faction names, place names) even when compressing surrounding text.
+    instructions: |
+      Focus on zone overview for {zone} in {game}.
+
+      Phase 1 — Search for the zone's main wiki page and overview articles. Extract: level range, expansion era, narrative arc (the FULL story — political backstory, primary conflict, factional tensions, and resolution, not just a one-sentence summary), political climate (governing factions, neglected populations, power struggles), access gating, phase states (Cataclysm changes, quest progression phases), sub-areas and landmarks.
+
+      Phase 2 — If the zone has a major storyline or dungeon, search for and crawl the dedicated wiki page for that storyline or dungeon (e.g., 'The Deadmines' page, not just the zone page that mentions it).
+
+  npc_research:
+    section_header: "## NPCs AND NOTABLE CHARACTERS"
+    schema_hints: |
+      NPCs: names, titles, faction allegiance. MUST PRESERVE per NPC: personality traits and demeanor, motivations and goals, relationships to other NPCs (allies, rivals, family, mentors), role classification (quest giver, vendor, boss, antagonist, faction leader), quest chains they give or participate in, phased/expansion appearances. Include BOTH friendly and hostile NPCs — quest givers AND dungeon bosses, antagonist leaders, faction leaders. Preserve ALL NPC proper names even when compressing other text.
+    instructions: |
+      Focus on NPCs and notable characters in {zone} in {game}.
+
+      Phase 1 — Search for NPC lists, zone quest givers, and notable characters. Crawl category/overview pages to discover NPC NAMES.
+
+      Phase 2 — For the 10-15 most important NPCs discovered, search for and crawl each NPC's INDIVIDUAL wiki page. Extract from each page: personality, motivations, relationships to other NPCs, role (quest giver, vendor, boss, antagonist, faction leader), quest chains, phased/expansion appearances.
+
+      CRITICAL: Search for BOTH friendly and hostile NPCs:
+      - Quest givers, vendors, flight masters, innkeepers
+      - Dungeon bosses and raid bosses associated with this zone
+      - Antagonist leaders and villain NPCs
+      - Faction leaders (both allied and enemy)
+      Do NOT stop at quest-giver lists. Explicitly search for '{zone} bosses', '{zone} antagonists', and '{zone} dungeon bosses'.
+
+  faction_research:
+    section_header: "## FACTIONS AND ORGANIZATIONS"
+    schema_hints: |
+      factions: names, type (major faction, guild, cult, military). MUST PRESERVE: ideology and core beliefs, stated goals, origin story (how and why the faction formed), key members and leaders, inter-faction relationships (allied/hostile/neutral — name specific factions), mutual exclusions, hierarchy (parent factions, sub-factions). Include BOTH friendly and hostile factions — allied organizations AND antagonist groups, criminal organizations, hostile forces. Preserve ALL faction and leader proper names.
+    instructions: |
+      Focus on factions and organizations in {zone} in {game}.
+
+      Phase 1 — Search for factions active in this zone. Crawl overview pages to discover faction NAMES.
+
+      Phase 2 — For EVERY named faction discovered, search for and crawl the faction's INDIVIDUAL wiki page. Extract: ideology, core beliefs, origin story (how and why the faction formed), goals, key members and leaders, inter-faction relationships (allied, hostile, neutral — name the specific factions), hierarchy (parent factions, sub-factions), mutual exclusions.
+
+      CRITICAL: Search for BOTH friendly and hostile factions:
+      - Allied organizations and militia groups
+      - Antagonist factions, criminal organizations, hostile forces
+      - Governing authorities and their local presence
+      Do NOT stop at allied faction pages. Explicitly search for '{zone} enemy factions', '{zone} hostile organizations'.
+
+  lore_research:
+    section_header: "## LORE, HISTORY, AND MYTHOLOGY"
+    schema_hints: |
+      lore: event titles, era/timeline placement. MUST PRESERVE: major historical events with causal chains (what happened, why it happened, what it caused), named actors in each event, mythology and cosmological rules, power sources and their origins. Preserve chronological ordering and cause-effect relationships. Keep ALL proper nouns (people, places, artifacts, faction names).
+    instructions: |
+      Focus on lore, history, mythology, and cosmology of {zone} in {game}.
+
+      Phase 1 — Search for the zone's lore and history articles. Crawl overview pages to identify major lore EVENTS and FIGURES.
+
+      Phase 2 — For each major lore event or figure, search for and crawl its INDIVIDUAL wiki page. Extract: what happened, WHY it happened (causes), what it caused (consequences), named actors involved, era/timeline placement.
+
+      Prioritize causal chains: the sequence of events that created the zone's current state. Include origin stories for major factions and conflicts.
+
+  narrative_items_research:
+    section_header: "## LEGENDARY ITEMS AND NARRATIVE OBJECTS"
+    schema_hints: |
+      items and artifacts: names, significance tier (legendary, epic, quest, notable). MUST PRESERVE: story arc (how the item fits into the zone's narrative), wielder lineage, power description, quest relevance. EXCLUDE crafting recipes, cooking items, vendor trash, generic consumables. An empty result is better than irrelevant items.
+    instructions: |
+      Focus on narrative items and artifacts in {zone} in {game}.
+
+      Search for legendary items, quest items with story significance, dungeon loot with narrative context, and artifacts tied to the zone's lore.
+
+      Extract: story arc, wielder lineage, power description, significance tier.
+
+      ONLY include items with genuine narrative significance — NOT crafting recipes, cooking items, vendor trash, or generic consumables. If the zone has no truly significant narrative items, that is acceptable — an empty result is better than padding with irrelevant items.

@@ -29,6 +29,7 @@ from src.config import (
     JOB_QUEUE,
     RABBITMQ_URL,
     STATUS_QUEUE,
+    VALIDATOR_QUEUE,
 )
 from src.models import (
     JobStatus,
@@ -39,11 +40,11 @@ from src.models import (
     ResearchJob,
     ZoneFailure,
 )
+from src.logging_config import setup_logging
 from src.pipeline import PIPELINE_STEPS, run_pipeline
 
 logger = logging.getLogger(__name__)
 
-VALIDATOR_QUEUE = "agent.world_lore_validator"
 TOTAL_STEPS = len(PIPELINE_STEPS)
 
 
@@ -261,7 +262,7 @@ class Daemon:
 
                     # Track token usage and persist budget
                     budget = add_tokens_used(budget, researcher.zone_tokens)
-                    researcher.reset_zone_tokens()
+                    researcher.reset_zone_state()
                     await save_budget(budget)
 
                     # Zone completed
@@ -288,7 +289,7 @@ class Daemon:
                     }, exc_info=True)
                     # Track partial tokens even on failure
                     budget = add_tokens_used(budget, researcher.zone_tokens)
-                    researcher.reset_zone_tokens()
+                    researcher.reset_zone_state()
                     await save_budget(budget)
                     zones_failed_list.append(ZoneFailure(
                         zone_name=zone_name,
@@ -422,7 +423,6 @@ class Daemon:
 
 
 async def main():
-    from src.logging_config import setup_logging
     setup_logging()
     daemon = Daemon()
     await daemon.run()

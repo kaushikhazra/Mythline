@@ -95,11 +95,14 @@ RABBITMQ_URL = os.getenv("RABBITMQ_URL", "amqp://mythline:mythline@localhost:567
 
 Pure Pydantic models. No logic, no side effects. These define the data shapes the agent works with.
 
+**All Pydantic models live here** — domain models, message models, agent output/result models, extraction wrappers. If it inherits from `BaseModel`, it belongs in `models.py`, not in `agent.py` or `pipeline.py`. The agent module imports models from here; it never defines its own.
+
 **Conventions:**
 - All models inherit from `BaseModel`
 - Use `Field(default_factory=list)` for mutable defaults
 - Enums for fixed categories (e.g., `SourceTier`)
 - Models must roundtrip: `Model.model_validate_json(instance.model_dump_json())`
+- Dataclasses used as agent runtime deps (e.g., `ResearchContext`) stay in `agent.py` — they are not data models, they are agent-specific wiring
 
 ---
 
@@ -217,6 +220,34 @@ For agents that need crash-resilient state across restarts.
 **Pattern:**
 - Checkpoint model (Pydantic) tracks: current step, step data, budget usage, completed work
 - `save_checkpoint()` / `load_checkpoint()` — thin wrappers over MCP storage calls
+
+### `tools.py` — Custom Agent Tools
+
+For agents that register custom tool functions (beyond MCP toolsets).
+
+**When to use:** When the agent needs a tool the LLM can call that isn't provided by an MCP server — e.g., a REST API wrapper, a custom data transformation, or a crawl/fetch operation.
+
+**Pattern:**
+- Standalone async functions with the pydantic-ai tool signature: `async def tool_name(ctx: RunContext, ...) -> str`
+- Helper functions used by tools live here too (e.g., URL normalization, source reference builders)
+- Constants specific to tool behaviour (e.g., truncation limits) live here
+- Tools access shared state via `ctx.deps` — never via closure over agent instance attributes
+- Registration happens in `agent.py`: `agent.tool(tool_function)`
+
+```python
+# tools.py
+async def crawl_webpage(ctx: RunContext, url: str) -> str:
+    """Crawl a URL and return markdown content."""
+    cache = ctx.deps.crawl_cache
+    # ... implementation ...
+
+# agent.py
+from src.tools import crawl_webpage
+
+self._research_agent.tool(crawl_webpage)
+```
+
+**Why separate from agent.py:** Tools are the functions the LLM calls. The agent class is the orchestrator that wires tools to agents and exposes async methods. Keeping them separate makes tools testable in isolation (mock the deps, call the function) and keeps `agent.py` focused on agent construction and coordination.
 
 ### Other Possibilities
 
