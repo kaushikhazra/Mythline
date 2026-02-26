@@ -1,0 +1,1406 @@
+{
+  "metadata": {
+    "zone_name": "elwynn_forest",
+    "skip_discovery": false,
+    "timestamp": "2026-02-26T17:07:06.265653",
+    "elapsed_seconds": 576.5
+  },
+  "metrics": {
+    "completeness": {
+      "zone_data_present": true,
+      "narrative_arc_chars": 736,
+      "npc_count": 2,
+      "npcs_with_personality": 2,
+      "npcs_with_role": 2,
+      "npcs_with_motivations": 2,
+      "faction_count": 5,
+      "factions_with_ideology": 5,
+      "factions_with_goals": 5,
+      "factions_with_relations": 5,
+      "lore_count": 0,
+      "lore_with_content": 0,
+      "narrative_item_count": 10
+    },
+    "sources": {
+      "total_sources": 19,
+      "unique_domains": 8,
+      "domains": [
+        "azerothcollector.com",
+        "db.ascension.gg",
+        "gamer-guides.com",
+        "tgexp.com",
+        "warcraft.wiki.gg",
+        "wowclassicdb.com",
+        "wowhead.com",
+        "wowpedia.fandom.com"
+      ],
+      "tier_distribution": {
+        "primary": 4,
+        "tertiary": 7,
+        "official": 8
+      }
+    },
+    "cross_reference": {
+      "ran": true,
+      "is_consistent": false,
+      "conflict_count": 1,
+      "confidence": {
+        "zone": 0.8,
+        "npcs": 0.3,
+        "factions": 0.8,
+        "lore": 1.0,
+        "narrative_items": 0.4
+      }
+    },
+    "discovery": {
+      "zone_count": 3,
+      "zones": [
+        "redridge_mountains",
+        "duskwood",
+        "westfall"
+      ]
+    },
+    "tokens": {
+      "orchestrator": 16879,
+      "worker": 650682,
+      "total": 667561
+    },
+    "quality_warnings": [],
+    "final_confidence": {
+      "zone": 0.8,
+      "npcs": 0.3,
+      "factions": 0.8,
+      "lore": 1.0,
+      "narrative_items": 0.4
+    }
+  },
+  "orchestrator_result": {
+    "zone_data": {
+      "name": "Elwynn Forest",
+      "game": "wow",
+      "level_range": {
+        "min": 1,
+        "max": 20
+      },
+      "narrative_arc": "Elwynn Forest serves as the starting zone for humans in the kingdom of Stormwind, following the fall of the Defias Brotherhood, which has led to a more tranquil environment. However, the region faces threats from kobold invasions in the gold mines, rivalries among farmers, and attacks from wild animals. The citizens, including newly recruited adventurers from Northshire Valley, are tasked with restoring peace. They are greeted by Marshal Dughan in Goldshire, who assigns them various quests to address these issues. The ongoing conflicts between local families, particularly the Maclures and Stonefields, further complicate the landscape, as the adventurers are drawn into mediating personal feuds while combatting external threats.",
+      "political_climate": "The governing faction is the Alliance, with a focus on maintaining order in Elwynn Forest. The local population, primarily involved in logging, farming, fishing, and mining, faces neglect due to the stretched resources of the army. Power struggles manifest through conflicts between the Maclure and Stonefield families, as well as the ongoing threat from kobolds.",
+      "access_gating": [],
+      "phase_states": [
+        {
+          "phase_name": "Cataclysm Changes",
+          "description": "The storyline precedes the Cataclysm expansion, focusing on the initial quests and conflicts in Elwynn Forest.",
+          "trigger": ""
+        }
+      ],
+      "connected_zones": [
+        "duskwood",
+        "redridge-mountains",
+        "westfall"
+      ],
+      "era": "Classic Era",
+      "sources": [
+        {
+          "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest",
+          "domain": "warcraft.wiki.gg",
+          "tier": "primary",
+          "accessed_at": "2026-02-26T17:00:51.646131"
+        },
+        {
+          "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_storyline",
+          "domain": "wowpedia.fandom.com",
+          "tier": "official",
+          "accessed_at": "2026-02-26T17:00:51.646136"
+        }
+      ],
+      "confidence": 1.0
+    },
+    "npcs": [
+      {
+        "name": "Billy Maclure",
+        "zone_id": "",
+        "faction_ids": [],
+        "personality": "Curious, kind-hearted",
+        "motivations": [
+          "Help neighbors and friends"
+        ],
+        "relationships": [],
+        "quest_threads": [],
+        "phased_state": "",
+        "occupation": "civilian",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+            "domain": "Wowpedia",
+            "tier": "official",
+            "accessed_at": "2026-02-26T17:05:03.817628"
+          }
+        ],
+        "confidence": 0.8
+      },
+      {
+        "name": "Gramma Stonefield",
+        "zone_id": "",
+        "faction_ids": [],
+        "personality": "Nurturing, wise",
+        "motivations": [
+          "Care for the needs of her community"
+        ],
+        "relationships": [],
+        "quest_threads": [],
+        "phased_state": "",
+        "occupation": "civilian",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+            "domain": "Wowpedia",
+            "tier": "official",
+            "accessed_at": "2026-02-26T17:05:03.817635"
+          }
+        ],
+        "confidence": 0.8
+      }
+    ],
+    "factions": [
+      {
+        "name": "Kingdom of Stormwind",
+        "parent_faction_id": "",
+        "level": "major_faction",
+        "inter_faction": [
+          {
+            "faction_id": "Brotherhood of Northshire",
+            "stance": "allied",
+            "description": "Reports to the crown and enforces its laws."
+          },
+          {
+            "faction_id": "Defias Brotherhood",
+            "stance": "hostile",
+            "description": "Sworn enemies \u2014 the militia actively hunts Defias operatives."
+          },
+          {
+            "faction_id": "Blackrock Clan",
+            "stance": "hostile",
+            "description": "Aggressively seeks to conquer human territories."
+          },
+          {
+            "faction_id": "Scourge",
+            "stance": "hostile",
+            "description": "Undead forces attacking living inhabitants."
+          }
+        ],
+        "exclusive_with": [],
+        "ideology": "Guardianship and protection of its territories, promoting safety and prosperity for its citizens.",
+        "goals": [
+          "Maintain peace and order in the region",
+          "Protect against external threats",
+          "Support local economies."
+        ],
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_(Classic)_quests",
+            "domain": "wowpedia.co",
+            "tier": "official",
+            "accessed_at": "2026-02-26T17:00:44.610989"
+          },
+          {
+            "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest",
+            "domain": "warcraft.wiki.gg",
+            "tier": "primary",
+            "accessed_at": "2026-02-26T17:00:44.610993"
+          }
+        ],
+        "confidence": 0.8
+      },
+      {
+        "name": "Brotherhood of Northshire",
+        "parent_faction_id": "",
+        "level": "guild",
+        "inter_faction": [
+          {
+            "faction_id": "Kingdom of Stormwind",
+            "stance": "allied",
+            "description": "Works in conjunction to protect local populace."
+          },
+          {
+            "faction_id": "Defias Brotherhood",
+            "stance": "hostile",
+            "description": "Sworn enemies, dedicated to thwarting the Defias."
+          },
+          {
+            "faction_id": "Blackrock Clan",
+            "stance": "hostile",
+            "description": "Defends against invaders threatening Elwynn."
+          }
+        ],
+        "exclusive_with": [],
+        "ideology": "Dedicated to recruiting and training adventurers to maintain peace and protect the region.",
+        "goals": [
+          "Recruit and train individuals to defend against threats to Elwynn Forest."
+        ],
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_storyline",
+            "domain": "wowpedia.co",
+            "tier": "official",
+            "accessed_at": "2026-02-26T17:00:44.611003"
+          },
+          {
+            "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest_storyline",
+            "domain": "warcraft.wiki.gg",
+            "tier": "primary",
+            "accessed_at": "2026-02-26T17:00:44.611004"
+          }
+        ],
+        "confidence": 0.8
+      },
+      {
+        "name": "Defias Brotherhood",
+        "parent_faction_id": "",
+        "level": "criminal",
+        "inter_faction": [
+          {
+            "faction_id": "Kingdom of Stormwind",
+            "stance": "hostile",
+            "description": "Target and undermine Stormwind's authority."
+          },
+          {
+            "faction_id": "Brotherhood of Northshire",
+            "stance": "hostile",
+            "description": "Seek revenge against noble protection."
+          },
+          {
+            "faction_id": "Blackrock Clan",
+            "stance": "neutral",
+            "description": "Conflicting interests but not direct enemies."
+          },
+          {
+            "faction_id": "Scourge",
+            "stance": "neutral",
+            "description": "Both are seen as threats to the populace."
+          }
+        ],
+        "exclusive_with": [],
+        "ideology": "Anti-establishment, seeking revenge against the kingdom for perceived injustices.",
+        "goals": [
+          "Undermine the Kingdom of Stormwind",
+          "Engage in criminal activities to gain power."
+        ],
+        "sources": [
+          {
+            "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest_(Classic)_quests",
+            "domain": "warcraft.wiki.gg",
+            "tier": "primary",
+            "accessed_at": "2026-02-26T17:00:44.611013"
+          },
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+            "domain": "wowpedia.co",
+            "tier": "official",
+            "accessed_at": "2026-02-26T17:00:44.611015"
+          }
+        ],
+        "confidence": 0.8
+      },
+      {
+        "name": "Blackrock Clan",
+        "parent_faction_id": "",
+        "level": "military",
+        "inter_faction": [
+          {
+            "faction_id": "Kingdom of Stormwind",
+            "stance": "hostile",
+            "description": "Intends to conquer human lands."
+          },
+          {
+            "faction_id": "Brotherhood of Northshire",
+            "stance": "hostile",
+            "description": "Thwarted by the locals."
+          },
+          {
+            "faction_id": "Defias Brotherhood",
+            "stance": "neutral",
+            "description": "Both are enemies of the kingdom."
+          },
+          {
+            "faction_id": "Scourge",
+            "stance": "neutral",
+            "description": "No direct interaction but both are threats."
+          }
+        ],
+        "exclusive_with": [],
+        "ideology": "Aggressive expansion focused on domination over human territories.",
+        "goals": [
+          "Invade and conquer Elwynn Forest to eliminate human resistance."
+        ],
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+            "domain": "wowpedia.co",
+            "tier": "official",
+            "accessed_at": "2026-02-26T17:00:44.611022"
+          },
+          {
+            "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest",
+            "domain": "warcraft.wiki.gg",
+            "tier": "primary",
+            "accessed_at": "2026-02-26T17:00:44.611023"
+          }
+        ],
+        "confidence": 0.8
+      },
+      {
+        "name": "Scourge",
+        "parent_faction_id": "",
+        "level": "hostile",
+        "inter_faction": [
+          {
+            "faction_id": "Kingdom of Stormwind",
+            "stance": "hostile",
+            "description": "Target human settlements across the realm."
+          },
+          {
+            "faction_id": "Brotherhood of Northshire",
+            "stance": "hostile",
+            "description": "A threat to all living."
+          },
+          {
+            "faction_id": "Defias Brotherhood",
+            "stance": "neutral",
+            "description": "Avoid direct conflict but share common interests."
+          },
+          {
+            "faction_id": "Blackrock Clan",
+            "stance": "neutral",
+            "description": "Both are seen as threats to human territory."
+          }
+        ],
+        "exclusive_with": [],
+        "ideology": "Undead domination, seeking to spread death and chaos.",
+        "goals": [
+          "Spread death and corruption across living territories."
+        ],
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+            "domain": "wowpedia.co",
+            "tier": "official",
+            "accessed_at": "2026-02-26T17:00:44.611031"
+          },
+          {
+            "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest",
+            "domain": "warcraft.wiki.gg",
+            "tier": "primary",
+            "accessed_at": "2026-02-26T17:00:44.611035"
+          }
+        ],
+        "confidence": 0.8
+      }
+    ],
+    "lore": [],
+    "narrative_items": [
+      {
+        "name": "Small Wooden Hammer",
+        "zone_id": "",
+        "story_arc": "Represents the craftsmanship of the humans in Elwynn Forest, reflecting their resilience post-First War.",
+        "wielder_lineage": [
+          "Gug Fatcandle"
+        ],
+        "power_description": "A simple yet effective tool, symbolizing the everyday life of the inhabitants.",
+        "significance": "notable",
+        "sources": [
+          {
+            "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest",
+            "domain": "warcraft.wiki.gg",
+            "tier": "primary",
+            "accessed_at": "2026-02-26T17:00:41.725515"
+          }
+        ],
+        "confidence": 1.0
+      },
+      {
+        "name": "Pale Skinner",
+        "zone_id": "",
+        "story_arc": "Tied to the hunting culture in Elwynn Forest, showcasing the dangers posed by wildlife.",
+        "wielder_lineage": [
+          "Fedfennel"
+        ],
+        "power_description": "A weapon used for skinning, indicative of survival skills in the wild.",
+        "significance": "notable",
+        "sources": [
+          {
+            "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest",
+            "domain": "warcraft.wiki.gg",
+            "tier": "primary",
+            "accessed_at": "2026-02-26T17:00:41.725529"
+          }
+        ],
+        "confidence": 1.0
+      },
+      {
+        "name": "Boarhide Leggings",
+        "zone_id": "",
+        "story_arc": "Reflects the connection between the inhabitants and the wildlife of Elwynn Forest.",
+        "wielder_lineage": [
+          "Gruff Swiftbite"
+        ],
+        "power_description": "Provides protection and is made from the hides of local boars.",
+        "significance": "notable",
+        "sources": [
+          {
+            "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest",
+            "domain": "warcraft.wiki.gg",
+            "tier": "primary",
+            "accessed_at": "2026-02-26T17:00:41.725535"
+          }
+        ],
+        "confidence": 1.0
+      },
+      {
+        "name": "Jeweled Dagger",
+        "zone_id": "",
+        "story_arc": "Represents the cunning and stealth of characters in Elwynn Forest, possibly linked to the Defias Brotherhood.",
+        "wielder_lineage": [
+          "Morgaine The Sly"
+        ],
+        "power_description": "A finely crafted weapon, enhancing the wielder's agility and stealth.",
+        "significance": "epic",
+        "sources": [
+          {
+            "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest",
+            "domain": "warcraft.wiki.gg",
+            "tier": "primary",
+            "accessed_at": "2026-02-26T17:00:41.725540"
+          }
+        ],
+        "confidence": 1.0
+      },
+      {
+        "name": "Brood Mother Carapace",
+        "zone_id": "",
+        "story_arc": "Ties into the lore of the forest's wildlife and the dangers they pose to the inhabitants.",
+        "wielder_lineage": [
+          "Mother Fang"
+        ],
+        "power_description": "Provides significant protection, made from the carapace of a formidable creature.",
+        "significance": "epic",
+        "sources": [
+          {
+            "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest",
+            "domain": "warcraft.wiki.gg",
+            "tier": "primary",
+            "accessed_at": "2026-02-26T17:00:41.725546"
+          }
+        ],
+        "confidence": 1.0
+      },
+      {
+        "name": "Web Covered Boots",
+        "zone_id": "",
+        "story_arc": "Symbolizes the dangers of the forest, particularly from spiders and other creatures.",
+        "wielder_lineage": [
+          "Mother Fang"
+        ],
+        "power_description": "Offers agility and protection, designed for traversing treacherous terrain.",
+        "significance": "notable",
+        "sources": [
+          {
+            "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest",
+            "domain": "warcraft.wiki.gg",
+            "tier": "primary",
+            "accessed_at": "2026-02-26T17:00:41.725553"
+          }
+        ],
+        "confidence": 1.0
+      },
+      {
+        "name": "Ratty Old Belt",
+        "zone_id": "",
+        "story_arc": "Represents the struggles of the inhabitants against the Defias Brotherhood and other threats.",
+        "wielder_lineage": [
+          "Narg The Taskmaster"
+        ],
+        "power_description": "A worn belt that signifies the wearer's resilience.",
+        "significance": "notable",
+        "sources": [
+          {
+            "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest",
+            "domain": "warcraft.wiki.gg",
+            "tier": "primary",
+            "accessed_at": "2026-02-26T17:00:41.725559"
+          }
+        ],
+        "confidence": 1.0
+      },
+      {
+        "name": "Studded Blackjack",
+        "zone_id": "",
+        "story_arc": "Reflects the criminal elements within Elwynn Forest, particularly the Defias Brotherhood.",
+        "wielder_lineage": [
+          "Narg The Taskmaster"
+        ],
+        "power_description": "A weapon designed for stealth and surprise attacks.",
+        "significance": "notable",
+        "sources": [
+          {
+            "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest",
+            "domain": "warcraft.wiki.gg",
+            "tier": "primary",
+            "accessed_at": "2026-02-26T17:00:41.725564"
+          }
+        ],
+        "confidence": 1.0
+      },
+      {
+        "name": "Fingerless Gloves",
+        "zone_id": "",
+        "story_arc": "Represents the everyday life of the inhabitants, emphasizing practicality in their struggles.",
+        "wielder_lineage": [
+          "Thuros Lightfingers"
+        ],
+        "power_description": "Provides dexterity and grip, essential for various tasks.",
+        "significance": "notable",
+        "sources": [
+          {
+            "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest",
+            "domain": "warcraft.wiki.gg",
+            "tier": "primary",
+            "accessed_at": "2026-02-26T17:00:41.725570"
+          }
+        ],
+        "confidence": 1.0
+      },
+      {
+        "name": "Thuggish Shield",
+        "zone_id": "",
+        "story_arc": "Symbolizes the defense against the threats faced by the inhabitants of Elwynn Forest.",
+        "wielder_lineage": [
+          "Thuros Lightfingers"
+        ],
+        "power_description": "A sturdy shield that offers protection in combat.",
+        "significance": "notable",
+        "sources": [
+          {
+            "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest",
+            "domain": "warcraft.wiki.gg",
+            "tier": "primary",
+            "accessed_at": "2026-02-26T17:00:41.725575"
+          }
+        ],
+        "confidence": 1.0
+      }
+    ],
+    "sources": [
+      {
+        "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest_(Classic)_quests",
+        "domain": "warcraft.wiki.gg",
+        "tier": "primary",
+        "accessed_at": "2026-02-26T16:57:46.047349"
+      },
+      {
+        "url": "https://azerothcollector.com/elwynn-forest/",
+        "domain": "azerothcollector.com",
+        "tier": "tertiary",
+        "accessed_at": "2026-02-26T16:57:46.441727"
+      },
+      {
+        "url": "https://db.ascension.gg/?quests=0.12",
+        "domain": "db.ascension.gg",
+        "tier": "tertiary",
+        "accessed_at": "2026-02-26T16:57:48.882687"
+      },
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_questing_guide",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T16:57:49.351585"
+      },
+      {
+        "url": "https://wowclassicdb.com/quests/eastern-kingdoms/elwynn-forest",
+        "domain": "wowclassicdb.com",
+        "tier": "tertiary",
+        "accessed_at": "2026-02-26T16:57:49.852086"
+      },
+      {
+        "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest",
+        "domain": "warcraft.wiki.gg",
+        "tier": "primary",
+        "accessed_at": "2026-02-26T16:57:43.071963"
+      },
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_storyline",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T16:57:45.571835"
+      },
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T16:57:45.591261"
+      },
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_storyline",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T16:57:48.189289"
+      },
+      {
+        "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest_storyline",
+        "domain": "warcraft.wiki.gg",
+        "tier": "primary",
+        "accessed_at": "2026-02-26T16:57:49.727691"
+      },
+      {
+        "url": "https://gamer-guides.com/wow-hardcore/elwynn-forest/",
+        "domain": "gamer-guides.com",
+        "tier": "tertiary",
+        "accessed_at": "2026-02-26T16:57:53.527428"
+      },
+      {
+        "url": "https://azerothcollector.com/elwynn-forest/",
+        "domain": "azerothcollector.com",
+        "tier": "tertiary",
+        "accessed_at": "2026-02-26T16:57:56.301899"
+      },
+      {
+        "url": "https://tgexp.com/wow-elwynn-forest/",
+        "domain": "tgexp.com",
+        "tier": "tertiary",
+        "accessed_at": "2026-02-26T16:57:57.286751"
+      },
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T16:57:43.998008"
+      },
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Stormwind_(faction)",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T16:57:44.717762"
+      },
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T16:57:58.734922"
+      },
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T17:03:19.057447"
+      },
+      {
+        "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest",
+        "domain": "warcraft.wiki.gg",
+        "tier": "primary",
+        "accessed_at": "2026-02-26T17:03:19.059192"
+      },
+      {
+        "url": "https://wowhead.com/elwynn-forest",
+        "domain": "wowhead.com",
+        "tier": "tertiary",
+        "accessed_at": "2026-02-26T17:03:22.956554"
+      }
+    ],
+    "cross_ref_result": {
+      "is_consistent": false,
+      "conflicts": [
+        {
+          "data_point": "NPCs",
+          "source_a": {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+            "domain": "Wowpedia",
+            "tier": "official",
+            "accessed_at": "2026-02-26T17:05:03.817628"
+          },
+          "claim_a": "Billy Maclure",
+          "source_b": {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+            "domain": "Wowpedia",
+            "tier": "official",
+            "accessed_at": "2026-02-26T17:05:03.817635"
+          },
+          "claim_b": "Gramma Stonefield",
+          "resolution": "Both NPCs are valid individual characters and are categorized correctly."
+        }
+      ],
+      "confidence": {
+        "zone": 0.8,
+        "npcs": 0.3,
+        "factions": 0.8,
+        "lore": 1.0,
+        "narrative_items": 0.4
+      },
+      "notes": "There are no conflicts found in the data points, but NPC confidence is lowered due to the inclusion of only two NPCs."
+    },
+    "discovered_zones": [
+      "redridge_mountains",
+      "duskwood",
+      "westfall"
+    ],
+    "orchestrator_tokens": 16879,
+    "worker_tokens": 650682
+  },
+  "research_package": {
+    "zone_name": "elwynn_forest",
+    "zone_data": {
+      "name": "Elwynn Forest",
+      "game": "wow",
+      "level_range": {
+        "min": 1,
+        "max": 20
+      },
+      "narrative_arc": "Elwynn Forest serves as the starting zone for humans in the kingdom of Stormwind, following the fall of the Defias Brotherhood, which has led to a more tranquil environment. However, the region faces threats from kobold invasions in the gold mines, rivalries among farmers, and attacks from wild animals. The citizens, including newly recruited adventurers from Northshire Valley, are tasked with restoring peace. They are greeted by Marshal Dughan in Goldshire, who assigns them various quests to address these issues. The ongoing conflicts between local families, particularly the Maclures and Stonefields, further complicate the landscape, as the adventurers are drawn into mediating personal feuds while combatting external threats.",
+      "political_climate": "The governing faction is the Alliance, with a focus on maintaining order in Elwynn Forest. The local population, primarily involved in logging, farming, fishing, and mining, faces neglect due to the stretched resources of the army. Power struggles manifest through conflicts between the Maclure and Stonefield families, as well as the ongoing threat from kobolds.",
+      "access_gating": [],
+      "phase_states": [
+        {
+          "phase_name": "Cataclysm Changes",
+          "description": "The storyline precedes the Cataclysm expansion, focusing on the initial quests and conflicts in Elwynn Forest.",
+          "trigger": ""
+        }
+      ],
+      "connected_zones": [
+        "duskwood",
+        "redridge-mountains",
+        "westfall"
+      ],
+      "era": "Classic Era",
+      "sources": [
+        {
+          "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest",
+          "domain": "warcraft.wiki.gg",
+          "tier": "primary",
+          "accessed_at": "2026-02-26T17:00:51.646131"
+        },
+        {
+          "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_storyline",
+          "domain": "wowpedia.fandom.com",
+          "tier": "official",
+          "accessed_at": "2026-02-26T17:00:51.646136"
+        }
+      ],
+      "confidence": 1.0
+    },
+    "npcs": [
+      {
+        "name": "Billy Maclure",
+        "zone_id": "",
+        "faction_ids": [],
+        "personality": "Curious, kind-hearted",
+        "motivations": [
+          "Help neighbors and friends"
+        ],
+        "relationships": [],
+        "quest_threads": [],
+        "phased_state": "",
+        "occupation": "civilian",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+            "domain": "Wowpedia",
+            "tier": "official",
+            "accessed_at": "2026-02-26T17:05:03.817628"
+          }
+        ],
+        "confidence": 0.8
+      },
+      {
+        "name": "Gramma Stonefield",
+        "zone_id": "",
+        "faction_ids": [],
+        "personality": "Nurturing, wise",
+        "motivations": [
+          "Care for the needs of her community"
+        ],
+        "relationships": [],
+        "quest_threads": [],
+        "phased_state": "",
+        "occupation": "civilian",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+            "domain": "Wowpedia",
+            "tier": "official",
+            "accessed_at": "2026-02-26T17:05:03.817635"
+          }
+        ],
+        "confidence": 0.8
+      }
+    ],
+    "factions": [
+      {
+        "name": "Kingdom of Stormwind",
+        "parent_faction_id": "",
+        "level": "major_faction",
+        "inter_faction": [
+          {
+            "faction_id": "Brotherhood of Northshire",
+            "stance": "allied",
+            "description": "Reports to the crown and enforces its laws."
+          },
+          {
+            "faction_id": "Defias Brotherhood",
+            "stance": "hostile",
+            "description": "Sworn enemies \u2014 the militia actively hunts Defias operatives."
+          },
+          {
+            "faction_id": "Blackrock Clan",
+            "stance": "hostile",
+            "description": "Aggressively seeks to conquer human territories."
+          },
+          {
+            "faction_id": "Scourge",
+            "stance": "hostile",
+            "description": "Undead forces attacking living inhabitants."
+          }
+        ],
+        "exclusive_with": [],
+        "ideology": "Guardianship and protection of its territories, promoting safety and prosperity for its citizens.",
+        "goals": [
+          "Maintain peace and order in the region",
+          "Protect against external threats",
+          "Support local economies."
+        ],
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_(Classic)_quests",
+            "domain": "wowpedia.co",
+            "tier": "official",
+            "accessed_at": "2026-02-26T17:00:44.610989"
+          },
+          {
+            "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest",
+            "domain": "warcraft.wiki.gg",
+            "tier": "primary",
+            "accessed_at": "2026-02-26T17:00:44.610993"
+          }
+        ],
+        "confidence": 0.8
+      },
+      {
+        "name": "Brotherhood of Northshire",
+        "parent_faction_id": "",
+        "level": "guild",
+        "inter_faction": [
+          {
+            "faction_id": "Kingdom of Stormwind",
+            "stance": "allied",
+            "description": "Works in conjunction to protect local populace."
+          },
+          {
+            "faction_id": "Defias Brotherhood",
+            "stance": "hostile",
+            "description": "Sworn enemies, dedicated to thwarting the Defias."
+          },
+          {
+            "faction_id": "Blackrock Clan",
+            "stance": "hostile",
+            "description": "Defends against invaders threatening Elwynn."
+          }
+        ],
+        "exclusive_with": [],
+        "ideology": "Dedicated to recruiting and training adventurers to maintain peace and protect the region.",
+        "goals": [
+          "Recruit and train individuals to defend against threats to Elwynn Forest."
+        ],
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_storyline",
+            "domain": "wowpedia.co",
+            "tier": "official",
+            "accessed_at": "2026-02-26T17:00:44.611003"
+          },
+          {
+            "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest_storyline",
+            "domain": "warcraft.wiki.gg",
+            "tier": "primary",
+            "accessed_at": "2026-02-26T17:00:44.611004"
+          }
+        ],
+        "confidence": 0.8
+      },
+      {
+        "name": "Defias Brotherhood",
+        "parent_faction_id": "",
+        "level": "criminal",
+        "inter_faction": [
+          {
+            "faction_id": "Kingdom of Stormwind",
+            "stance": "hostile",
+            "description": "Target and undermine Stormwind's authority."
+          },
+          {
+            "faction_id": "Brotherhood of Northshire",
+            "stance": "hostile",
+            "description": "Seek revenge against noble protection."
+          },
+          {
+            "faction_id": "Blackrock Clan",
+            "stance": "neutral",
+            "description": "Conflicting interests but not direct enemies."
+          },
+          {
+            "faction_id": "Scourge",
+            "stance": "neutral",
+            "description": "Both are seen as threats to the populace."
+          }
+        ],
+        "exclusive_with": [],
+        "ideology": "Anti-establishment, seeking revenge against the kingdom for perceived injustices.",
+        "goals": [
+          "Undermine the Kingdom of Stormwind",
+          "Engage in criminal activities to gain power."
+        ],
+        "sources": [
+          {
+            "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest_(Classic)_quests",
+            "domain": "warcraft.wiki.gg",
+            "tier": "primary",
+            "accessed_at": "2026-02-26T17:00:44.611013"
+          },
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+            "domain": "wowpedia.co",
+            "tier": "official",
+            "accessed_at": "2026-02-26T17:00:44.611015"
+          }
+        ],
+        "confidence": 0.8
+      },
+      {
+        "name": "Blackrock Clan",
+        "parent_faction_id": "",
+        "level": "military",
+        "inter_faction": [
+          {
+            "faction_id": "Kingdom of Stormwind",
+            "stance": "hostile",
+            "description": "Intends to conquer human lands."
+          },
+          {
+            "faction_id": "Brotherhood of Northshire",
+            "stance": "hostile",
+            "description": "Thwarted by the locals."
+          },
+          {
+            "faction_id": "Defias Brotherhood",
+            "stance": "neutral",
+            "description": "Both are enemies of the kingdom."
+          },
+          {
+            "faction_id": "Scourge",
+            "stance": "neutral",
+            "description": "No direct interaction but both are threats."
+          }
+        ],
+        "exclusive_with": [],
+        "ideology": "Aggressive expansion focused on domination over human territories.",
+        "goals": [
+          "Invade and conquer Elwynn Forest to eliminate human resistance."
+        ],
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+            "domain": "wowpedia.co",
+            "tier": "official",
+            "accessed_at": "2026-02-26T17:00:44.611022"
+          },
+          {
+            "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest",
+            "domain": "warcraft.wiki.gg",
+            "tier": "primary",
+            "accessed_at": "2026-02-26T17:00:44.611023"
+          }
+        ],
+        "confidence": 0.8
+      },
+      {
+        "name": "Scourge",
+        "parent_faction_id": "",
+        "level": "hostile",
+        "inter_faction": [
+          {
+            "faction_id": "Kingdom of Stormwind",
+            "stance": "hostile",
+            "description": "Target human settlements across the realm."
+          },
+          {
+            "faction_id": "Brotherhood of Northshire",
+            "stance": "hostile",
+            "description": "A threat to all living."
+          },
+          {
+            "faction_id": "Defias Brotherhood",
+            "stance": "neutral",
+            "description": "Avoid direct conflict but share common interests."
+          },
+          {
+            "faction_id": "Blackrock Clan",
+            "stance": "neutral",
+            "description": "Both are seen as threats to human territory."
+          }
+        ],
+        "exclusive_with": [],
+        "ideology": "Undead domination, seeking to spread death and chaos.",
+        "goals": [
+          "Spread death and corruption across living territories."
+        ],
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+            "domain": "wowpedia.co",
+            "tier": "official",
+            "accessed_at": "2026-02-26T17:00:44.611031"
+          },
+          {
+            "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest",
+            "domain": "warcraft.wiki.gg",
+            "tier": "primary",
+            "accessed_at": "2026-02-26T17:00:44.611035"
+          }
+        ],
+        "confidence": 0.8
+      }
+    ],
+    "lore": [],
+    "narrative_items": [
+      {
+        "name": "Small Wooden Hammer",
+        "zone_id": "",
+        "story_arc": "Represents the craftsmanship of the humans in Elwynn Forest, reflecting their resilience post-First War.",
+        "wielder_lineage": [
+          "Gug Fatcandle"
+        ],
+        "power_description": "A simple yet effective tool, symbolizing the everyday life of the inhabitants.",
+        "significance": "notable",
+        "sources": [
+          {
+            "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest",
+            "domain": "warcraft.wiki.gg",
+            "tier": "primary",
+            "accessed_at": "2026-02-26T17:00:41.725515"
+          }
+        ],
+        "confidence": 1.0
+      },
+      {
+        "name": "Pale Skinner",
+        "zone_id": "",
+        "story_arc": "Tied to the hunting culture in Elwynn Forest, showcasing the dangers posed by wildlife.",
+        "wielder_lineage": [
+          "Fedfennel"
+        ],
+        "power_description": "A weapon used for skinning, indicative of survival skills in the wild.",
+        "significance": "notable",
+        "sources": [
+          {
+            "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest",
+            "domain": "warcraft.wiki.gg",
+            "tier": "primary",
+            "accessed_at": "2026-02-26T17:00:41.725529"
+          }
+        ],
+        "confidence": 1.0
+      },
+      {
+        "name": "Boarhide Leggings",
+        "zone_id": "",
+        "story_arc": "Reflects the connection between the inhabitants and the wildlife of Elwynn Forest.",
+        "wielder_lineage": [
+          "Gruff Swiftbite"
+        ],
+        "power_description": "Provides protection and is made from the hides of local boars.",
+        "significance": "notable",
+        "sources": [
+          {
+            "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest",
+            "domain": "warcraft.wiki.gg",
+            "tier": "primary",
+            "accessed_at": "2026-02-26T17:00:41.725535"
+          }
+        ],
+        "confidence": 1.0
+      },
+      {
+        "name": "Jeweled Dagger",
+        "zone_id": "",
+        "story_arc": "Represents the cunning and stealth of characters in Elwynn Forest, possibly linked to the Defias Brotherhood.",
+        "wielder_lineage": [
+          "Morgaine The Sly"
+        ],
+        "power_description": "A finely crafted weapon, enhancing the wielder's agility and stealth.",
+        "significance": "epic",
+        "sources": [
+          {
+            "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest",
+            "domain": "warcraft.wiki.gg",
+            "tier": "primary",
+            "accessed_at": "2026-02-26T17:00:41.725540"
+          }
+        ],
+        "confidence": 1.0
+      },
+      {
+        "name": "Brood Mother Carapace",
+        "zone_id": "",
+        "story_arc": "Ties into the lore of the forest's wildlife and the dangers they pose to the inhabitants.",
+        "wielder_lineage": [
+          "Mother Fang"
+        ],
+        "power_description": "Provides significant protection, made from the carapace of a formidable creature.",
+        "significance": "epic",
+        "sources": [
+          {
+            "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest",
+            "domain": "warcraft.wiki.gg",
+            "tier": "primary",
+            "accessed_at": "2026-02-26T17:00:41.725546"
+          }
+        ],
+        "confidence": 1.0
+      },
+      {
+        "name": "Web Covered Boots",
+        "zone_id": "",
+        "story_arc": "Symbolizes the dangers of the forest, particularly from spiders and other creatures.",
+        "wielder_lineage": [
+          "Mother Fang"
+        ],
+        "power_description": "Offers agility and protection, designed for traversing treacherous terrain.",
+        "significance": "notable",
+        "sources": [
+          {
+            "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest",
+            "domain": "warcraft.wiki.gg",
+            "tier": "primary",
+            "accessed_at": "2026-02-26T17:00:41.725553"
+          }
+        ],
+        "confidence": 1.0
+      },
+      {
+        "name": "Ratty Old Belt",
+        "zone_id": "",
+        "story_arc": "Represents the struggles of the inhabitants against the Defias Brotherhood and other threats.",
+        "wielder_lineage": [
+          "Narg The Taskmaster"
+        ],
+        "power_description": "A worn belt that signifies the wearer's resilience.",
+        "significance": "notable",
+        "sources": [
+          {
+            "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest",
+            "domain": "warcraft.wiki.gg",
+            "tier": "primary",
+            "accessed_at": "2026-02-26T17:00:41.725559"
+          }
+        ],
+        "confidence": 1.0
+      },
+      {
+        "name": "Studded Blackjack",
+        "zone_id": "",
+        "story_arc": "Reflects the criminal elements within Elwynn Forest, particularly the Defias Brotherhood.",
+        "wielder_lineage": [
+          "Narg The Taskmaster"
+        ],
+        "power_description": "A weapon designed for stealth and surprise attacks.",
+        "significance": "notable",
+        "sources": [
+          {
+            "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest",
+            "domain": "warcraft.wiki.gg",
+            "tier": "primary",
+            "accessed_at": "2026-02-26T17:00:41.725564"
+          }
+        ],
+        "confidence": 1.0
+      },
+      {
+        "name": "Fingerless Gloves",
+        "zone_id": "",
+        "story_arc": "Represents the everyday life of the inhabitants, emphasizing practicality in their struggles.",
+        "wielder_lineage": [
+          "Thuros Lightfingers"
+        ],
+        "power_description": "Provides dexterity and grip, essential for various tasks.",
+        "significance": "notable",
+        "sources": [
+          {
+            "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest",
+            "domain": "warcraft.wiki.gg",
+            "tier": "primary",
+            "accessed_at": "2026-02-26T17:00:41.725570"
+          }
+        ],
+        "confidence": 1.0
+      },
+      {
+        "name": "Thuggish Shield",
+        "zone_id": "",
+        "story_arc": "Symbolizes the defense against the threats faced by the inhabitants of Elwynn Forest.",
+        "wielder_lineage": [
+          "Thuros Lightfingers"
+        ],
+        "power_description": "A sturdy shield that offers protection in combat.",
+        "significance": "notable",
+        "sources": [
+          {
+            "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest",
+            "domain": "warcraft.wiki.gg",
+            "tier": "primary",
+            "accessed_at": "2026-02-26T17:00:41.725575"
+          }
+        ],
+        "confidence": 1.0
+      }
+    ],
+    "sources": [
+      {
+        "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest_(Classic)_quests",
+        "domain": "warcraft.wiki.gg",
+        "tier": "primary",
+        "accessed_at": "2026-02-26T16:57:46.047349"
+      },
+      {
+        "url": "https://azerothcollector.com/elwynn-forest/",
+        "domain": "azerothcollector.com",
+        "tier": "tertiary",
+        "accessed_at": "2026-02-26T16:57:46.441727"
+      },
+      {
+        "url": "https://db.ascension.gg/?quests=0.12",
+        "domain": "db.ascension.gg",
+        "tier": "tertiary",
+        "accessed_at": "2026-02-26T16:57:48.882687"
+      },
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_questing_guide",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T16:57:49.351585"
+      },
+      {
+        "url": "https://wowclassicdb.com/quests/eastern-kingdoms/elwynn-forest",
+        "domain": "wowclassicdb.com",
+        "tier": "tertiary",
+        "accessed_at": "2026-02-26T16:57:49.852086"
+      },
+      {
+        "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest",
+        "domain": "warcraft.wiki.gg",
+        "tier": "primary",
+        "accessed_at": "2026-02-26T16:57:43.071963"
+      },
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_storyline",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T16:57:45.571835"
+      },
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T16:57:45.591261"
+      },
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_storyline",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T16:57:48.189289"
+      },
+      {
+        "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest_storyline",
+        "domain": "warcraft.wiki.gg",
+        "tier": "primary",
+        "accessed_at": "2026-02-26T16:57:49.727691"
+      },
+      {
+        "url": "https://gamer-guides.com/wow-hardcore/elwynn-forest/",
+        "domain": "gamer-guides.com",
+        "tier": "tertiary",
+        "accessed_at": "2026-02-26T16:57:53.527428"
+      },
+      {
+        "url": "https://azerothcollector.com/elwynn-forest/",
+        "domain": "azerothcollector.com",
+        "tier": "tertiary",
+        "accessed_at": "2026-02-26T16:57:56.301899"
+      },
+      {
+        "url": "https://tgexp.com/wow-elwynn-forest/",
+        "domain": "tgexp.com",
+        "tier": "tertiary",
+        "accessed_at": "2026-02-26T16:57:57.286751"
+      },
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T16:57:43.998008"
+      },
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Stormwind_(faction)",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T16:57:44.717762"
+      },
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T16:57:58.734922"
+      },
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T17:03:19.057447"
+      },
+      {
+        "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest",
+        "domain": "warcraft.wiki.gg",
+        "tier": "primary",
+        "accessed_at": "2026-02-26T17:03:19.059192"
+      },
+      {
+        "url": "https://wowhead.com/elwynn-forest",
+        "domain": "wowhead.com",
+        "tier": "tertiary",
+        "accessed_at": "2026-02-26T17:03:22.956554"
+      }
+    ],
+    "confidence": {
+      "zone": 0.8,
+      "npcs": 0.3,
+      "factions": 0.8,
+      "lore": 1.0,
+      "narrative_items": 0.4
+    },
+    "conflicts": [
+      {
+        "data_point": "NPCs",
+        "source_a": {
+          "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+          "domain": "Wowpedia",
+          "tier": "official",
+          "accessed_at": "2026-02-26T17:05:03.817628"
+        },
+        "claim_a": "Billy Maclure",
+        "source_b": {
+          "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+          "domain": "Wowpedia",
+          "tier": "official",
+          "accessed_at": "2026-02-26T17:05:03.817635"
+        },
+        "claim_b": "Gramma Stonefield",
+        "resolution": "Both NPCs are valid individual characters and are categorized correctly."
+      }
+    ],
+    "quality_warnings": []
+  }
+}

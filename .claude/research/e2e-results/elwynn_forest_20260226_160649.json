@@ -1,0 +1,1069 @@
+{
+  "metadata": {
+    "zone_name": "elwynn_forest",
+    "skip_discovery": false,
+    "timestamp": "2026-02-26T16:06:49.815512",
+    "elapsed_seconds": 1030.6
+  },
+  "metrics": {
+    "completeness": {
+      "zone_data_present": true,
+      "narrative_arc_chars": 907,
+      "npc_count": 7,
+      "npcs_with_personality": 7,
+      "npcs_with_role": 7,
+      "npcs_with_motivations": 7,
+      "faction_count": 3,
+      "factions_with_ideology": 3,
+      "factions_with_goals": 3,
+      "factions_with_relations": 3,
+      "lore_count": 1,
+      "lore_with_content": 1,
+      "narrative_item_count": 0
+    },
+    "sources": {
+      "total_sources": 13,
+      "unique_domains": 4,
+      "domains": [
+        "warcraft.wiki.gg",
+        "wow.gamepedia.com",
+        "wowhead.com",
+        "wowpedia.fandom.com"
+      ],
+      "tier_distribution": {
+        "primary": 6,
+        "official": 5,
+        "tertiary": 1,
+        "secondary": 1
+      }
+    },
+    "cross_reference": {
+      "ran": true,
+      "is_consistent": false,
+      "conflict_count": 2,
+      "confidence": {
+        "zone": 0.8,
+        "npcs": 0.4,
+        "factions": 0.7,
+        "lore": 0.8,
+        "narrative_items": 0.0
+      }
+    },
+    "discovery": {
+      "zone_count": 3,
+      "zones": [
+        "redridge_mountains",
+        "duskwood",
+        "westfall"
+      ]
+    },
+    "tokens": {
+      "orchestrator": 26845,
+      "worker": 2227527,
+      "total": 2254372
+    },
+    "quality_warnings": [],
+    "final_confidence": {
+      "zone": 0.8,
+      "npcs": 0.4,
+      "factions": 0.7,
+      "lore": 0.8,
+      "narrative_items": 0.0
+    }
+  },
+  "orchestrator_result": {
+    "zone_data": {
+      "name": "Elwynn Forest",
+      "game": "wow",
+      "level_range": {
+        "min": 1,
+        "max": 10
+      },
+      "narrative_arc": "Elwynn Forest is a lush region in the Eastern Kingdoms, primarily inhabited by humans and governed by the Kingdom of Stormwind. The political backstory involves the rise of the Alliance, which seeks to maintain peace and order in the face of threats from various factions, including the Horde and the Defias Brotherhood. The primary conflict arises from the tensions between these factions, particularly as the Defias Brotherhood, a group of disgruntled former workers, seeks revenge against the nobility of Stormwind. The political climate is characterized by the Alliance's efforts to protect its citizens while dealing with internal strife and external threats. The neglected populations include the common folk who suffer from the actions of the Defias Brotherhood and other marauding creatures. Power struggles manifest through quests that involve thwarting the Brotherhood's plans and restoring order.",
+      "political_climate": "Elwynn Forest is governed by the Kingdom of Stormwind, with a local democratic government. The Defias Brotherhood represents a significant factional tension, as they challenge the authority of Stormwind and exploit the vulnerabilities of the local populace. The militia works to maintain safety against these threats, while the economy thrives on agriculture and logging.",
+      "access_gating": [],
+      "phase_states": [],
+      "connected_zones": [
+        "duskwood",
+        "redridge-mountains",
+        "westfall"
+      ],
+      "era": "Classic",
+      "sources": [
+        {
+          "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+          "domain": "wowpedia.fandom.com",
+          "tier": "official",
+          "accessed_at": "2026-02-26T16:03:37.646349"
+        },
+        {
+          "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest",
+          "domain": "warcraft.wiki.gg",
+          "tier": "primary",
+          "accessed_at": "2026-02-26T16:03:37.646366"
+        }
+      ],
+      "confidence": 0.8
+    },
+    "npcs": [
+      {
+        "name": "Marshal Dughan",
+        "zone_id": "elwynn_forest",
+        "faction_ids": [],
+        "personality": "Authoritative, responsible",
+        "motivations": [
+          "Maintain law and order in Goldshire"
+        ],
+        "relationships": [
+          {
+            "npc_id": "Marshal McBride",
+            "relationship_type": "colleague",
+            "description": "Works closely with McBride"
+          }
+        ],
+        "quest_threads": [
+          "Investigate the Defias Brotherhood"
+        ],
+        "phased_state": "Appears in multiple expansions",
+        "role": "quest_giver",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+            "domain": "Wowpedia",
+            "tier": "official",
+            "accessed_at": "2026-02-26T16:04:11.237888"
+          }
+        ],
+        "confidence": 1.0
+      },
+      {
+        "name": "Marshal McBride",
+        "zone_id": "elwynn_forest",
+        "faction_ids": [],
+        "personality": "Dedicated, vigilant",
+        "motivations": [
+          "Ensure the safety of Goldshire"
+        ],
+        "relationships": [
+          {
+            "npc_id": "Marshal Dughan",
+            "relationship_type": "colleague",
+            "description": "Collaborates with Dughan"
+          }
+        ],
+        "quest_threads": [
+          "Help Wanted: Maven's Journeys"
+        ],
+        "phased_state": "Appears in multiple expansions",
+        "role": "quest_giver",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+            "domain": "Wowpedia",
+            "tier": "official",
+            "accessed_at": "2026-02-26T16:04:11.237898"
+          }
+        ],
+        "confidence": 1.0
+      },
+      {
+        "name": "Anduin Wrynn",
+        "zone_id": "elwynn_forest",
+        "faction_ids": [],
+        "personality": "Noble, compassionate",
+        "motivations": [
+          "Lead and protect the Kingdom of Stormwind"
+        ],
+        "relationships": [
+          {
+            "npc_id": "Turalyon",
+            "relationship_type": "mentor",
+            "description": "Mentors various heroes including adventurers"
+          }
+        ],
+        "quest_threads": [
+          "Defend Stormwind"
+        ],
+        "phased_state": "Appears in multiple expansions",
+        "role": "faction_leader",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+            "domain": "Wowpedia",
+            "tier": "official",
+            "accessed_at": "2026-02-26T16:04:11.237906"
+          }
+        ],
+        "confidence": 1.0
+      },
+      {
+        "name": "Hogger",
+        "zone_id": "elwynn_forest",
+        "faction_ids": [],
+        "personality": "Aggressive, cunning",
+        "motivations": [
+          "Create chaos in Elwynn Forest"
+        ],
+        "relationships": [
+          {
+            "npc_id": "Guard Thomas",
+            "relationship_type": "rival",
+            "description": "Rival to local guards"
+          }
+        ],
+        "quest_threads": [
+          "Hogger"
+        ],
+        "phased_state": "Appears in multiple expansions",
+        "role": "boss",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Hogger",
+            "domain": "Wowpedia",
+            "tier": "official",
+            "accessed_at": "2026-02-26T16:04:11.237912"
+          }
+        ],
+        "confidence": 1.0
+      },
+      {
+        "name": "Turalyon",
+        "zone_id": "elwynn_forest",
+        "faction_ids": [],
+        "personality": "Heroic, strategic",
+        "motivations": [
+          "Support the Kingdom of Stormwind"
+        ],
+        "relationships": [
+          {
+            "npc_id": "Anduin Wrynn",
+            "relationship_type": "historical",
+            "description": "Has historical ties with Anduin Wrynn"
+          }
+        ],
+        "quest_threads": [
+          "Alliance Quests"
+        ],
+        "phased_state": "Appears in multiple expansions",
+        "role": "faction_leader",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+            "domain": "Wowpedia",
+            "tier": "official",
+            "accessed_at": "2026-02-26T16:04:11.237918"
+          }
+        ],
+        "confidence": 1.0
+      },
+      {
+        "name": "Guard Thomas",
+        "zone_id": "elwynn_forest",
+        "faction_ids": [],
+        "personality": "Vigilant, dedicated",
+        "motivations": [
+          "Protect Goldshire from threats"
+        ],
+        "relationships": [
+          {
+            "npc_id": "Marshal Dughan",
+            "relationship_type": "subordinate",
+            "description": "Reports to Dughan"
+          }
+        ],
+        "quest_threads": [
+          "Elwynn Forest Threat Assessment"
+        ],
+        "phased_state": "",
+        "role": "guard",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+            "domain": "Wowpedia",
+            "tier": "official",
+            "accessed_at": "2026-02-26T16:04:11.237925"
+          }
+        ],
+        "confidence": 1.0
+      },
+      {
+        "name": "Deputy Rainer",
+        "zone_id": "elwynn_forest",
+        "faction_ids": [],
+        "personality": "Authoritative, protective",
+        "motivations": [
+          "Protect the region from Riverpaw gnolls"
+        ],
+        "relationships": [],
+        "quest_threads": [
+          "Investigate Riverpaw"
+        ],
+        "phased_state": "",
+        "role": "quest_giver",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+            "domain": "Wowpedia",
+            "tier": "official",
+            "accessed_at": "2026-02-26T16:04:11.237930"
+          }
+        ],
+        "confidence": 1.0
+      }
+    ],
+    "factions": [
+      {
+        "name": "Kingdom of Stormwind",
+        "parent_faction_id": "",
+        "level": "major_faction",
+        "inter_faction": [
+          {
+            "faction_id": "Defias Brotherhood",
+            "stance": "hostile",
+            "description": "The Defias Brotherhood opposes the rule of Stormwind and seeks to undermine its authority."
+          },
+          {
+            "faction_id": "Brotherhood of Northshire",
+            "stance": "allied",
+            "description": "The Brotherhood of Northshire serves under the Kingdom's military and law enforcement."
+          }
+        ],
+        "exclusive_with": [],
+        "ideology": "To maintain order and peace in the kingdom and protect its citizens from threats.",
+        "goals": [
+          "Defend against external threats",
+          "Support citizens through governance",
+          "Maintain economic stability"
+        ],
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+            "domain": "wowpedia",
+            "tier": "official",
+            "accessed_at": "2026-02-26T16:03:42.594826"
+          }
+        ],
+        "confidence": 1.0
+      },
+      {
+        "name": "Defias Brotherhood",
+        "parent_faction_id": "",
+        "level": "criminal",
+        "inter_faction": [
+          {
+            "faction_id": "Kingdom of Stormwind",
+            "stance": "hostile",
+            "description": "Sworn enemies, the Defias seek to undermine and rebel against the Stormwind government."
+          },
+          {
+            "faction_id": "Brotherhood of Northshire",
+            "stance": "hostile",
+            "description": "The Defias target recruitment efforts and resources from the Brotherhood."
+          }
+        ],
+        "exclusive_with": [],
+        "ideology": "To seek vengeance against the ruling class of Stormwind and reform through any means necessary.",
+        "goals": [
+          "Undermine the Kingdom of Stormwind",
+          "Recruit new members",
+          "Engage in criminal activities to fund their cause."
+        ],
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Defias_Brotherhood",
+            "domain": "wowpedia",
+            "tier": "official",
+            "accessed_at": "2026-02-26T16:03:42.594838"
+          }
+        ],
+        "confidence": 1.0
+      },
+      {
+        "name": "Brotherhood of Northshire",
+        "parent_faction_id": "",
+        "level": "military",
+        "inter_faction": [
+          {
+            "faction_id": "Kingdom of Stormwind",
+            "stance": "allied",
+            "description": "The Brotherhood acts as a local military and law enforcement ally of the Kingdom."
+          },
+          {
+            "faction_id": "Defias Brotherhood",
+            "stance": "hostile",
+            "description": "The Defias Brotherhood poses a direct threat to the Brotherhood's mission and safety."
+          }
+        ],
+        "exclusive_with": [],
+        "ideology": "To serve and protect the people of Northshire and uphold the law of the Kingdom of Stormwind.",
+        "goals": [
+          "Recruit and train new defenders of the kingdom.",
+          "Maintain peace and order in Northshire."
+        ],
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Brotherhood_of_Northshire",
+            "domain": "wowpedia",
+            "tier": "official",
+            "accessed_at": "2026-02-26T16:03:42.594844"
+          }
+        ],
+        "confidence": 1.0
+      }
+    ],
+    "lore": [
+      {
+        "zone_id": "",
+        "title": "Foundation of Stormwind",
+        "category": "history",
+        "content": "Stormwind was founded by the Arathi bloodline from Stromgarde, resulting in the establishment of a human kingdom in the Eastern Kingdoms. This growth led to the prosperity of regions like Elwynn Forest as agricultural development flourished.",
+        "era": "Centuries ago",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T16:03:39.467905"
+          },
+          {
+            "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest",
+            "domain": "warcraft.wiki.gg",
+            "tier": "primary",
+            "accessed_at": "2026-02-26T16:03:39.467913"
+          }
+        ],
+        "confidence": 0.0
+      }
+    ],
+    "narrative_items": [],
+    "sources": [
+      {
+        "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest",
+        "domain": "warcraft.wiki.gg",
+        "tier": "primary",
+        "accessed_at": "2026-02-26T15:50:06.775976"
+      },
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T15:50:08.285165"
+      },
+      {
+        "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest",
+        "domain": "warcraft.wiki.gg",
+        "tier": "primary",
+        "accessed_at": "2026-02-26T15:50:09.549986"
+      },
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T15:51:39.197178"
+      },
+      {
+        "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest",
+        "domain": "warcraft.wiki.gg",
+        "tier": "primary",
+        "accessed_at": "2026-02-26T15:51:40.354395"
+      },
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T15:54:52.403362"
+      },
+      {
+        "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest",
+        "domain": "warcraft.wiki.gg",
+        "tier": "primary",
+        "accessed_at": "2026-02-26T15:54:52.405171"
+      },
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T15:55:53.345385"
+      },
+      {
+        "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest",
+        "domain": "warcraft.wiki.gg",
+        "tier": "primary",
+        "accessed_at": "2026-02-26T15:55:53.347023"
+      },
+      {
+        "url": "https://wowhead.com/elwynn-forest",
+        "domain": "wowhead.com",
+        "tier": "tertiary",
+        "accessed_at": "2026-02-26T15:55:54.100077"
+      },
+      {
+        "url": "https://wow.gamepedia.com/Elwynn_Forest",
+        "domain": "wow.gamepedia.com",
+        "tier": "secondary",
+        "accessed_at": "2026-02-26T15:55:57.557297"
+      },
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T16:01:03.693132"
+      },
+      {
+        "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest",
+        "domain": "warcraft.wiki.gg",
+        "tier": "primary",
+        "accessed_at": "2026-02-26T16:01:03.694862"
+      }
+    ],
+    "cross_ref_result": {
+      "is_consistent": false,
+      "conflicts": [
+        {
+          "data_point": "Hogger",
+          "source_a": {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+            "domain": "Wowpedia",
+            "tier": "official",
+            "accessed_at": "2026-02-26T16:04:11.237912"
+          },
+          "claim_a": "Hogger is an NPC with specific personality traits and roles in the game.",
+          "source_b": {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+            "domain": "Wowpedia",
+            "tier": "official",
+            "accessed_at": "2026-02-26T16:03:42.594826"
+          },
+          "claim_b": "Hogger is treated as a boss creature in narrative context.",
+          "resolution": ""
+        },
+        {
+          "data_point": "Brotherhood of Northshire",
+          "source_a": {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T16:03:42.594844"
+          },
+          "claim_a": "The Brotherhood of Northshire serves as a military faction aiding Stormwind.",
+          "source_b": {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T16:03:37.646349"
+          },
+          "claim_b": "The Brotherhood of Northshire is missing from the factions list.",
+          "resolution": ""
+        }
+      ],
+      "confidence": {
+        "zone": 0.8,
+        "npcs": 0.4,
+        "factions": 0.7,
+        "lore": 0.8,
+        "narrative_items": 0.0
+      },
+      "notes": "Hogger is often referred to as a boss rather than a typical NPC, which could cause inconsistency in categorization. The Brotherhood of Northshire has been mentioned but not appropriately categorized in the factions list."
+    },
+    "discovered_zones": [
+      "redridge_mountains",
+      "duskwood",
+      "westfall"
+    ],
+    "orchestrator_tokens": 26845,
+    "worker_tokens": 2227527
+  },
+  "research_package": {
+    "zone_name": "elwynn_forest",
+    "zone_data": {
+      "name": "Elwynn Forest",
+      "game": "wow",
+      "level_range": {
+        "min": 1,
+        "max": 10
+      },
+      "narrative_arc": "Elwynn Forest is a lush region in the Eastern Kingdoms, primarily inhabited by humans and governed by the Kingdom of Stormwind. The political backstory involves the rise of the Alliance, which seeks to maintain peace and order in the face of threats from various factions, including the Horde and the Defias Brotherhood. The primary conflict arises from the tensions between these factions, particularly as the Defias Brotherhood, a group of disgruntled former workers, seeks revenge against the nobility of Stormwind. The political climate is characterized by the Alliance's efforts to protect its citizens while dealing with internal strife and external threats. The neglected populations include the common folk who suffer from the actions of the Defias Brotherhood and other marauding creatures. Power struggles manifest through quests that involve thwarting the Brotherhood's plans and restoring order.",
+      "political_climate": "Elwynn Forest is governed by the Kingdom of Stormwind, with a local democratic government. The Defias Brotherhood represents a significant factional tension, as they challenge the authority of Stormwind and exploit the vulnerabilities of the local populace. The militia works to maintain safety against these threats, while the economy thrives on agriculture and logging.",
+      "access_gating": [],
+      "phase_states": [],
+      "connected_zones": [
+        "duskwood",
+        "redridge-mountains",
+        "westfall"
+      ],
+      "era": "Classic",
+      "sources": [
+        {
+          "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+          "domain": "wowpedia.fandom.com",
+          "tier": "official",
+          "accessed_at": "2026-02-26T16:03:37.646349"
+        },
+        {
+          "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest",
+          "domain": "warcraft.wiki.gg",
+          "tier": "primary",
+          "accessed_at": "2026-02-26T16:03:37.646366"
+        }
+      ],
+      "confidence": 0.8
+    },
+    "npcs": [
+      {
+        "name": "Marshal Dughan",
+        "zone_id": "elwynn_forest",
+        "faction_ids": [],
+        "personality": "Authoritative, responsible",
+        "motivations": [
+          "Maintain law and order in Goldshire"
+        ],
+        "relationships": [
+          {
+            "npc_id": "Marshal McBride",
+            "relationship_type": "colleague",
+            "description": "Works closely with McBride"
+          }
+        ],
+        "quest_threads": [
+          "Investigate the Defias Brotherhood"
+        ],
+        "phased_state": "Appears in multiple expansions",
+        "role": "quest_giver",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+            "domain": "Wowpedia",
+            "tier": "official",
+            "accessed_at": "2026-02-26T16:04:11.237888"
+          }
+        ],
+        "confidence": 1.0
+      },
+      {
+        "name": "Marshal McBride",
+        "zone_id": "elwynn_forest",
+        "faction_ids": [],
+        "personality": "Dedicated, vigilant",
+        "motivations": [
+          "Ensure the safety of Goldshire"
+        ],
+        "relationships": [
+          {
+            "npc_id": "Marshal Dughan",
+            "relationship_type": "colleague",
+            "description": "Collaborates with Dughan"
+          }
+        ],
+        "quest_threads": [
+          "Help Wanted: Maven's Journeys"
+        ],
+        "phased_state": "Appears in multiple expansions",
+        "role": "quest_giver",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+            "domain": "Wowpedia",
+            "tier": "official",
+            "accessed_at": "2026-02-26T16:04:11.237898"
+          }
+        ],
+        "confidence": 1.0
+      },
+      {
+        "name": "Anduin Wrynn",
+        "zone_id": "elwynn_forest",
+        "faction_ids": [],
+        "personality": "Noble, compassionate",
+        "motivations": [
+          "Lead and protect the Kingdom of Stormwind"
+        ],
+        "relationships": [
+          {
+            "npc_id": "Turalyon",
+            "relationship_type": "mentor",
+            "description": "Mentors various heroes including adventurers"
+          }
+        ],
+        "quest_threads": [
+          "Defend Stormwind"
+        ],
+        "phased_state": "Appears in multiple expansions",
+        "role": "faction_leader",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+            "domain": "Wowpedia",
+            "tier": "official",
+            "accessed_at": "2026-02-26T16:04:11.237906"
+          }
+        ],
+        "confidence": 1.0
+      },
+      {
+        "name": "Hogger",
+        "zone_id": "elwynn_forest",
+        "faction_ids": [],
+        "personality": "Aggressive, cunning",
+        "motivations": [
+          "Create chaos in Elwynn Forest"
+        ],
+        "relationships": [
+          {
+            "npc_id": "Guard Thomas",
+            "relationship_type": "rival",
+            "description": "Rival to local guards"
+          }
+        ],
+        "quest_threads": [
+          "Hogger"
+        ],
+        "phased_state": "Appears in multiple expansions",
+        "role": "boss",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Hogger",
+            "domain": "Wowpedia",
+            "tier": "official",
+            "accessed_at": "2026-02-26T16:04:11.237912"
+          }
+        ],
+        "confidence": 1.0
+      },
+      {
+        "name": "Turalyon",
+        "zone_id": "elwynn_forest",
+        "faction_ids": [],
+        "personality": "Heroic, strategic",
+        "motivations": [
+          "Support the Kingdom of Stormwind"
+        ],
+        "relationships": [
+          {
+            "npc_id": "Anduin Wrynn",
+            "relationship_type": "historical",
+            "description": "Has historical ties with Anduin Wrynn"
+          }
+        ],
+        "quest_threads": [
+          "Alliance Quests"
+        ],
+        "phased_state": "Appears in multiple expansions",
+        "role": "faction_leader",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+            "domain": "Wowpedia",
+            "tier": "official",
+            "accessed_at": "2026-02-26T16:04:11.237918"
+          }
+        ],
+        "confidence": 1.0
+      },
+      {
+        "name": "Guard Thomas",
+        "zone_id": "elwynn_forest",
+        "faction_ids": [],
+        "personality": "Vigilant, dedicated",
+        "motivations": [
+          "Protect Goldshire from threats"
+        ],
+        "relationships": [
+          {
+            "npc_id": "Marshal Dughan",
+            "relationship_type": "subordinate",
+            "description": "Reports to Dughan"
+          }
+        ],
+        "quest_threads": [
+          "Elwynn Forest Threat Assessment"
+        ],
+        "phased_state": "",
+        "role": "guard",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+            "domain": "Wowpedia",
+            "tier": "official",
+            "accessed_at": "2026-02-26T16:04:11.237925"
+          }
+        ],
+        "confidence": 1.0
+      },
+      {
+        "name": "Deputy Rainer",
+        "zone_id": "elwynn_forest",
+        "faction_ids": [],
+        "personality": "Authoritative, protective",
+        "motivations": [
+          "Protect the region from Riverpaw gnolls"
+        ],
+        "relationships": [],
+        "quest_threads": [
+          "Investigate Riverpaw"
+        ],
+        "phased_state": "",
+        "role": "quest_giver",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+            "domain": "Wowpedia",
+            "tier": "official",
+            "accessed_at": "2026-02-26T16:04:11.237930"
+          }
+        ],
+        "confidence": 1.0
+      }
+    ],
+    "factions": [
+      {
+        "name": "Kingdom of Stormwind",
+        "parent_faction_id": "",
+        "level": "major_faction",
+        "inter_faction": [
+          {
+            "faction_id": "Defias Brotherhood",
+            "stance": "hostile",
+            "description": "The Defias Brotherhood opposes the rule of Stormwind and seeks to undermine its authority."
+          },
+          {
+            "faction_id": "Brotherhood of Northshire",
+            "stance": "allied",
+            "description": "The Brotherhood of Northshire serves under the Kingdom's military and law enforcement."
+          }
+        ],
+        "exclusive_with": [],
+        "ideology": "To maintain order and peace in the kingdom and protect its citizens from threats.",
+        "goals": [
+          "Defend against external threats",
+          "Support citizens through governance",
+          "Maintain economic stability"
+        ],
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+            "domain": "wowpedia",
+            "tier": "official",
+            "accessed_at": "2026-02-26T16:03:42.594826"
+          }
+        ],
+        "confidence": 1.0
+      },
+      {
+        "name": "Defias Brotherhood",
+        "parent_faction_id": "",
+        "level": "criminal",
+        "inter_faction": [
+          {
+            "faction_id": "Kingdom of Stormwind",
+            "stance": "hostile",
+            "description": "Sworn enemies, the Defias seek to undermine and rebel against the Stormwind government."
+          },
+          {
+            "faction_id": "Brotherhood of Northshire",
+            "stance": "hostile",
+            "description": "The Defias target recruitment efforts and resources from the Brotherhood."
+          }
+        ],
+        "exclusive_with": [],
+        "ideology": "To seek vengeance against the ruling class of Stormwind and reform through any means necessary.",
+        "goals": [
+          "Undermine the Kingdom of Stormwind",
+          "Recruit new members",
+          "Engage in criminal activities to fund their cause."
+        ],
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Defias_Brotherhood",
+            "domain": "wowpedia",
+            "tier": "official",
+            "accessed_at": "2026-02-26T16:03:42.594838"
+          }
+        ],
+        "confidence": 1.0
+      },
+      {
+        "name": "Brotherhood of Northshire",
+        "parent_faction_id": "",
+        "level": "military",
+        "inter_faction": [
+          {
+            "faction_id": "Kingdom of Stormwind",
+            "stance": "allied",
+            "description": "The Brotherhood acts as a local military and law enforcement ally of the Kingdom."
+          },
+          {
+            "faction_id": "Defias Brotherhood",
+            "stance": "hostile",
+            "description": "The Defias Brotherhood poses a direct threat to the Brotherhood's mission and safety."
+          }
+        ],
+        "exclusive_with": [],
+        "ideology": "To serve and protect the people of Northshire and uphold the law of the Kingdom of Stormwind.",
+        "goals": [
+          "Recruit and train new defenders of the kingdom.",
+          "Maintain peace and order in Northshire."
+        ],
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Brotherhood_of_Northshire",
+            "domain": "wowpedia",
+            "tier": "official",
+            "accessed_at": "2026-02-26T16:03:42.594844"
+          }
+        ],
+        "confidence": 1.0
+      }
+    ],
+    "lore": [
+      {
+        "zone_id": "",
+        "title": "Foundation of Stormwind",
+        "category": "history",
+        "content": "Stormwind was founded by the Arathi bloodline from Stromgarde, resulting in the establishment of a human kingdom in the Eastern Kingdoms. This growth led to the prosperity of regions like Elwynn Forest as agricultural development flourished.",
+        "era": "Centuries ago",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T16:03:39.467905"
+          },
+          {
+            "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest",
+            "domain": "warcraft.wiki.gg",
+            "tier": "primary",
+            "accessed_at": "2026-02-26T16:03:39.467913"
+          }
+        ],
+        "confidence": 0.0
+      }
+    ],
+    "narrative_items": [],
+    "sources": [
+      {
+        "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest",
+        "domain": "warcraft.wiki.gg",
+        "tier": "primary",
+        "accessed_at": "2026-02-26T15:50:06.775976"
+      },
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T15:50:08.285165"
+      },
+      {
+        "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest",
+        "domain": "warcraft.wiki.gg",
+        "tier": "primary",
+        "accessed_at": "2026-02-26T15:50:09.549986"
+      },
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T15:51:39.197178"
+      },
+      {
+        "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest",
+        "domain": "warcraft.wiki.gg",
+        "tier": "primary",
+        "accessed_at": "2026-02-26T15:51:40.354395"
+      },
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T15:54:52.403362"
+      },
+      {
+        "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest",
+        "domain": "warcraft.wiki.gg",
+        "tier": "primary",
+        "accessed_at": "2026-02-26T15:54:52.405171"
+      },
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T15:55:53.345385"
+      },
+      {
+        "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest",
+        "domain": "warcraft.wiki.gg",
+        "tier": "primary",
+        "accessed_at": "2026-02-26T15:55:53.347023"
+      },
+      {
+        "url": "https://wowhead.com/elwynn-forest",
+        "domain": "wowhead.com",
+        "tier": "tertiary",
+        "accessed_at": "2026-02-26T15:55:54.100077"
+      },
+      {
+        "url": "https://wow.gamepedia.com/Elwynn_Forest",
+        "domain": "wow.gamepedia.com",
+        "tier": "secondary",
+        "accessed_at": "2026-02-26T15:55:57.557297"
+      },
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T16:01:03.693132"
+      },
+      {
+        "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest",
+        "domain": "warcraft.wiki.gg",
+        "tier": "primary",
+        "accessed_at": "2026-02-26T16:01:03.694862"
+      }
+    ],
+    "confidence": {
+      "zone": 0.8,
+      "npcs": 0.4,
+      "factions": 0.7,
+      "lore": 0.8,
+      "narrative_items": 0.0
+    },
+    "conflicts": [
+      {
+        "data_point": "Hogger",
+        "source_a": {
+          "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+          "domain": "Wowpedia",
+          "tier": "official",
+          "accessed_at": "2026-02-26T16:04:11.237912"
+        },
+        "claim_a": "Hogger is an NPC with specific personality traits and roles in the game.",
+        "source_b": {
+          "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+          "domain": "Wowpedia",
+          "tier": "official",
+          "accessed_at": "2026-02-26T16:03:42.594826"
+        },
+        "claim_b": "Hogger is treated as a boss creature in narrative context.",
+        "resolution": ""
+      },
+      {
+        "data_point": "Brotherhood of Northshire",
+        "source_a": {
+          "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+          "domain": "wowpedia.fandom.com",
+          "tier": "official",
+          "accessed_at": "2026-02-26T16:03:42.594844"
+        },
+        "claim_a": "The Brotherhood of Northshire serves as a military faction aiding Stormwind.",
+        "source_b": {
+          "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+          "domain": "wowpedia.fandom.com",
+          "tier": "official",
+          "accessed_at": "2026-02-26T16:03:37.646349"
+        },
+        "claim_b": "The Brotherhood of Northshire is missing from the factions list.",
+        "resolution": ""
+      }
+    ],
+    "quality_warnings": []
+  }
+}

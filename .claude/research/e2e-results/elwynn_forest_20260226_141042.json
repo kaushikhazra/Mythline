@@ -1,0 +1,4549 @@
+{
+  "metadata": {
+    "zone_name": "elwynn_forest",
+    "skip_discovery": false,
+    "timestamp": "2026-02-26T14:10:42.135871",
+    "elapsed_seconds": 679.6
+  },
+  "metrics": {
+    "completeness": {
+      "zone_data_present": true,
+      "narrative_arc_chars": 0,
+      "npc_count": 16,
+      "npcs_with_personality": 0,
+      "npcs_with_role": 14,
+      "npcs_with_motivations": 9,
+      "faction_count": 10,
+      "factions_with_ideology": 10,
+      "factions_with_goals": 10,
+      "factions_with_relations": 10,
+      "lore_count": 9,
+      "lore_with_content": 9,
+      "narrative_item_count": 17
+    },
+    "sources": {
+      "total_sources": 36,
+      "unique_domains": 7,
+      "domains": [
+        "classic-wow-archive.fandom.com",
+        "classicdb.ch",
+        "warcraft.wiki.gg",
+        "worldofwarcraft.blizzard.com",
+        "wowpedia.fandom.com",
+        "wowwiki-archive.fandom.com",
+        "www.wowhead.com"
+      ],
+      "tier_distribution": {
+        "official": 22,
+        "primary": 7,
+        "tertiary": 7
+      }
+    },
+    "cross_reference": {
+      "ran": true,
+      "is_consistent": false,
+      "conflict_count": 6,
+      "confidence": {}
+    },
+    "discovery": {
+      "zone_count": 4,
+      "zones": [
+        "stormwind_city",
+        "redridge_mountains",
+        "duskwood",
+        "westfall"
+      ]
+    },
+    "tokens": {
+      "orchestrator": 21418,
+      "worker": 1052945,
+      "total": 1074363
+    },
+    "quality_warnings": [
+      "shallow_narrative_arc",
+      "no_npc_personality_data"
+    ],
+    "final_confidence": {
+      "npcs": 0.0
+    }
+  },
+  "orchestrator_result": {
+    "zone_data": {
+      "name": "Elwynn Forest",
+      "game": "wow",
+      "level_range": {},
+      "narrative_arc": "",
+      "political_climate": "",
+      "access_gating": [],
+      "phase_states": [],
+      "connected_zones": [],
+      "era": "",
+      "sources": [],
+      "confidence": 0.0
+    },
+    "npcs": [
+      {
+        "name": "Marshal Dughan",
+        "zone_id": "elwynn_forest",
+        "faction_ids": [
+          "Stormwind (kingdom)"
+        ],
+        "personality": "",
+        "motivations": [
+          "Reclaim Elwynn from kobolds and other threats",
+          "Maintain law and order in Goldshire"
+        ],
+        "relationships": [
+          {
+            "npc_id": "Marshal McBride",
+            "relationship_type": "peer",
+            "description": "Also serves as a municipal law enforcer in Elwynn Forest (Goldshire vs Northshire)"
+          }
+        ],
+        "quest_threads": [],
+        "phased_state": "",
+        "role": "guard",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          },
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Marshal_Dughan",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          }
+        ],
+        "confidence": 0.9
+      },
+      {
+        "name": "Marshal McBride",
+        "zone_id": "elwynn_forest",
+        "faction_ids": [
+          "Brotherhood of Northshire",
+          "Stormwind (kingdom)"
+        ],
+        "personality": "",
+        "motivations": [
+          "Recruit promising young humans into the Army",
+          "Maintain security around Northshire Abbey"
+        ],
+        "relationships": [
+          {
+            "npc_id": "Marshal Dughan",
+            "relationship_type": "peer",
+            "description": "Both are municipal law enforcers in Elwynn Forest (different areas)"
+          }
+        ],
+        "quest_threads": [],
+        "phased_state": "",
+        "role": "guard",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          },
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Marshal_McBride",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          }
+        ],
+        "confidence": 0.9
+      },
+      {
+        "name": "Guard Thomas",
+        "zone_id": "elwynn_forest",
+        "faction_ids": [
+          "Stormwind (kingdom)"
+        ],
+        "personality": "",
+        "motivations": [
+          "Eradicate the murloc foothold in Elwynn Forest"
+        ],
+        "relationships": [],
+        "quest_threads": [],
+        "phased_state": "",
+        "role": "guard",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          },
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Guard_Thomas",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          }
+        ],
+        "confidence": 0.9
+      },
+      {
+        "name": "Deputy Rainer",
+        "zone_id": "elwynn_forest",
+        "faction_ids": [
+          "Stormwind Army",
+          "Westbrook Garrison"
+        ],
+        "personality": "",
+        "motivations": [
+          "Protect Elwynn's border from Riverpaw gnolls"
+        ],
+        "relationships": [],
+        "quest_threads": [],
+        "phased_state": "",
+        "role": "faction_leader",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          },
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Westbrook_Garrison",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          }
+        ],
+        "confidence": 0.9
+      },
+      {
+        "name": "Hogger",
+        "zone_id": "elwynn_forest",
+        "faction_ids": [
+          "Riverpaw pack",
+          "Gnoll"
+        ],
+        "personality": "",
+        "motivations": [
+          "Harass and terrorize travelers and settlers in Elwynn Forest"
+        ],
+        "relationships": [],
+        "quest_threads": [
+          "WANTED: \"Hogger\""
+        ],
+        "phased_state": "",
+        "role": "boss",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          },
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Hogger",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          },
+          {
+            "url": "https://wowpedia.fandom.com/wiki/WANTED:_%22Hogger%22",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          }
+        ],
+        "confidence": 0.9
+      },
+      {
+        "name": "Anduin Wrynn",
+        "zone_id": "elwynn_forest",
+        "faction_ids": [
+          "Stormwind (kingdom)",
+          "Alliance"
+        ],
+        "personality": "",
+        "motivations": [
+          "Rule and protect the Kingdom of Stormwind"
+        ],
+        "relationships": [
+          {
+            "npc_id": "Turalyon",
+            "relationship_type": "regent_relation",
+            "description": "Turalyon serves as regent/protector in absentia for Anduin Wrynn"
+          }
+        ],
+        "quest_threads": [],
+        "phased_state": "",
+        "role": "faction_leader",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          },
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Anduin_Wrynn",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          }
+        ],
+        "confidence": 0.9
+      },
+      {
+        "name": "Turalyon",
+        "zone_id": "elwynn_forest",
+        "faction_ids": [
+          "Stormwind (kingdom)",
+          "Alliance"
+        ],
+        "personality": "",
+        "motivations": [
+          "Act as regent and protector of the realm (command of military forces)"
+        ],
+        "relationships": [
+          {
+            "npc_id": "Anduin Wrynn",
+            "relationship_type": "regent_for",
+            "description": "Serves as regent/protector in absentia for Anduin Wrynn"
+          },
+          {
+            "npc_id": "Genn Greymane",
+            "relationship_type": "supported_by",
+            "description": "Genn Greymane (and Mathias) publicly supported Turalyon's command in references"
+          }
+        ],
+        "quest_threads": [],
+        "phased_state": "",
+        "role": "faction_leader",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          },
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Turalyon",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          },
+          {
+            "url": "https://www.youtube.com/watch?v=O-YGTYQNi4Y",
+            "domain": "youtube.com",
+            "tier": "secondary",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          }
+        ],
+        "confidence": 0.9
+      },
+      {
+        "name": "Anduin Lothar",
+        "zone_id": "elwynn_forest",
+        "faction_ids": [
+          "Stormwind (kingdom)"
+        ],
+        "personality": "",
+        "motivations": [
+          "Led humans to Lordaeron during the First War (historical military leadership)"
+        ],
+        "relationships": [],
+        "quest_threads": [],
+        "phased_state": "",
+        "role": "faction_leader",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          },
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Anduin_Lothar",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          }
+        ],
+        "confidence": 0.9
+      },
+      {
+        "name": "Genn Greymane",
+        "zone_id": "elwynn_forest",
+        "faction_ids": [
+          "Gilneas",
+          "Alliance"
+        ],
+        "personality": "",
+        "motivations": [
+          "Support the leadership decisions protecting Stormwind (per reference quote)"
+        ],
+        "relationships": [
+          {
+            "npc_id": "Turalyon",
+            "relationship_type": "ally/support",
+            "description": "Expressed support for Turalyon serving as regent/protector"
+          }
+        ],
+        "quest_threads": [],
+        "phased_state": "",
+        "role": "faction_leader",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest#References",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          },
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Genn_Greymane",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          }
+        ],
+        "confidence": 0.9
+      },
+      {
+        "name": "Brann Bronzebeard",
+        "zone_id": "elwynn_forest",
+        "faction_ids": [
+          "Ironforge",
+          "Bronzebeard clan"
+        ],
+        "personality": "",
+        "motivations": [],
+        "relationships": [],
+        "quest_threads": [],
+        "phased_state": "",
+        "role": "civilian",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          },
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Brann_Bronzebeard",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          }
+        ],
+        "confidence": 0.9
+      },
+      {
+        "name": "Agee Tyler",
+        "zone_id": "elwynn_forest",
+        "faction_ids": [
+          "Gnome"
+        ],
+        "personality": "",
+        "motivations": [],
+        "relationships": [],
+        "quest_threads": [],
+        "phased_state": "",
+        "role": "civilian",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          },
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Agee_Tyler%27s_farm",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          }
+        ],
+        "confidence": 0.9
+      },
+      {
+        "name": "Mr. Blackridge",
+        "zone_id": "elwynn_forest",
+        "faction_ids": [],
+        "personality": "",
+        "motivations": [],
+        "relationships": [],
+        "quest_threads": [],
+        "phased_state": "",
+        "role": "civilian",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest#Notes_and_trivia",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          },
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Mr._Blackridge",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          }
+        ],
+        "confidence": 0.9
+      },
+      {
+        "name": "Mr. Woodring",
+        "zone_id": "elwynn_forest",
+        "faction_ids": [],
+        "personality": "",
+        "motivations": [],
+        "relationships": [],
+        "quest_threads": [],
+        "phased_state": "",
+        "role": "civilian",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest#Notes_and_trivia",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          },
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Mr._Woodring",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          }
+        ],
+        "confidence": 0.9
+      },
+      {
+        "name": "Liam",
+        "zone_id": "elwynn_forest",
+        "faction_ids": [],
+        "personality": "",
+        "motivations": [],
+        "relationships": [],
+        "quest_threads": [],
+        "phased_state": "",
+        "role": "civilian",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest#Notes_and_trivia",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          },
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Liam",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          }
+        ],
+        "confidence": 0.9
+      },
+      {
+        "name": "Goldtooth",
+        "zone_id": "elwynn_forest",
+        "faction_ids": [],
+        "personality": "",
+        "motivations": [],
+        "relationships": [],
+        "quest_threads": [],
+        "phased_state": "",
+        "role": "",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          },
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Goldtooth%27s_Den",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          }
+        ],
+        "confidence": 0.7
+      },
+      {
+        "name": "Mathias",
+        "zone_id": "elwynn_forest",
+        "faction_ids": [],
+        "personality": "",
+        "motivations": [],
+        "relationships": [
+          {
+            "npc_id": "Turalyon",
+            "relationship_type": "support",
+            "description": "Referenced alongside Genn Greymane as supporting Turalyon's command/regency"
+          }
+        ],
+        "quest_threads": [],
+        "phased_state": "",
+        "role": "",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest#References",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          }
+        ],
+        "confidence": 0.7
+      }
+    ],
+    "factions": [
+      {
+        "name": "Kingdom of Stormwind",
+        "parent_faction_id": "",
+        "level": "major_faction",
+        "inter_faction": [
+          {
+            "faction_id": "Alliance",
+            "stance": "allied",
+            "description": "Stormwind is the human heartland and a leading member of the Alliance (stated throughout the content)."
+          },
+          {
+            "faction_id": "Defias Brotherhood",
+            "stance": "hostile",
+            "description": "Content repeatedly identifies the Defias Brotherhood as a criminal organization opposing Stormwind (Elwynn storyline summaries)."
+          },
+          {
+            "faction_id": "Stormwind Guard",
+            "stance": "allied",
+            "description": "The Stormwind Guard/military enforces Stormwind law and is described as protecting the realm in the content."
+          },
+          {
+            "faction_id": "Brotherhood of Northshire",
+            "stance": "allied",
+            "description": "Multiple summaries in the content list the Brotherhood of Northshire as a local allied militia/recruiting/training group under Stormwind influence."
+          },
+          {
+            "faction_id": "Riverpaw Pack",
+            "stance": "hostile",
+            "description": "The Riverpaw (gnolls) are described as a territorial hostile force raiding local settlements in Elwynn (content notes Riverpaw hostility to Stormwind/locals)."
+          },
+          {
+            "faction_id": "Kobolds",
+            "stance": "hostile",
+            "description": "Kobolds in Elwynn are listed as hostile creatures infesting mines and attacking citizens/adventurers (content cites kobold threats)."
+          },
+          {
+            "faction_id": "Blackrock Clan",
+            "stance": "hostile",
+            "description": "Blackrock orc incursions are repeatedly described as hostile to human settlements in the content."
+          },
+          {
+            "faction_id": "Horde",
+            "stance": "hostile",
+            "description": "The Horde (orcish forces, including Blackrock) are repeatedly presented as historical enemies of Stormwind in the provided summaries."
+          },
+          {
+            "faction_id": "Stonemason's Guild",
+            "stance": "neutral",
+            "description": "Content links the Stonemason's Guild to the origins of the Defias Brotherhood but does not provide a direct, sustained institutional stance toward Stormwind beyond that historical grievance."
+          }
+        ],
+        "exclusive_with": [
+          "Horde"
+        ],
+        "ideology": "Human governance: protection of citizens, law and order, stewardship of Elwynn as Stormwind's heartland.",
+        "goals": [
+          "Protect Elwynn Forest and its inhabitants",
+          "Maintain law and order and the prosperity of Stormwind's territories"
+        ],
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          },
+          {
+            "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest",
+            "domain": "warcraft.wiki.gg",
+            "tier": "primary",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          },
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Stormwind_(faction)",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          }
+        ],
+        "confidence": 0.8
+      },
+      {
+        "name": "Alliance",
+        "parent_faction_id": "",
+        "level": "major_faction",
+        "inter_faction": [
+          {
+            "faction_id": "Kingdom of Stormwind",
+            "stance": "allied",
+            "description": "Stormwind is the primary human member nation of the Alliance (content lists Stormwind and Alliance together)."
+          },
+          {
+            "faction_id": "Defias Brotherhood",
+            "stance": "hostile",
+            "description": "Content frames the Defias as criminal/hostile forces opposing Alliance/Stromwind interests in Elwynn."
+          },
+          {
+            "faction_id": "Stormwind Guard",
+            "stance": "allied",
+            "description": "Stormwind Guard is the military arm enforcing Alliance/Stormwind law in the zone (content references guard and military figures)."
+          },
+          {
+            "faction_id": "Brotherhood of Northshire",
+            "stance": "allied",
+            "description": "Local militia/recruiting organizations (Brotherhood of Northshire) are described as allied to Stormwind/Alliance interests."
+          },
+          {
+            "faction_id": "Riverpaw Pack",
+            "stance": "hostile",
+            "description": "Riverpaw gnolls are listed as hostile threats to Alliance settlements in Elwynn in the content."
+          },
+          {
+            "faction_id": "Kobolds",
+            "stance": "hostile",
+            "description": "Kobolds are described as hostile creatures attacking local residents and miners in Elwynn Forest."
+          },
+          {
+            "faction_id": "Blackrock Clan",
+            "stance": "hostile",
+            "description": "Blackrock orcs are repeatedly stated as enemies of the Alliance/humans in the content's historical summaries."
+          },
+          {
+            "faction_id": "Horde",
+            "stance": "hostile",
+            "description": "The content repeatedly contrasts Alliance and Horde as opposing major factions; the Horde is an enemy of the Alliance."
+          },
+          {
+            "faction_id": "Stonemason's Guild",
+            "stance": "neutral",
+            "description": "No explicit Alliance-level institutional stance toward the Stonemason's Guild is provided in the content; the guild is mentioned in relation to the Defias origin."
+          }
+        ],
+        "exclusive_with": [
+          "Horde"
+        ],
+        "ideology": "Coalition of races united for mutual defense, law, and order (as presented in the summaries).",
+        "goals": [
+          "Maintain peace in member territories",
+          "Defend against hostile forces (Horde, bandits, beasts)"
+        ],
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_storyline",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          },
+          {
+            "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest",
+            "domain": "warcraft.wiki.gg",
+            "tier": "primary",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          }
+        ],
+        "confidence": 0.8
+      },
+      {
+        "name": "Defias Brotherhood",
+        "parent_faction_id": "",
+        "level": "criminal",
+        "inter_faction": [
+          {
+            "faction_id": "Kingdom of Stormwind",
+            "stance": "hostile",
+            "description": "Multiple summaries in the content describe the Defias Brotherhood as a criminal organization formed in opposition to Stormwind (unpaid labor grievance origin is repeatedly mentioned)."
+          },
+          {
+            "faction_id": "Alliance",
+            "stance": "hostile",
+            "description": "Content frames the Defias as an organized criminal threat to Alliance/Stromwind interests in Elwynn."
+          },
+          {
+            "faction_id": "Stormwind Guard",
+            "stance": "hostile",
+            "description": "As Stormwind's law enforcement, the Guard is described as pursuing Defias operatives in the content summaries."
+          },
+          {
+            "faction_id": "Brotherhood of Northshire",
+            "stance": "hostile",
+            "description": "Local militia and recruiting organizations are described as opposing banditry; content implies hostility toward Defias activity in Elwynn."
+          },
+          {
+            "faction_id": "Riverpaw Pack",
+            "stance": "neutral",
+            "description": "The provided content does not state a clear formal relationship between the Defias and the Riverpaw; no explicit alliance or enmity is given."
+          },
+          {
+            "faction_id": "Kobolds",
+            "stance": "neutral",
+            "description": "Content does not provide an explicit relationship between Defias and kobolds; some summaries mention rumored criminal associations but do not confirm institutional ties."
+          },
+          {
+            "faction_id": "Blackrock Clan",
+            "stance": "neutral",
+            "description": "No direct relationship between the Defias Brotherhood and Blackrock Clan is described in the supplied content."
+          },
+          {
+            "faction_id": "Horde",
+            "stance": "neutral",
+            "description": "The content does not assert a formal connection between the Defias and the Horde within Elwynn Forest summaries."
+          },
+          {
+            "faction_id": "Stonemason's Guild",
+            "stance": "allied",
+            "description": "Content repeatedly states the Defias formed from disgruntled stonemasons (Stonemason's Guild -> Defias origin), indicating close historical linkage."
+          }
+        ],
+        "exclusive_with": [],
+        "ideology": "Criminal, vengeful organization formed from exploited workers; opposes Stormwind's ruling class (as presented in multiple summaries).",
+        "goals": [
+          "Undermine Stormwind authority",
+          "Conduct banditry, sabotage, and robbery in and around Elwynn/Westfall"
+        ],
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_storyline",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          },
+          {
+            "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest",
+            "domain": "warcraft.wiki.gg",
+            "tier": "primary",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          }
+        ],
+        "confidence": 0.8
+      },
+      {
+        "name": "Stormwind Guard",
+        "parent_faction_id": "",
+        "level": "military",
+        "inter_faction": [
+          {
+            "faction_id": "Kingdom of Stormwind",
+            "stance": "allied",
+            "description": "The Guard is Stormwind's military/law enforcement arm (content names Stormwind-affiliated guards and marshals)."
+          },
+          {
+            "faction_id": "Alliance",
+            "stance": "allied",
+            "description": "As Stormwind's military, the Guard operates in service of Alliance/Stormwind interests in Elwynn per the content."
+          },
+          {
+            "faction_id": "Defias Brotherhood",
+            "stance": "hostile",
+            "description": "The Guard is repeatedly described as opposing and hunting Defias operatives in the Elwynn storyline summaries."
+          },
+          {
+            "faction_id": "Brotherhood of Northshire",
+            "stance": "allied",
+            "description": "Local militia/recruiting bodies (Brotherhood of Northshire) are presented as cooperating with Stormwind military efforts."
+          },
+          {
+            "faction_id": "Riverpaw Pack",
+            "stance": "hostile",
+            "description": "The Guard is described as defending settlements from Riverpaw gnoll raids in the content."
+          },
+          {
+            "faction_id": "Kobolds",
+            "stance": "hostile",
+            "description": "Kobolds are listed as hostile creatures that the Guard/locals contend with around mines and settlements."
+          },
+          {
+            "faction_id": "Blackrock Clan",
+            "stance": "hostile",
+            "description": "Historical summaries in the content list Blackrock orcs as antagonists the Guard would oppose."
+          },
+          {
+            "faction_id": "Horde",
+            "stance": "hostile",
+            "description": "The Guard defends against Horde incursions historically referenced in the content."
+          },
+          {
+            "faction_id": "Stonemason's Guild",
+            "stance": "neutral",
+            "description": "No clear operational stance between the Guard and the Stonemason's Guild is given in the provided content beyond historical grievances that produced the Defias."
+          }
+        ],
+        "exclusive_with": [],
+        "ideology": "Enforce law, protect citizens, and uphold Stormwind/Alliance security.",
+        "goals": [
+          "Protect Elwynn Forest settlements",
+          "Pursue criminals (e.g., Defias) and hostile creatures"
+        ],
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Marshal_McBride",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          },
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_questing_guide",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          }
+        ],
+        "confidence": 0.7
+      },
+      {
+        "name": "Brotherhood of Northshire",
+        "parent_faction_id": "",
+        "level": "guild",
+        "inter_faction": [
+          {
+            "faction_id": "Kingdom of Stormwind",
+            "stance": "allied",
+            "description": "Content repeatedly references Northshire Abbey and related recruitment/training as allied to Stormwind's defense of Elwynn."
+          },
+          {
+            "faction_id": "Alliance",
+            "stance": "allied",
+            "description": "As a Stormwind-localized recruiting/training organization, it is presented as part of Alliance-aligned defense in the content."
+          },
+          {
+            "faction_id": "Defias Brotherhood",
+            "stance": "hostile",
+            "description": "Local recruiting/militia organizations are described as opposing bandit activity (Defias) in Elwynn content summaries."
+          },
+          {
+            "faction_id": "Stormwind Guard",
+            "stance": "allied",
+            "description": "The Brotherhood is described as cooperating with Stormwind's military/recruitment efforts."
+          },
+          {
+            "faction_id": "Riverpaw Pack",
+            "stance": "hostile",
+            "description": "The content presents Riverpaw gnolls as a local raiding threat that Northshire-associated forces oppose."
+          },
+          {
+            "faction_id": "Kobolds",
+            "stance": "hostile",
+            "description": "Kobold infestations are listed among local threats to settlements and agents of the Brotherhood would engage them."
+          },
+          {
+            "faction_id": "Blackrock Clan",
+            "stance": "hostile",
+            "description": "Historical enemies of Stormwind, such as Blackrock orcs, are opposed by local militias per the summaries."
+          },
+          {
+            "faction_id": "Horde",
+            "stance": "hostile",
+            "description": "The Brotherhood, aligned with Stormwind/Alliance, is presented as opposed to Horde forces in the content."
+          },
+          {
+            "faction_id": "Stonemason's Guild",
+            "stance": "neutral",
+            "description": "No explicit relationship between Northshire organizations and the Stonemason's Guild is provided in the supplied content."
+          }
+        ],
+        "exclusive_with": [],
+        "ideology": "Local recruitment/training and defense\u2014uphold Stormwind/Alliance laws and protect civilians.",
+        "goals": [
+          "Recruit and train defenders for Elwynn/Stormwind",
+          "Protect local settlements from bandits and beasts"
+        ],
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          },
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_questing_guide",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          }
+        ],
+        "confidence": 0.6
+      },
+      {
+        "name": "Riverpaw Pack",
+        "parent_faction_id": "",
+        "level": "tribal",
+        "inter_faction": [
+          {
+            "faction_id": "Kingdom of Stormwind",
+            "stance": "hostile",
+            "description": "The Riverpaw gnolls are described as raiders who attack local human settlements, making them hostile to Stormwind."
+          },
+          {
+            "faction_id": "Alliance",
+            "stance": "hostile",
+            "description": "Riverpaw are presented as a local menace to Alliance citizens in Elwynn content."
+          },
+          {
+            "faction_id": "Defias Brotherhood",
+            "stance": "neutral",
+            "description": "No explicit institutional relation between Riverpaw and Defias is asserted in the provided content."
+          },
+          {
+            "faction_id": "Stormwind Guard",
+            "stance": "hostile",
+            "description": "The Guard/militia oppose Riverpaw raids and protect settlements per content summaries."
+          },
+          {
+            "faction_id": "Brotherhood of Northshire",
+            "stance": "hostile",
+            "description": "Local defense forces oppose Riverpaw gnoll incursions as described in the content."
+          },
+          {
+            "faction_id": "Kobolds",
+            "stance": "neutral",
+            "description": "The content treats kobolds and gnolls as separate hostile creature groups without stating a relationship between them."
+          },
+          {
+            "faction_id": "Blackrock Clan",
+            "stance": "neutral",
+            "description": "No direct relationship between Riverpaw and Blackrock Clan is provided in the supplied content."
+          },
+          {
+            "faction_id": "Horde",
+            "stance": "neutral",
+            "description": "Riverpaw gnolls are indigenous hostile creatures; the content does not link them institutionally to the Horde."
+          },
+          {
+            "faction_id": "Stonemason's Guild",
+            "stance": "neutral",
+            "description": "No connection between Riverpaw and the Stonemason's Guild is described in the provided summaries."
+          }
+        ],
+        "exclusive_with": [],
+        "ideology": "Tribal gnoll society focused on raiding and territorial control (as summarized in multiple sections of the content).",
+        "goals": [
+          "Raid local settlements for resources",
+          "Maintain territorial dominance in parts of Elwynn Forest"
+        ],
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Riverpaw_pack",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          },
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Hogger",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          }
+        ],
+        "confidence": 0.8
+      },
+      {
+        "name": "Kobolds",
+        "parent_faction_id": "",
+        "level": "tribal",
+        "inter_faction": [
+          {
+            "faction_id": "Kingdom of Stormwind",
+            "stance": "hostile",
+            "description": "Kobolds are described as hostile mine-dwelling creatures that attack local citizens and miners in Elwynn per the content."
+          },
+          {
+            "faction_id": "Alliance",
+            "stance": "hostile",
+            "description": "Kobold incursions are framed as threats to Alliance settlements and adventurers in the provided summaries."
+          },
+          {
+            "faction_id": "Defias Brotherhood",
+            "stance": "neutral",
+            "description": "No clear institutional relationship between kobolds and the Defias is described in the content; some summaries mention rumored ties but do not establish them."
+          },
+          {
+            "faction_id": "Stormwind Guard",
+            "stance": "hostile",
+            "description": "The Guard and locals are described as confronting kobold infestations (content lists kobolds among local threats)."
+          },
+          {
+            "faction_id": "Brotherhood of Northshire",
+            "stance": "hostile",
+            "description": "Local recruiters/defenders are presented as opposing kobold threats to settlements."
+          },
+          {
+            "faction_id": "Riverpaw Pack",
+            "stance": "neutral",
+            "description": "Kobolds and Riverpaw are treated as separate hostile groups with no explicit interactions in the provided content."
+          },
+          {
+            "faction_id": "Blackrock Clan",
+            "stance": "neutral",
+            "description": "No relationship between kobolds and Blackrock Clan is stated in the supplied material."
+          },
+          {
+            "faction_id": "Horde",
+            "stance": "neutral",
+            "description": "Kobolds are local creatures; the content does not link them institutionally to the Horde."
+          },
+          {
+            "faction_id": "Stonemason's Guild",
+            "stance": "neutral",
+            "description": "No explicit relation between kobolds and the Stonemason's Guild is presented in the provided content."
+          }
+        ],
+        "exclusive_with": [],
+        "ideology": "Small subterranean/mining tribes focused on treasure hoarding and defending mines (as described in Elwynn summaries).",
+        "goals": [
+          "Defend mining lairs and hoard treasure",
+          "Repel intruders into their mine complexes"
+        ],
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          },
+          {
+            "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest_(Classic)_quests",
+            "domain": "warcraft.wiki.gg",
+            "tier": "primary",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          }
+        ],
+        "confidence": 0.7
+      },
+      {
+        "name": "Blackrock Clan",
+        "parent_faction_id": "",
+        "level": "military",
+        "inter_faction": [
+          {
+            "faction_id": "Kingdom of Stormwind",
+            "stance": "hostile",
+            "description": "Blackrock orcs are repeatedly described in the content as historical enemies who assault human lands such as Elwynn."
+          },
+          {
+            "faction_id": "Alliance",
+            "stance": "hostile",
+            "description": "Blackrock Clan as part of orcish Horde forces oppose the Alliance (content contrasts Horde/Orc threats with Alliance defense)."
+          },
+          {
+            "faction_id": "Defias Brotherhood",
+            "stance": "neutral",
+            "description": "No direct relationship between Blackrock and the Defias is stated in the provided content."
+          },
+          {
+            "faction_id": "Stormwind Guard",
+            "stance": "hostile",
+            "description": "The Guard/Stormwind military are described as opposing Blackrock incursions historically in provided summaries."
+          },
+          {
+            "faction_id": "Brotherhood of Northshire",
+            "stance": "hostile",
+            "description": "Local militias would be opposed to Blackrock raiders, per the content's historical summaries."
+          },
+          {
+            "faction_id": "Riverpaw Pack",
+            "stance": "neutral",
+            "description": "No explicit relationship between Blackrock and Riverpaw is described in the supplied content."
+          },
+          {
+            "faction_id": "Kobolds",
+            "stance": "neutral",
+            "description": "No direct relation between Blackrock and kobolds is asserted in the content provided."
+          },
+          {
+            "faction_id": "Horde",
+            "stance": "allied",
+            "description": "Blackrock Clan is identified as an orcish clan typically associated with the Horde in the content's summaries of hostilities."
+          },
+          {
+            "faction_id": "Stonemason's Guild",
+            "stance": "neutral",
+            "description": "No relationship between Blackrock Clan and the Stonemason's Guild is described in the supplied material."
+          }
+        ],
+        "exclusive_with": [],
+        "ideology": "Orc clan focused on strength, conquest, and territorial gains (per the historical summaries present in the content).",
+        "goals": [
+          "Raid and seize territory from human settlements",
+          "Fight Alliance forces in contested areas"
+        ],
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          },
+          {
+            "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest",
+            "domain": "warcraft.wiki.gg",
+            "tier": "primary",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          }
+        ],
+        "confidence": 0.7
+      },
+      {
+        "name": "Horde",
+        "parent_faction_id": "",
+        "level": "major_faction",
+        "inter_faction": [
+          {
+            "faction_id": "Kingdom of Stormwind",
+            "stance": "hostile",
+            "description": "The content repeatedly frames the Horde (orcs/Blackrock) as historical enemies of Stormwind/humans."
+          },
+          {
+            "faction_id": "Alliance",
+            "stance": "hostile",
+            "description": "The Alliance and Horde are repeatedly presented as opposing major factions in the provided summaries."
+          },
+          {
+            "faction_id": "Defias Brotherhood",
+            "stance": "neutral",
+            "description": "The supplied content does not assert a formal alliance or enmity between the Horde and the Defias within Elwynn Forest summaries."
+          },
+          {
+            "faction_id": "Stormwind Guard",
+            "stance": "hostile",
+            "description": "The Guard defends against Horde incursions historically mentioned in the content."
+          },
+          {
+            "faction_id": "Brotherhood of Northshire",
+            "stance": "hostile",
+            "description": "Local Alliance-aligned groups oppose Horde forces per the content's framing of Alliance vs Horde conflict."
+          },
+          {
+            "faction_id": "Riverpaw Pack",
+            "stance": "neutral",
+            "description": "The content does not link the Horde institutionally with Riverpaw; Riverpaw are indigenous gnolls treated as separate threats."
+          },
+          {
+            "faction_id": "Kobolds",
+            "stance": "neutral",
+            "description": "Kobolds are presented as local creatures; no Horde affiliation is stated in the content."
+          },
+          {
+            "faction_id": "Blackrock Clan",
+            "stance": "allied",
+            "description": "Blackrock orcs are identified as a Horde-associated orcish clan in the content's historical summaries."
+          },
+          {
+            "faction_id": "Stonemason's Guild",
+            "stance": "neutral",
+            "description": "No relation between the Horde and the Stonemason's Guild is provided in the supplied content."
+          }
+        ],
+        "exclusive_with": [
+          "Alliance"
+        ],
+        "ideology": "Coalition of non-Alliance races (orcs historically prominent) valuing strength and survival; framed as opposing the Alliance in the content.",
+        "goals": [
+          "Expand influence and secure territory (historical framing in content)",
+          "Oppose Alliance/Stormwind forces in conflict"
+        ],
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          },
+          {
+            "url": "http://warcraft.wiki.gg/wiki/Elwynn_Forest",
+            "domain": "warcraft.wiki.gg",
+            "tier": "primary",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          }
+        ],
+        "confidence": 0.7
+      },
+      {
+        "name": "Stonemason's Guild",
+        "parent_faction_id": "",
+        "level": "guild",
+        "inter_faction": [
+          {
+            "faction_id": "Kingdom of Stormwind",
+            "stance": "neutral",
+            "description": "Content links the Stonemason's Guild historically to grievances with Stormwind (workers feeling cheated) but does not present a continuous institutional war against Stormwind\u2014this summary-level material ties the guild to the origin of the Defias."
+          },
+          {
+            "faction_id": "Alliance",
+            "stance": "neutral",
+            "description": "No explicit Alliance-level policy toward the Stonemason's Guild is provided; the guild is discussed mainly as the origin group for Defias members in the content."
+          },
+          {
+            "faction_id": "Defias Brotherhood",
+            "stance": "allied",
+            "description": "Multiple summaries in the provided content explicitly state the Defias Brotherhood formed from disgruntled stonemasons (direct historical link in the material)."
+          },
+          {
+            "faction_id": "Stormwind Guard",
+            "stance": "neutral",
+            "description": "The content does not provide an ongoing institutional stance between the Guard and the Stonemason's Guild beyond the historical grievances described."
+          },
+          {
+            "faction_id": "Brotherhood of Northshire",
+            "stance": "neutral",
+            "description": "No explicit relation between Northshire organizations and the Stonemason's Guild is present in the provided content."
+          },
+          {
+            "faction_id": "Riverpaw Pack",
+            "stance": "neutral",
+            "description": "No relationship between Riverpaw and the Stonemason's Guild is described in the supplied material."
+          },
+          {
+            "faction_id": "Kobolds",
+            "stance": "neutral",
+            "description": "No relation between kobolds and the Stonemason's Guild is asserted in the provided content."
+          },
+          {
+            "faction_id": "Blackrock Clan",
+            "stance": "neutral",
+            "description": "No direct relationship between Blackrock Clan and the Stonemason's Guild is described in the supplied material."
+          },
+          {
+            "faction_id": "Horde",
+            "stance": "neutral",
+            "description": "The content does not link the Stonemason's Guild institutionally with the Horde."
+          }
+        ],
+        "exclusive_with": [],
+        "ideology": "Craftsmen guild concerned with masonry/trades; in Elwynn summaries it is described as the origin community whose members later formed the Defias Brotherhood after feeling cheated.",
+        "goals": [
+          "Organize and regulate stonecraft and masonry (implied)",
+          "(Historically) represent stonemasons whose grievances contributed to the founding of the Defias Brotherhood"
+        ],
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_storyline",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          },
+          {
+            "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest",
+            "domain": "warcraft.wiki.gg",
+            "tier": "primary",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          }
+        ],
+        "confidence": 0.6
+      }
+    ],
+    "lore": [
+      {
+        "zone_id": "elwynn_forest",
+        "title": "Foundation of Stormwind and Early Settlement of Elwynn",
+        "category": "history",
+        "content": "Stormwind was founded centuries ago as a human kingdom in the Eastern Kingdoms; its establishment (by human lines descended from Arathi/Stromgarde influences in canonical accounts) created the political center that governs Elwynn Forest. What happened \u2192 why \u2192 consequences: To secure a human foothold in the Eastern Kingdoms and organize human polities after periods of fragmentation, settlers established Stormwind and surrounding farmsteads. This led to Elwynn Forest becoming a fertile agricultural hinterland\u2014hosting farms, logging camps, mines, and small settlements such as Goldshire and Northshire Abbey\u2014integral to Stormwind's economy and defense. Named actors: founding human houses (early Stormwind/Arathi-related lines), Stormwind city in later eras. Timeline placement: centurial foundation predating the First War; serves as background for all later events in Elwynn Forest.",
+        "era": "Pre-First War / Foundational era (centuries before the First War)",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          },
+          {
+            "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest",
+            "domain": "warcraft.wiki.gg",
+            "tier": "primary",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          }
+        ],
+        "confidence": 0.9
+      },
+      {
+        "zone_id": "elwynn_forest",
+        "title": "First and Second Wars: Occupation, Recovery, and Economic Aftermath",
+        "category": "history",
+        "content": "During the First War the Horde advanced into the human kingdoms, including Stormwind's territories; Elwynn Forest and its settlements suffered occupation and damage (Goldshire and Northshire were specifically noted as affected). After the First War and again following the Second War, Stormwind was retaken by humans\u2014restoration required massive rebuilding. What happened \u2192 why \u2192 consequences: Horde conquest (First War) and later conflicts forced the razing and rebuilding of infrastructure; after the Second War the cost of reconstruction strained Stormwind's coffers. The economic strain and perceived mistreatment of laborers and masons during reconstruction are a direct causal chain that contributed to social unrest and the later rise of the Defias Brotherhood. Named actors: the Horde (Orcs), Stormwind defenders, Anduin Lothar (as a named First War figure in the broader timeline). Timeline placement: First War (Horde occupation) \u2192 Post-Second War reconstruction and social fallout.",
+        "era": "First War; Post-Second War (immediate aftermath)",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_storyline",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          },
+          {
+            "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest",
+            "domain": "warcraft.wiki.gg",
+            "tier": "primary",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          }
+        ],
+        "confidence": 0.9
+      },
+      {
+        "zone_id": "elwynn_forest",
+        "title": "Rise of the Defias Brotherhood (economic grievance and banditry)",
+        "category": "history",
+        "content": "The Defias Brotherhood arose in the wake of Stormwind's costly reconstruction after the wars. What happened \u2192 why \u2192 consequences: Stonemasons and laborers who worked on Stormwind's rebuilding believed they had been cheated of pay and recognition; this grievance catalyzed the formation of the Defias Brotherhood, an organized band of thieves and insurgents who used raids and banditry to strike at Stormwind's interests. The Brotherhood's activities extended beyond Westfall into nearby territories like Elwynn Forest, increasing danger for travelers and necessitating stronger militia action. Named actors: the Defias Brotherhood, unpaid masons/stonemasons, Stormwind authorities. Timeline placement: Post-Second War reconstruction period leading into the game's early stories (pre-Classical quest era).",
+        "era": "Post-Second War (lead-in to Defias-era unrest)",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_storyline",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          },
+          {
+            "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest",
+            "domain": "warcraft.wiki.gg",
+            "tier": "primary",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          }
+        ],
+        "confidence": 0.9
+      },
+      {
+        "zone_id": "elwynn_forest",
+        "title": "Hogger and the Riverpaw Pack \u2014 local menace turned legend",
+        "category": "mythology",
+        "content": "Hogger, a gnoll chieftain of the Riverpaw pack, became the archetypal low-level challenge for new adventurers in Elwynn Forest. What happened \u2192 why \u2192 consequences: As leader of the Riverpaw gnolls, Hogger's aggression against settlers and travelers made him a focal point for early Stormwind security operations; due to his high difficulty relative to early players in Classic WoW he evolved into a community legend and cultural touchstone (memes, references in other content, later reappearances and homages in expansions). Named actors: Hogger, the Riverpaw pack, Stormwind guards (who seek his capture or death). Timeline placement: Prominent throughout Classic-era questing and referenced in later expansions (e.g., Cataclysm adjustments, Trial of the Champion memory appearances).",
+        "era": "Classic era (continues as a cultural/lore reference in later expansions)",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Hogger",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          },
+          {
+            "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest",
+            "domain": "warcraft.wiki.gg",
+            "tier": "primary",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          }
+        ],
+        "confidence": 0.9
+      },
+      {
+        "zone_id": "elwynn_forest",
+        "title": "Fargodeep Mine and the Kobold Threat",
+        "category": "history",
+        "content": "Fargodeep Mine is a local resource site that fell under increasing kobold control during periods of unrest. What happened \u2192 why \u2192 consequences: Kobolds seized parts of the mine and threatened local economies (mining and gold extraction), prompting Marshal Dughan and other Stormwind authorities to task adventurers with clearing kobold camps, recovering trade goods (notably 'kobold candles' used in local quests), and reasserting control. The disruption to mining and trade contributed to local insecurity in Elwynn and demonstrated how small-scale resource contests could destabilize rural Stormwind territories. Named actors: Kobold leaders (e.g., Goldtooth in quest accounts), Marshal Dughan, William Pestle (quest-involved NPC), adventurers. Timeline placement: Early quest-era conflicts (classic questlines, level 5\u201312 arc).",
+        "era": "Classic quest era (early game: levels 5\u201312)",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_(Classic)_quests",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          },
+          {
+            "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest_(Classic)_quests",
+            "domain": "warcraft.wiki.gg",
+            "tier": "primary",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          }
+        ],
+        "confidence": 0.8
+      },
+      {
+        "zone_id": "elwynn_forest",
+        "title": "Kobold Candles, Gold Dust and Local Economic Power Sources",
+        "category": "power_source",
+        "content": "Local resources in Elwynn\u2014particularly those tied to Fargodeep Mine\u2014function as economic power sources that drive quests and conflicts. What happened \u2192 why \u2192 consequences: Kobold control of mine outputs (e.g., gold, 'kobold candles' used as quest items) became a source of friction: merchants and NPCs (such as William Pestle and Remy 'Two Times') required those goods, and their disruption forced adventurers into action. These small-scale resource flows illustrate how material goods (not solely magical energies) serve as 'power' in the zone\u2014fueling livelihoods, quest economies, and occasional banditry. Named actors: kobolds, William Pestle, Remy 'Two Times', local farmers and miners. Timeline placement: Early quest-era economic conflicts (levels 5\u201312) and persistent local economy theme.",
+        "era": "Classic quest era (early game: levels 5\u201312)",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_(Classic)_quests",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          },
+          {
+            "url": "https://classic-wow-archive.fandom.com/wiki/Elwynn_Forest",
+            "domain": "classic-wow-archive.fandom.com",
+            "tier": "tertiary",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          }
+        ],
+        "confidence": 0.7
+      },
+      {
+        "zone_id": "elwynn_forest",
+        "title": "Stonefield\u2013Maclure Feud and Small-Scale Social Conflicts",
+        "category": "history",
+        "content": "Local family feuds\u2014exemplified by the Stonefield and Maclure families\u2014provide a social microhistory of Elwynn's rural communities. What happened \u2192 why \u2192 consequences: Disputes (for example, Auntie Bernice Stonefield's missing necklace and romantic entanglements like Maybell Maclure and Tommy Joe Stonefield) escalate into adventurer-involved quests; these incidents reveal how petty conflicts and interpersonal grievances can interlock with larger security concerns (kobold thieves, stolen goods) and require outside intervention. Named actors: Auntie Bernice Stonefield, Billy Maclure, Maybell Maclure, Tommy Joe Stonefield, Gramma Stonefield, William Pestle. Timeline placement: Early quest-era vignettes concurrent with kobold and Riverpaw troubles.",
+        "era": "Classic quest era (early game: levels 5\u201312)",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_questing_guide",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          },
+          {
+            "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest_(Classic)",
+            "domain": "warcraft.wiki.gg",
+            "tier": "primary",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          }
+        ],
+        "confidence": 0.7
+      },
+      {
+        "zone_id": "elwynn_forest",
+        "title": "Cataclysm and Post-Lich King Threats: Landscape and Security Shifts",
+        "category": "cosmology",
+        "content": "Large-scale world events (notably the Cataclysm and the era around the Lich King's fall) affected Elwynn Forest by destabilizing regional defenses and opening the area to renewed threats. What happened \u2192 why \u2192 consequences: The Cataclysm reshaped terrain and weakened natural defenses in many regions, and the power vacuum after the Lich King's defeat allowed opportunistic groups (kobolds, Blackrock orcs in some accounts, and increased banditry) to press into formerly secure territories. The consequence was a renewed need for recruitment, militia deployment (Marshal McBride, Marshal Dughan) and mobilization of Stormwind forces to defend the kingdom's frontier; it also altered local questlines to reflect increased instability. Named actors: Marshal McBride, Marshal Dughan, Blackrock orcs (as invaders in some post-Cataclysm accounts), Lich King (as antecedent figure). Timeline placement: Post-Lich King era into Cataclysm (expansion-era changes reflected in zone storylines).",
+        "era": "Post-Lich King / Cataclysm era (expansion-era changes)",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          },
+          {
+            "url": "http://warcraft.wiki.gg/wiki/Elwynn_Forest",
+            "domain": "warcraft.wiki.gg",
+            "tier": "primary",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          }
+        ],
+        "confidence": 0.8
+      },
+      {
+        "zone_id": "elwynn_forest",
+        "title": "Recruitment and Local Defense: Marshals, Guards and the Militia",
+        "category": "history",
+        "content": "Following repeated threats\u2014kobolds, gnolls (Riverpaw), murlocs, bandits\u2014the Stormwind authorities actively recruited and organized local defense forces centered on figures like Marshal McBride and Marshal Dughan. What happened \u2192 why \u2192 consequences: With the kingdom's army stretched and local security threatened, Marshals recruited new levies and assigned deputies (e.g., Deputy Rainer, Guard Thomas) to protect farms, garrisons and trade routes; adventurers are frequently pressed into service to supplement these forces. This recruitment stabilized the frontier enough to restore trade and farming, but also created ongoing military obligations for Stormwind's peacetime economy. Named actors: Marshal McBride, Marshal Dughan, Deputy Rainer, Guard Thomas, Marshal Dughan. Timeline placement: Ongoing across Classic-era quests and reiterated in later expansion storylines when threats re-emerge.",
+        "era": "Classic quest era through expansion-era security events",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Marshal_McBride",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          },
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Marshal_Dughan",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          }
+        ],
+        "confidence": 0.8
+      }
+    ],
+    "narrative_items": [
+      {
+        "name": "Consecrated Letter",
+        "zone_id": "elwynn_forest",
+        "story_arc": "One of several class-specific letters given by Marshal McBride at Northshire Abbey that initiate or relate to early class questlines for Paladins within Elwynn Forest.",
+        "wielder_lineage": [
+          "Marshal McBride",
+          "player"
+        ],
+        "power_description": "A ceremonial/quest letter with holy significance that functions as an initiation/quest item for paladin class quests.",
+        "significance": "notable",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T12:00:00Z"
+          },
+          {
+            "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest",
+            "domain": "warcraft.wiki.gg",
+            "tier": "primary",
+            "accessed_at": "2026-02-26T12:00:00Z"
+          }
+        ],
+        "confidence": 0.7
+      },
+      {
+        "name": "Encrypted Letter",
+        "zone_id": "elwynn_forest",
+        "story_arc": "Class-specific letter provided by Marshal McBride at Northshire Abbey that ties into the Rogue starting narrative in Elwynn Forest.",
+        "wielder_lineage": [
+          "Marshal McBride",
+          "player"
+        ],
+        "power_description": "A letter containing secretive information used to start or progress Rogue class quests.",
+        "significance": "notable",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T12:00:00Z"
+          },
+          {
+            "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest",
+            "domain": "warcraft.wiki.gg",
+            "tier": "primary",
+            "accessed_at": "2026-02-26T12:00:00Z"
+          }
+        ],
+        "confidence": 0.7
+      },
+      {
+        "name": "Simple Letter",
+        "zone_id": "elwynn_forest",
+        "story_arc": "A basic class letter from Marshal McBride related to the Warrior starting storyline in Elwynn Forest.",
+        "wielder_lineage": [
+          "Marshal McBride",
+          "player"
+        ],
+        "power_description": "A simple quest letter used to initiate or progress Warrior-class starting quests.",
+        "significance": "notable",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T12:00:00Z"
+          },
+          {
+            "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest",
+            "domain": "warcraft.wiki.gg",
+            "tier": "primary",
+            "accessed_at": "2026-02-26T12:00:00Z"
+          }
+        ],
+        "confidence": 0.7
+      },
+      {
+        "name": "Hallowed Letter",
+        "zone_id": "elwynn_forest",
+        "story_arc": "A priest-class letter from Marshal McBride at Northshire Abbey that ties into the Priest initiation and early quests in Elwynn Forest.",
+        "wielder_lineage": [
+          "Marshal McBride",
+          "player"
+        ],
+        "power_description": "A blessed/holy letter used as a quest/initiation item for Priest-class quests.",
+        "significance": "notable",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T12:00:00Z"
+          },
+          {
+            "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest",
+            "domain": "warcraft.wiki.gg",
+            "tier": "primary",
+            "accessed_at": "2026-02-26T12:00:00Z"
+          }
+        ],
+        "confidence": 0.7
+      },
+      {
+        "name": "Glyphic Letter",
+        "zone_id": "elwynn_forest",
+        "story_arc": "A Mage-class letter given by Marshal McBride used to connect players to mage-specific starting quests in Elwynn Forest.",
+        "wielder_lineage": [
+          "Marshal McBride",
+          "player"
+        ],
+        "power_description": "A letter inscribed with magical glyphs serving as a quest/initiation item for Mages.",
+        "significance": "notable",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T12:00:00Z"
+          },
+          {
+            "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest",
+            "domain": "warcraft.wiki.gg",
+            "tier": "primary",
+            "accessed_at": "2026-02-26T12:00:00Z"
+          }
+        ],
+        "confidence": 0.7
+      },
+      {
+        "name": "Tainted Letter",
+        "zone_id": "elwynn_forest",
+        "story_arc": "A Warlock-class letter from Marshal McBride that ties into the Warlock beginning quest narrative in Elwynn Forest.",
+        "wielder_lineage": [
+          "Marshal McBride",
+          "player"
+        ],
+        "power_description": "A corrupted/tainted letter used as a quest/initiation item for Warlock-class quests.",
+        "significance": "notable",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T12:00:00Z"
+          },
+          {
+            "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest",
+            "domain": "warcraft.wiki.gg",
+            "tier": "primary",
+            "accessed_at": "2026-02-26T12:00:00Z"
+          }
+        ],
+        "confidence": 0.7
+      },
+      {
+        "name": "The Stolen Tome",
+        "zone_id": "elwynn_forest",
+        "story_arc": "A Warlock-related quest tome referenced in Elwynn Forest starting quests (given by Drusilla La Salle) that contains forbidden knowledge relevant to the Warlock class storyline.",
+        "wielder_lineage": [
+          "Drusilla La Salle",
+          "player"
+        ],
+        "power_description": "A tome containing dark/forbidden knowledge used as a class quest item for Warlocks.",
+        "significance": "quest",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T12:00:00Z"
+          },
+          {
+            "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest",
+            "domain": "warcraft.wiki.gg",
+            "tier": "primary",
+            "accessed_at": "2026-02-26T12:00:00Z"
+          }
+        ],
+        "confidence": 0.7
+      },
+      {
+        "name": "Tome of Divinity",
+        "zone_id": "elwynn_forest",
+        "story_arc": "A paladin-class quest item in Elwynn Forest essential for paladin aspirants to learn early divine abilities and to progress the paladin starting questline.",
+        "wielder_lineage": [
+          "paladin aspirants",
+          "player"
+        ],
+        "power_description": "A scripture/tome granting access to or teaching early paladin spells and rites; functions as a class/quest item.",
+        "significance": "quest",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_questing_guide",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T12:00:00Z"
+          },
+          {
+            "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest_(Classic)_quests",
+            "domain": "warcraft.wiki.gg",
+            "tier": "primary",
+            "accessed_at": "2026-02-26T12:00:00Z"
+          }
+        ],
+        "confidence": 0.7
+      },
+      {
+        "name": "Gakin's Summons",
+        "zone_id": "elwynn_forest",
+        "story_arc": "A Warlock class quest item that allows the summoning of a voidwalker; part of the Warlock initiation quests in/around Elwynn Forest.",
+        "wielder_lineage": [
+          "Warlock quest-givers",
+          "player"
+        ],
+        "power_description": "A summons-type quest item that enables the summoning of a voidwalker (class-ability progression item).",
+        "significance": "notable",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T12:00:00Z"
+          },
+          {
+            "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest",
+            "domain": "warcraft.wiki.gg",
+            "tier": "primary",
+            "accessed_at": "2026-02-26T12:00:00Z"
+          }
+        ],
+        "confidence": 0.7
+      },
+      {
+        "name": "Elwynn Forest Scroll",
+        "zone_id": "elwynn_forest",
+        "story_arc": "A quest/item tied to the Rogue 'Preparation' quest that teleports the user to Elwynn Forest; used in early-class preparation and travel in the starting zone.",
+        "wielder_lineage": [
+          "Rogues",
+          "player"
+        ],
+        "power_description": "A scroll that teleports the user to Elwynn Forest (travel/quest utility item).",
+        "significance": "quest",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_Scroll",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T12:00:00Z"
+          },
+          {
+            "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest_(Classic)_quests",
+            "domain": "warcraft.wiki.gg",
+            "tier": "primary",
+            "accessed_at": "2026-02-26T12:00:00Z"
+          }
+        ],
+        "confidence": 0.9
+      },
+      {
+        "name": "Bernice's Necklace",
+        "zone_id": "elwynn_forest",
+        "story_arc": "A Stonefield family heirloom central to the 'Lost Necklace' quest chain; the player must retrieve it (claimed taken by Goldtooth/Kobolds) and return it to Bernice/Auntie Bernice Stonefield.",
+        "wielder_lineage": [
+          "Auntie Bernice Stonefield",
+          "Billy Maclure",
+          "Goldtooth (kobold)",
+          "player"
+        ],
+        "power_description": "A familial necklace used as a quest token/keepsake; primary significance is narrative (proof of recovery).",
+        "significance": "quest",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_(Classic)_quests",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T12:00:00Z"
+          },
+          {
+            "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest_(Classic)_quests",
+            "domain": "warcraft.wiki.gg",
+            "tier": "primary",
+            "accessed_at": "2026-02-26T12:00:00Z"
+          }
+        ],
+        "confidence": 0.9
+      },
+      {
+        "name": "Brass Collar",
+        "zone_id": "elwynn_forest",
+        "story_arc": "Proof item obtained by defeating 'Princess' (the prize pig) in the Stonefield Farm quest 'Princess Must Die!'; turned in to Ma Stonefield to complete the quest.",
+        "wielder_lineage": [
+          "Princess (pig)",
+          "player",
+          "Ma Stonefield"
+        ],
+        "power_description": "A physical collar used as proof-of-deed quest item (no special powers beyond narrative significance).",
+        "significance": "quest",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_(Classic)_quests",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T12:00:00Z"
+          },
+          {
+            "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest_(Classic)_quests",
+            "domain": "warcraft.wiki.gg",
+            "tier": "primary",
+            "accessed_at": "2026-02-26T12:00:00Z"
+          }
+        ],
+        "confidence": 0.9
+      },
+      {
+        "name": "Weather-worn Boots",
+        "zone_id": "elwynn_forest",
+        "story_arc": "One possible reward item for completing the 'Princess Must Die!' quest at Stonefield Farm; tied to the narrative of resolving the Stonefield/Maclure local feud and crop protection.",
+        "wielder_lineage": [
+          "quest reward recipients (players)"
+        ],
+        "power_description": "Cosmetic/starting-era equipment rewarded for completing the quest (narrative reward item).",
+        "significance": "notable",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_(Classic)_quests",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T12:00:00Z"
+          }
+        ],
+        "confidence": 0.7
+      },
+      {
+        "name": "Brass-studded Bracers",
+        "zone_id": "elwynn_forest",
+        "story_arc": "An alternative reward from the 'Princess Must Die!' quest offered by Ma Stonefield; a narrative reward item tied to that quest.",
+        "wielder_lineage": [
+          "quest reward recipients (players)"
+        ],
+        "power_description": "Quest reward equipment (narrative significance as compensation for completing the Stonefield task).",
+        "significance": "notable",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_(Classic)_quests",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T12:00:00Z"
+          }
+        ],
+        "confidence": 0.7
+      },
+      {
+        "name": "Farmer's Boots",
+        "zone_id": "elwynn_forest",
+        "story_arc": "Another selectable reward for completing the 'Princess Must Die!' quest; ties into the Stonefield farm storyline.",
+        "wielder_lineage": [
+          "quest reward recipients (players)"
+        ],
+        "power_description": "Quest reward equipment with narrative tie to Stonefield Farm task completion.",
+        "significance": "notable",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_(Classic)_quests",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T12:00:00Z"
+          }
+        ],
+        "confidence": 0.7
+      },
+      {
+        "name": "Bartleby's Mug",
+        "zone_id": "elwynn_forest",
+        "story_arc": "A tavern-related quest item in Elwynn Forest involving retrieving a lost mug for a tavern patron (Bartleby); reinforces local social/narrative color in Goldshire.",
+        "wielder_lineage": [
+          "Bartleby",
+          "player"
+        ],
+        "power_description": "A simple physical mug used as a quest fetch-item tied to tavern/Goldshire narratives.",
+        "significance": "notable",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_questing_guide",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T12:00:00Z"
+          },
+          {
+            "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest",
+            "domain": "warcraft.wiki.gg",
+            "tier": "primary",
+            "accessed_at": "2026-02-26T12:00:00Z"
+          }
+        ],
+        "confidence": 0.7
+      },
+      {
+        "name": "Wanted: \"Hogger\" (Wanted Poster)",
+        "zone_id": "elwynn_forest",
+        "story_arc": "A wanted poster/quest item tied to the 'Wanted: Hogger' quest, which directs players to hunt the notorious Gnoll 'Hogger' as part of establishing reputation and dealing with threats in Elwynn Forest.",
+        "wielder_lineage": [
+          "Stormwind authorities",
+          "player"
+        ],
+        "power_description": "Physical wanted poster used as quest flavor/evidence and to initiate the bounty on Hogger.",
+        "significance": "notable",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Hogger",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T12:00:00Z"
+          },
+          {
+            "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest_(Classic)_quests",
+            "domain": "warcraft.wiki.gg",
+            "tier": "primary",
+            "accessed_at": "2026-02-26T12:00:00Z"
+          }
+        ],
+        "confidence": 0.9
+      }
+    ],
+    "sources": [
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T13:59:42.413135"
+      },
+      {
+        "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest",
+        "domain": "warcraft.wiki.gg",
+        "tier": "primary",
+        "accessed_at": "2026-02-26T13:59:51.640618"
+      },
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T13:59:42.723488"
+      },
+      {
+        "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest",
+        "domain": "warcraft.wiki.gg",
+        "tier": "primary",
+        "accessed_at": "2026-02-26T13:59:47.270883"
+      },
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest?printable=yes",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T14:00:10.752317"
+      },
+      {
+        "url": "https://classic-wow-archive.fandom.com/wiki/Elwynn_Forest",
+        "domain": "classic-wow-archive.fandom.com",
+        "tier": "tertiary",
+        "accessed_at": "2026-02-26T14:00:30.741674"
+      },
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_storyline",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T14:00:40.010411"
+      },
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T13:59:42.747254"
+      },
+      {
+        "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest",
+        "domain": "warcraft.wiki.gg",
+        "tier": "primary",
+        "accessed_at": "2026-02-26T13:59:52.003093"
+      },
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_storyline",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T14:00:01.284919"
+      },
+      {
+        "url": "http://warcraft.wiki.gg/wiki/Elwynn_Forest",
+        "domain": "warcraft.wiki.gg",
+        "tier": "primary",
+        "accessed_at": "2026-02-26T14:00:06.908788"
+      },
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_questing_guide",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T14:00:12.305129"
+      },
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Hogger",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T14:00:55.238337"
+      },
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_(Classic)_quests",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T13:59:47.883739"
+      },
+      {
+        "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest_(Classic)_quests",
+        "domain": "warcraft.wiki.gg",
+        "tier": "primary",
+        "accessed_at": "2026-02-26T13:59:53.503674"
+      },
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_(Classic)",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T14:00:08.632197"
+      },
+      {
+        "url": "https://wowwiki-archive.fandom.com/wiki/Elwynn_Forest_questing_guide",
+        "domain": "wowwiki-archive.fandom.com",
+        "tier": "tertiary",
+        "accessed_at": "2026-02-26T14:00:44.398720"
+      },
+      {
+        "url": "https://www.wowhead.com/zone=12",
+        "domain": "www.wowhead.com",
+        "tier": "tertiary",
+        "accessed_at": "2026-02-26T14:00:49.319455"
+      },
+      {
+        "url": "https://classicdb.ch/?quests=0.12",
+        "domain": "classicdb.ch",
+        "tier": "tertiary",
+        "accessed_at": "2026-02-26T14:00:57.751699"
+      },
+      {
+        "url": "https://classicdb.ch/?quest=88",
+        "domain": "classicdb.ch",
+        "tier": "tertiary",
+        "accessed_at": "2026-02-26T14:01:07.711356"
+      },
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_Scroll",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T14:01:19.351418"
+      },
+      {
+        "url": "https://classicdb.ch/?quest=87",
+        "domain": "classicdb.ch",
+        "tier": "tertiary",
+        "accessed_at": "2026-02-26T14:01:31.228081"
+      },
+      {
+        "url": "https://classicdb.ch/?item=981",
+        "domain": "classicdb.ch",
+        "tier": "tertiary",
+        "accessed_at": "2026-02-26T14:01:42.645857"
+      },
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T13:59:44.591718"
+      },
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_storyline",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T13:59:50.316765"
+      },
+      {
+        "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest",
+        "domain": "warcraft.wiki.gg",
+        "tier": "primary",
+        "accessed_at": "2026-02-26T13:59:54.296661"
+      },
+      {
+        "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest_(Classic)",
+        "domain": "warcraft.wiki.gg",
+        "tier": "primary",
+        "accessed_at": "2026-02-26T14:00:28.386225"
+      },
+      {
+        "url": "http://worldofwarcraft.blizzard.com/news/12855773/new-player-guide-human-starting-zone-elwynn-forest-5-10",
+        "domain": "worldofwarcraft.blizzard.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T14:00:36.231969"
+      },
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Marshal_McBride",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T14:00:46.211120"
+      },
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Hogger",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T14:00:54.805685"
+      },
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Goldshire",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T14:01:14.937388"
+      },
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Stonefield_Farm",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T14:01:25.807535"
+      },
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Innkeeper_Farley",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T14:01:37.255060"
+      },
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Marshal_Dughan",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T14:02:00.758619"
+      },
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Stormwind_(faction)",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T14:02:11.337593"
+      },
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Riverpaw_pack",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T14:02:20.895581"
+      }
+    ],
+    "cross_ref_result": {
+      "is_consistent": false,
+      "conflicts": [
+        {
+          "data_point": "Faction name normalization between NPC entries and factions list",
+          "source_a": {
+            "url": "https://wowpedia.fandom.com/wiki/Marshal_Dughan",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          },
+          "claim_a": "Marshal Dughan (and several NPCs) use the faction id string 'Stormwind (kingdom)'.",
+          "source_b": {
+            "url": "https://wowpedia.fandom.com/wiki/Stormwind_(faction)",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          },
+          "claim_b": "The canonical faction entry is named 'Kingdom of Stormwind' in the factions list.",
+          "resolution": "Normalize faction identifiers across NPC and faction records. Prefer the canonical faction name used in the factions section ('Kingdom of Stormwind') and map alternative strings ('Stormwind (kingdom)', 'Stormwind Army') to it (or to 'Stormwind Guard' where appropriate) after verifying intended sub-faction semantics in primary sources (wowpedia/warcraft.wiki.gg)."
+        },
+        {
+          "data_point": "Riverpaw naming/capitalization mismatch",
+          "source_a": {
+            "url": "https://wowpedia.fandom.com/wiki/Hogger",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          },
+          "claim_a": "Hogger's faction_ids include 'Riverpaw pack' (lowercase 'pack').",
+          "source_b": {
+            "url": "https://wowpedia.fandom.com/wiki/Riverpaw_pack",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          },
+          "claim_b": "Factions list contains 'Riverpaw Pack' (capitalized 'Pack').",
+          "resolution": "Standardize capitalization and spacing to 'Riverpaw Pack' (or canonical identifier) across NPC and faction records to avoid duplicate/near-duplicate faction nodes."
+        },
+        {
+          "data_point": "NPC-specified factions missing from factions list (Deputy Rainer)",
+          "source_a": {
+            "url": "https://wowpedia.fandom.com/wiki/Westbrook_Garrison",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          },
+          "claim_a": "Deputy Rainer's faction_ids include 'Stormwind Army' and 'Westbrook Garrison' (per Deputy Rainer entry).",
+          "source_b": {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          },
+          "claim_b": "Factions list (provided) does not contain entries named 'Stormwind Army' or 'Westbrook Garrison' \u2014 similar concepts appear under 'Stormwind Guard' or 'Kingdom of Stormwind' but not exact matches.",
+          "resolution": "Add 'Westbrook Garrison' and/or 'Stormwind Army' as explicit faction/sub-faction entries (with sources), or map them to existing factions ('Stormwind Guard' / 'Kingdom of Stormwind') if those are intended. Confirm with primary sources (wowpedia/warcraft.wiki.gg) whether these are distinct institutional entities or colloquial/local garrison names."
+        },
+        {
+          "data_point": "Zone object missing narrative/political fields while lore entries provide detailed arcs",
+          "source_a": {
+            "url": "N/A (zone object in provided dataset)",
+            "domain": "internal_dataset",
+            "tier": "secondary",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          },
+          "claim_a": "Zone 'Elwynn Forest' record has empty narrative_arc, political_climate, sources, and confidence = 0.0.",
+          "source_b": {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_storyline",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          },
+          "claim_b": "Multiple lore entries (e.g., 'Rise of the Defias Brotherhood', 'First and Second Wars', 'Recruitment and Local Defense') provide narrative arcs, political context, era placement and sources for Elwynn Forest.",
+          "resolution": "Populate the zone-level narrative_arc, political_climate, sources, and confidence fields using the summarized lore entries (and their sources). The zone record should reference the same primary sources used in lore entries (wowpedia/warcraft.wiki.gg) and include aggregated narrative summaries and political climate details (Defias unrest; Alliance/Stormwind dominance; local threats: kobolds, Riverpaw, etc.)."
+        },
+        {
+          "data_point": "NPCs referenced in lore and narrative_items are missing from the NPCs list",
+          "source_a": {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_(Classic)_quests",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          },
+          "claim_a": "Lore and narrative_items reference many named NPCs (William Pestle, Remy 'Two Times', Auntie Bernice Stonefield, Billy Maclure, Maybell Maclure, Tommy Joe Stonefield, Gramma Stonefield, Ma Stonefield, Bartleby, Drusilla La Salle, Princess (pig), etc.).",
+          "source_b": {
+            "url": "N/A (npcs list in provided dataset)",
+            "domain": "internal_dataset",
+            "tier": "secondary",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          },
+          "claim_b": "The npcs list (16 entries) does not include the above quest-specific NPCs/actors despite them being named in lore and narrative_items.",
+          "resolution": "Add missing quest NPCs to the npcs list (at least as minimal stubs with sources) or mark them deliberately omitted if they are understood to be 'minor/quest-only' non-indexed entities. If included, populate role, faction_ids, quest_threads, and relationships where available from primary sources."
+        },
+        {
+          "data_point": "NPC faction id value 'Gnome' not represented in factions list",
+          "source_a": {
+            "url": "https://wowpedia.fandom.com/wiki/Agee_Tyler%27s_farm",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          },
+          "claim_a": "NPC 'Agee Tyler' has faction_ids: ['Gnome'].",
+          "source_b": {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          },
+          "claim_b": "Factions list does not include a top-level 'Gnome' faction entry (factions are more often represented under 'Alliance' or specific cities/clans).",
+          "resolution": "Either add a 'Gnome' faction entry (if the dataset intends to index playable races as factions) or replace 'Gnome' with a membership under 'Alliance' or 'Ironforge' depending on Agee Tyler's canonical affiliation. Confirm usage intent and standardize."
+        }
+      ],
+      "confidence": {},
+      "notes": ""
+    },
+    "discovered_zones": [
+      "stormwind_city",
+      "redridge_mountains",
+      "duskwood",
+      "westfall"
+    ],
+    "orchestrator_tokens": 21418,
+    "worker_tokens": 1052945
+  },
+  "research_package": {
+    "zone_name": "elwynn_forest",
+    "zone_data": {
+      "name": "Elwynn Forest",
+      "game": "wow",
+      "level_range": {},
+      "narrative_arc": "",
+      "political_climate": "",
+      "access_gating": [],
+      "phase_states": [],
+      "connected_zones": [],
+      "era": "",
+      "sources": [],
+      "confidence": 0.0
+    },
+    "npcs": [
+      {
+        "name": "Marshal Dughan",
+        "zone_id": "elwynn_forest",
+        "faction_ids": [
+          "Stormwind (kingdom)"
+        ],
+        "personality": "",
+        "motivations": [
+          "Reclaim Elwynn from kobolds and other threats",
+          "Maintain law and order in Goldshire"
+        ],
+        "relationships": [
+          {
+            "npc_id": "Marshal McBride",
+            "relationship_type": "peer",
+            "description": "Also serves as a municipal law enforcer in Elwynn Forest (Goldshire vs Northshire)"
+          }
+        ],
+        "quest_threads": [],
+        "phased_state": "",
+        "role": "guard",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          },
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Marshal_Dughan",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          }
+        ],
+        "confidence": 0.9
+      },
+      {
+        "name": "Marshal McBride",
+        "zone_id": "elwynn_forest",
+        "faction_ids": [
+          "Brotherhood of Northshire",
+          "Stormwind (kingdom)"
+        ],
+        "personality": "",
+        "motivations": [
+          "Recruit promising young humans into the Army",
+          "Maintain security around Northshire Abbey"
+        ],
+        "relationships": [
+          {
+            "npc_id": "Marshal Dughan",
+            "relationship_type": "peer",
+            "description": "Both are municipal law enforcers in Elwynn Forest (different areas)"
+          }
+        ],
+        "quest_threads": [],
+        "phased_state": "",
+        "role": "guard",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          },
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Marshal_McBride",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          }
+        ],
+        "confidence": 0.9
+      },
+      {
+        "name": "Guard Thomas",
+        "zone_id": "elwynn_forest",
+        "faction_ids": [
+          "Stormwind (kingdom)"
+        ],
+        "personality": "",
+        "motivations": [
+          "Eradicate the murloc foothold in Elwynn Forest"
+        ],
+        "relationships": [],
+        "quest_threads": [],
+        "phased_state": "",
+        "role": "guard",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          },
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Guard_Thomas",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          }
+        ],
+        "confidence": 0.9
+      },
+      {
+        "name": "Deputy Rainer",
+        "zone_id": "elwynn_forest",
+        "faction_ids": [
+          "Stormwind Army",
+          "Westbrook Garrison"
+        ],
+        "personality": "",
+        "motivations": [
+          "Protect Elwynn's border from Riverpaw gnolls"
+        ],
+        "relationships": [],
+        "quest_threads": [],
+        "phased_state": "",
+        "role": "faction_leader",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          },
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Westbrook_Garrison",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          }
+        ],
+        "confidence": 0.9
+      },
+      {
+        "name": "Hogger",
+        "zone_id": "elwynn_forest",
+        "faction_ids": [
+          "Riverpaw pack",
+          "Gnoll"
+        ],
+        "personality": "",
+        "motivations": [
+          "Harass and terrorize travelers and settlers in Elwynn Forest"
+        ],
+        "relationships": [],
+        "quest_threads": [
+          "WANTED: \"Hogger\""
+        ],
+        "phased_state": "",
+        "role": "boss",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          },
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Hogger",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          },
+          {
+            "url": "https://wowpedia.fandom.com/wiki/WANTED:_%22Hogger%22",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          }
+        ],
+        "confidence": 0.9
+      },
+      {
+        "name": "Anduin Wrynn",
+        "zone_id": "elwynn_forest",
+        "faction_ids": [
+          "Stormwind (kingdom)",
+          "Alliance"
+        ],
+        "personality": "",
+        "motivations": [
+          "Rule and protect the Kingdom of Stormwind"
+        ],
+        "relationships": [
+          {
+            "npc_id": "Turalyon",
+            "relationship_type": "regent_relation",
+            "description": "Turalyon serves as regent/protector in absentia for Anduin Wrynn"
+          }
+        ],
+        "quest_threads": [],
+        "phased_state": "",
+        "role": "faction_leader",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          },
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Anduin_Wrynn",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          }
+        ],
+        "confidence": 0.9
+      },
+      {
+        "name": "Turalyon",
+        "zone_id": "elwynn_forest",
+        "faction_ids": [
+          "Stormwind (kingdom)",
+          "Alliance"
+        ],
+        "personality": "",
+        "motivations": [
+          "Act as regent and protector of the realm (command of military forces)"
+        ],
+        "relationships": [
+          {
+            "npc_id": "Anduin Wrynn",
+            "relationship_type": "regent_for",
+            "description": "Serves as regent/protector in absentia for Anduin Wrynn"
+          },
+          {
+            "npc_id": "Genn Greymane",
+            "relationship_type": "supported_by",
+            "description": "Genn Greymane (and Mathias) publicly supported Turalyon's command in references"
+          }
+        ],
+        "quest_threads": [],
+        "phased_state": "",
+        "role": "faction_leader",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          },
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Turalyon",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          },
+          {
+            "url": "https://www.youtube.com/watch?v=O-YGTYQNi4Y",
+            "domain": "youtube.com",
+            "tier": "secondary",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          }
+        ],
+        "confidence": 0.9
+      },
+      {
+        "name": "Anduin Lothar",
+        "zone_id": "elwynn_forest",
+        "faction_ids": [
+          "Stormwind (kingdom)"
+        ],
+        "personality": "",
+        "motivations": [
+          "Led humans to Lordaeron during the First War (historical military leadership)"
+        ],
+        "relationships": [],
+        "quest_threads": [],
+        "phased_state": "",
+        "role": "faction_leader",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          },
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Anduin_Lothar",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          }
+        ],
+        "confidence": 0.9
+      },
+      {
+        "name": "Genn Greymane",
+        "zone_id": "elwynn_forest",
+        "faction_ids": [
+          "Gilneas",
+          "Alliance"
+        ],
+        "personality": "",
+        "motivations": [
+          "Support the leadership decisions protecting Stormwind (per reference quote)"
+        ],
+        "relationships": [
+          {
+            "npc_id": "Turalyon",
+            "relationship_type": "ally/support",
+            "description": "Expressed support for Turalyon serving as regent/protector"
+          }
+        ],
+        "quest_threads": [],
+        "phased_state": "",
+        "role": "faction_leader",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest#References",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          },
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Genn_Greymane",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          }
+        ],
+        "confidence": 0.9
+      },
+      {
+        "name": "Brann Bronzebeard",
+        "zone_id": "elwynn_forest",
+        "faction_ids": [
+          "Ironforge",
+          "Bronzebeard clan"
+        ],
+        "personality": "",
+        "motivations": [],
+        "relationships": [],
+        "quest_threads": [],
+        "phased_state": "",
+        "role": "civilian",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          },
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Brann_Bronzebeard",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          }
+        ],
+        "confidence": 0.9
+      },
+      {
+        "name": "Agee Tyler",
+        "zone_id": "elwynn_forest",
+        "faction_ids": [
+          "Gnome"
+        ],
+        "personality": "",
+        "motivations": [],
+        "relationships": [],
+        "quest_threads": [],
+        "phased_state": "",
+        "role": "civilian",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          },
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Agee_Tyler%27s_farm",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          }
+        ],
+        "confidence": 0.9
+      },
+      {
+        "name": "Mr. Blackridge",
+        "zone_id": "elwynn_forest",
+        "faction_ids": [],
+        "personality": "",
+        "motivations": [],
+        "relationships": [],
+        "quest_threads": [],
+        "phased_state": "",
+        "role": "civilian",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest#Notes_and_trivia",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          },
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Mr._Blackridge",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          }
+        ],
+        "confidence": 0.9
+      },
+      {
+        "name": "Mr. Woodring",
+        "zone_id": "elwynn_forest",
+        "faction_ids": [],
+        "personality": "",
+        "motivations": [],
+        "relationships": [],
+        "quest_threads": [],
+        "phased_state": "",
+        "role": "civilian",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest#Notes_and_trivia",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          },
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Mr._Woodring",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          }
+        ],
+        "confidence": 0.9
+      },
+      {
+        "name": "Liam",
+        "zone_id": "elwynn_forest",
+        "faction_ids": [],
+        "personality": "",
+        "motivations": [],
+        "relationships": [],
+        "quest_threads": [],
+        "phased_state": "",
+        "role": "civilian",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest#Notes_and_trivia",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          },
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Liam",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          }
+        ],
+        "confidence": 0.9
+      },
+      {
+        "name": "Goldtooth",
+        "zone_id": "elwynn_forest",
+        "faction_ids": [],
+        "personality": "",
+        "motivations": [],
+        "relationships": [],
+        "quest_threads": [],
+        "phased_state": "",
+        "role": "",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          },
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Goldtooth%27s_Den",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          }
+        ],
+        "confidence": 0.7
+      },
+      {
+        "name": "Mathias",
+        "zone_id": "elwynn_forest",
+        "faction_ids": [],
+        "personality": "",
+        "motivations": [],
+        "relationships": [
+          {
+            "npc_id": "Turalyon",
+            "relationship_type": "support",
+            "description": "Referenced alongside Genn Greymane as supporting Turalyon's command/regency"
+          }
+        ],
+        "quest_threads": [],
+        "phased_state": "",
+        "role": "",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest#References",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          }
+        ],
+        "confidence": 0.7
+      }
+    ],
+    "factions": [
+      {
+        "name": "Kingdom of Stormwind",
+        "parent_faction_id": "",
+        "level": "major_faction",
+        "inter_faction": [
+          {
+            "faction_id": "Alliance",
+            "stance": "allied",
+            "description": "Stormwind is the human heartland and a leading member of the Alliance (stated throughout the content)."
+          },
+          {
+            "faction_id": "Defias Brotherhood",
+            "stance": "hostile",
+            "description": "Content repeatedly identifies the Defias Brotherhood as a criminal organization opposing Stormwind (Elwynn storyline summaries)."
+          },
+          {
+            "faction_id": "Stormwind Guard",
+            "stance": "allied",
+            "description": "The Stormwind Guard/military enforces Stormwind law and is described as protecting the realm in the content."
+          },
+          {
+            "faction_id": "Brotherhood of Northshire",
+            "stance": "allied",
+            "description": "Multiple summaries in the content list the Brotherhood of Northshire as a local allied militia/recruiting/training group under Stormwind influence."
+          },
+          {
+            "faction_id": "Riverpaw Pack",
+            "stance": "hostile",
+            "description": "The Riverpaw (gnolls) are described as a territorial hostile force raiding local settlements in Elwynn (content notes Riverpaw hostility to Stormwind/locals)."
+          },
+          {
+            "faction_id": "Kobolds",
+            "stance": "hostile",
+            "description": "Kobolds in Elwynn are listed as hostile creatures infesting mines and attacking citizens/adventurers (content cites kobold threats)."
+          },
+          {
+            "faction_id": "Blackrock Clan",
+            "stance": "hostile",
+            "description": "Blackrock orc incursions are repeatedly described as hostile to human settlements in the content."
+          },
+          {
+            "faction_id": "Horde",
+            "stance": "hostile",
+            "description": "The Horde (orcish forces, including Blackrock) are repeatedly presented as historical enemies of Stormwind in the provided summaries."
+          },
+          {
+            "faction_id": "Stonemason's Guild",
+            "stance": "neutral",
+            "description": "Content links the Stonemason's Guild to the origins of the Defias Brotherhood but does not provide a direct, sustained institutional stance toward Stormwind beyond that historical grievance."
+          }
+        ],
+        "exclusive_with": [
+          "Horde"
+        ],
+        "ideology": "Human governance: protection of citizens, law and order, stewardship of Elwynn as Stormwind's heartland.",
+        "goals": [
+          "Protect Elwynn Forest and its inhabitants",
+          "Maintain law and order and the prosperity of Stormwind's territories"
+        ],
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          },
+          {
+            "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest",
+            "domain": "warcraft.wiki.gg",
+            "tier": "primary",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          },
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Stormwind_(faction)",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          }
+        ],
+        "confidence": 0.8
+      },
+      {
+        "name": "Alliance",
+        "parent_faction_id": "",
+        "level": "major_faction",
+        "inter_faction": [
+          {
+            "faction_id": "Kingdom of Stormwind",
+            "stance": "allied",
+            "description": "Stormwind is the primary human member nation of the Alliance (content lists Stormwind and Alliance together)."
+          },
+          {
+            "faction_id": "Defias Brotherhood",
+            "stance": "hostile",
+            "description": "Content frames the Defias as criminal/hostile forces opposing Alliance/Stromwind interests in Elwynn."
+          },
+          {
+            "faction_id": "Stormwind Guard",
+            "stance": "allied",
+            "description": "Stormwind Guard is the military arm enforcing Alliance/Stormwind law in the zone (content references guard and military figures)."
+          },
+          {
+            "faction_id": "Brotherhood of Northshire",
+            "stance": "allied",
+            "description": "Local militia/recruiting organizations (Brotherhood of Northshire) are described as allied to Stormwind/Alliance interests."
+          },
+          {
+            "faction_id": "Riverpaw Pack",
+            "stance": "hostile",
+            "description": "Riverpaw gnolls are listed as hostile threats to Alliance settlements in Elwynn in the content."
+          },
+          {
+            "faction_id": "Kobolds",
+            "stance": "hostile",
+            "description": "Kobolds are described as hostile creatures attacking local residents and miners in Elwynn Forest."
+          },
+          {
+            "faction_id": "Blackrock Clan",
+            "stance": "hostile",
+            "description": "Blackrock orcs are repeatedly stated as enemies of the Alliance/humans in the content's historical summaries."
+          },
+          {
+            "faction_id": "Horde",
+            "stance": "hostile",
+            "description": "The content repeatedly contrasts Alliance and Horde as opposing major factions; the Horde is an enemy of the Alliance."
+          },
+          {
+            "faction_id": "Stonemason's Guild",
+            "stance": "neutral",
+            "description": "No explicit Alliance-level institutional stance toward the Stonemason's Guild is provided in the content; the guild is mentioned in relation to the Defias origin."
+          }
+        ],
+        "exclusive_with": [
+          "Horde"
+        ],
+        "ideology": "Coalition of races united for mutual defense, law, and order (as presented in the summaries).",
+        "goals": [
+          "Maintain peace in member territories",
+          "Defend against hostile forces (Horde, bandits, beasts)"
+        ],
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_storyline",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          },
+          {
+            "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest",
+            "domain": "warcraft.wiki.gg",
+            "tier": "primary",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          }
+        ],
+        "confidence": 0.8
+      },
+      {
+        "name": "Defias Brotherhood",
+        "parent_faction_id": "",
+        "level": "criminal",
+        "inter_faction": [
+          {
+            "faction_id": "Kingdom of Stormwind",
+            "stance": "hostile",
+            "description": "Multiple summaries in the content describe the Defias Brotherhood as a criminal organization formed in opposition to Stormwind (unpaid labor grievance origin is repeatedly mentioned)."
+          },
+          {
+            "faction_id": "Alliance",
+            "stance": "hostile",
+            "description": "Content frames the Defias as an organized criminal threat to Alliance/Stromwind interests in Elwynn."
+          },
+          {
+            "faction_id": "Stormwind Guard",
+            "stance": "hostile",
+            "description": "As Stormwind's law enforcement, the Guard is described as pursuing Defias operatives in the content summaries."
+          },
+          {
+            "faction_id": "Brotherhood of Northshire",
+            "stance": "hostile",
+            "description": "Local militia and recruiting organizations are described as opposing banditry; content implies hostility toward Defias activity in Elwynn."
+          },
+          {
+            "faction_id": "Riverpaw Pack",
+            "stance": "neutral",
+            "description": "The provided content does not state a clear formal relationship between the Defias and the Riverpaw; no explicit alliance or enmity is given."
+          },
+          {
+            "faction_id": "Kobolds",
+            "stance": "neutral",
+            "description": "Content does not provide an explicit relationship between Defias and kobolds; some summaries mention rumored criminal associations but do not confirm institutional ties."
+          },
+          {
+            "faction_id": "Blackrock Clan",
+            "stance": "neutral",
+            "description": "No direct relationship between the Defias Brotherhood and Blackrock Clan is described in the supplied content."
+          },
+          {
+            "faction_id": "Horde",
+            "stance": "neutral",
+            "description": "The content does not assert a formal connection between the Defias and the Horde within Elwynn Forest summaries."
+          },
+          {
+            "faction_id": "Stonemason's Guild",
+            "stance": "allied",
+            "description": "Content repeatedly states the Defias formed from disgruntled stonemasons (Stonemason's Guild -> Defias origin), indicating close historical linkage."
+          }
+        ],
+        "exclusive_with": [],
+        "ideology": "Criminal, vengeful organization formed from exploited workers; opposes Stormwind's ruling class (as presented in multiple summaries).",
+        "goals": [
+          "Undermine Stormwind authority",
+          "Conduct banditry, sabotage, and robbery in and around Elwynn/Westfall"
+        ],
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_storyline",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          },
+          {
+            "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest",
+            "domain": "warcraft.wiki.gg",
+            "tier": "primary",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          }
+        ],
+        "confidence": 0.8
+      },
+      {
+        "name": "Stormwind Guard",
+        "parent_faction_id": "",
+        "level": "military",
+        "inter_faction": [
+          {
+            "faction_id": "Kingdom of Stormwind",
+            "stance": "allied",
+            "description": "The Guard is Stormwind's military/law enforcement arm (content names Stormwind-affiliated guards and marshals)."
+          },
+          {
+            "faction_id": "Alliance",
+            "stance": "allied",
+            "description": "As Stormwind's military, the Guard operates in service of Alliance/Stormwind interests in Elwynn per the content."
+          },
+          {
+            "faction_id": "Defias Brotherhood",
+            "stance": "hostile",
+            "description": "The Guard is repeatedly described as opposing and hunting Defias operatives in the Elwynn storyline summaries."
+          },
+          {
+            "faction_id": "Brotherhood of Northshire",
+            "stance": "allied",
+            "description": "Local militia/recruiting bodies (Brotherhood of Northshire) are presented as cooperating with Stormwind military efforts."
+          },
+          {
+            "faction_id": "Riverpaw Pack",
+            "stance": "hostile",
+            "description": "The Guard is described as defending settlements from Riverpaw gnoll raids in the content."
+          },
+          {
+            "faction_id": "Kobolds",
+            "stance": "hostile",
+            "description": "Kobolds are listed as hostile creatures that the Guard/locals contend with around mines and settlements."
+          },
+          {
+            "faction_id": "Blackrock Clan",
+            "stance": "hostile",
+            "description": "Historical summaries in the content list Blackrock orcs as antagonists the Guard would oppose."
+          },
+          {
+            "faction_id": "Horde",
+            "stance": "hostile",
+            "description": "The Guard defends against Horde incursions historically referenced in the content."
+          },
+          {
+            "faction_id": "Stonemason's Guild",
+            "stance": "neutral",
+            "description": "No clear operational stance between the Guard and the Stonemason's Guild is given in the provided content beyond historical grievances that produced the Defias."
+          }
+        ],
+        "exclusive_with": [],
+        "ideology": "Enforce law, protect citizens, and uphold Stormwind/Alliance security.",
+        "goals": [
+          "Protect Elwynn Forest settlements",
+          "Pursue criminals (e.g., Defias) and hostile creatures"
+        ],
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Marshal_McBride",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          },
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_questing_guide",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          }
+        ],
+        "confidence": 0.7
+      },
+      {
+        "name": "Brotherhood of Northshire",
+        "parent_faction_id": "",
+        "level": "guild",
+        "inter_faction": [
+          {
+            "faction_id": "Kingdom of Stormwind",
+            "stance": "allied",
+            "description": "Content repeatedly references Northshire Abbey and related recruitment/training as allied to Stormwind's defense of Elwynn."
+          },
+          {
+            "faction_id": "Alliance",
+            "stance": "allied",
+            "description": "As a Stormwind-localized recruiting/training organization, it is presented as part of Alliance-aligned defense in the content."
+          },
+          {
+            "faction_id": "Defias Brotherhood",
+            "stance": "hostile",
+            "description": "Local recruiting/militia organizations are described as opposing bandit activity (Defias) in Elwynn content summaries."
+          },
+          {
+            "faction_id": "Stormwind Guard",
+            "stance": "allied",
+            "description": "The Brotherhood is described as cooperating with Stormwind's military/recruitment efforts."
+          },
+          {
+            "faction_id": "Riverpaw Pack",
+            "stance": "hostile",
+            "description": "The content presents Riverpaw gnolls as a local raiding threat that Northshire-associated forces oppose."
+          },
+          {
+            "faction_id": "Kobolds",
+            "stance": "hostile",
+            "description": "Kobold infestations are listed among local threats to settlements and agents of the Brotherhood would engage them."
+          },
+          {
+            "faction_id": "Blackrock Clan",
+            "stance": "hostile",
+            "description": "Historical enemies of Stormwind, such as Blackrock orcs, are opposed by local militias per the summaries."
+          },
+          {
+            "faction_id": "Horde",
+            "stance": "hostile",
+            "description": "The Brotherhood, aligned with Stormwind/Alliance, is presented as opposed to Horde forces in the content."
+          },
+          {
+            "faction_id": "Stonemason's Guild",
+            "stance": "neutral",
+            "description": "No explicit relationship between Northshire organizations and the Stonemason's Guild is provided in the supplied content."
+          }
+        ],
+        "exclusive_with": [],
+        "ideology": "Local recruitment/training and defense\u2014uphold Stormwind/Alliance laws and protect civilians.",
+        "goals": [
+          "Recruit and train defenders for Elwynn/Stormwind",
+          "Protect local settlements from bandits and beasts"
+        ],
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          },
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_questing_guide",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          }
+        ],
+        "confidence": 0.6
+      },
+      {
+        "name": "Riverpaw Pack",
+        "parent_faction_id": "",
+        "level": "tribal",
+        "inter_faction": [
+          {
+            "faction_id": "Kingdom of Stormwind",
+            "stance": "hostile",
+            "description": "The Riverpaw gnolls are described as raiders who attack local human settlements, making them hostile to Stormwind."
+          },
+          {
+            "faction_id": "Alliance",
+            "stance": "hostile",
+            "description": "Riverpaw are presented as a local menace to Alliance citizens in Elwynn content."
+          },
+          {
+            "faction_id": "Defias Brotherhood",
+            "stance": "neutral",
+            "description": "No explicit institutional relation between Riverpaw and Defias is asserted in the provided content."
+          },
+          {
+            "faction_id": "Stormwind Guard",
+            "stance": "hostile",
+            "description": "The Guard/militia oppose Riverpaw raids and protect settlements per content summaries."
+          },
+          {
+            "faction_id": "Brotherhood of Northshire",
+            "stance": "hostile",
+            "description": "Local defense forces oppose Riverpaw gnoll incursions as described in the content."
+          },
+          {
+            "faction_id": "Kobolds",
+            "stance": "neutral",
+            "description": "The content treats kobolds and gnolls as separate hostile creature groups without stating a relationship between them."
+          },
+          {
+            "faction_id": "Blackrock Clan",
+            "stance": "neutral",
+            "description": "No direct relationship between Riverpaw and Blackrock Clan is provided in the supplied content."
+          },
+          {
+            "faction_id": "Horde",
+            "stance": "neutral",
+            "description": "Riverpaw gnolls are indigenous hostile creatures; the content does not link them institutionally to the Horde."
+          },
+          {
+            "faction_id": "Stonemason's Guild",
+            "stance": "neutral",
+            "description": "No connection between Riverpaw and the Stonemason's Guild is described in the provided summaries."
+          }
+        ],
+        "exclusive_with": [],
+        "ideology": "Tribal gnoll society focused on raiding and territorial control (as summarized in multiple sections of the content).",
+        "goals": [
+          "Raid local settlements for resources",
+          "Maintain territorial dominance in parts of Elwynn Forest"
+        ],
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Riverpaw_pack",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          },
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Hogger",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          }
+        ],
+        "confidence": 0.8
+      },
+      {
+        "name": "Kobolds",
+        "parent_faction_id": "",
+        "level": "tribal",
+        "inter_faction": [
+          {
+            "faction_id": "Kingdom of Stormwind",
+            "stance": "hostile",
+            "description": "Kobolds are described as hostile mine-dwelling creatures that attack local citizens and miners in Elwynn per the content."
+          },
+          {
+            "faction_id": "Alliance",
+            "stance": "hostile",
+            "description": "Kobold incursions are framed as threats to Alliance settlements and adventurers in the provided summaries."
+          },
+          {
+            "faction_id": "Defias Brotherhood",
+            "stance": "neutral",
+            "description": "No clear institutional relationship between kobolds and the Defias is described in the content; some summaries mention rumored ties but do not establish them."
+          },
+          {
+            "faction_id": "Stormwind Guard",
+            "stance": "hostile",
+            "description": "The Guard and locals are described as confronting kobold infestations (content lists kobolds among local threats)."
+          },
+          {
+            "faction_id": "Brotherhood of Northshire",
+            "stance": "hostile",
+            "description": "Local recruiters/defenders are presented as opposing kobold threats to settlements."
+          },
+          {
+            "faction_id": "Riverpaw Pack",
+            "stance": "neutral",
+            "description": "Kobolds and Riverpaw are treated as separate hostile groups with no explicit interactions in the provided content."
+          },
+          {
+            "faction_id": "Blackrock Clan",
+            "stance": "neutral",
+            "description": "No relationship between kobolds and Blackrock Clan is stated in the supplied material."
+          },
+          {
+            "faction_id": "Horde",
+            "stance": "neutral",
+            "description": "Kobolds are local creatures; the content does not link them institutionally to the Horde."
+          },
+          {
+            "faction_id": "Stonemason's Guild",
+            "stance": "neutral",
+            "description": "No explicit relation between kobolds and the Stonemason's Guild is presented in the provided content."
+          }
+        ],
+        "exclusive_with": [],
+        "ideology": "Small subterranean/mining tribes focused on treasure hoarding and defending mines (as described in Elwynn summaries).",
+        "goals": [
+          "Defend mining lairs and hoard treasure",
+          "Repel intruders into their mine complexes"
+        ],
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          },
+          {
+            "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest_(Classic)_quests",
+            "domain": "warcraft.wiki.gg",
+            "tier": "primary",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          }
+        ],
+        "confidence": 0.7
+      },
+      {
+        "name": "Blackrock Clan",
+        "parent_faction_id": "",
+        "level": "military",
+        "inter_faction": [
+          {
+            "faction_id": "Kingdom of Stormwind",
+            "stance": "hostile",
+            "description": "Blackrock orcs are repeatedly described in the content as historical enemies who assault human lands such as Elwynn."
+          },
+          {
+            "faction_id": "Alliance",
+            "stance": "hostile",
+            "description": "Blackrock Clan as part of orcish Horde forces oppose the Alliance (content contrasts Horde/Orc threats with Alliance defense)."
+          },
+          {
+            "faction_id": "Defias Brotherhood",
+            "stance": "neutral",
+            "description": "No direct relationship between Blackrock and the Defias is stated in the provided content."
+          },
+          {
+            "faction_id": "Stormwind Guard",
+            "stance": "hostile",
+            "description": "The Guard/Stormwind military are described as opposing Blackrock incursions historically in provided summaries."
+          },
+          {
+            "faction_id": "Brotherhood of Northshire",
+            "stance": "hostile",
+            "description": "Local militias would be opposed to Blackrock raiders, per the content's historical summaries."
+          },
+          {
+            "faction_id": "Riverpaw Pack",
+            "stance": "neutral",
+            "description": "No explicit relationship between Blackrock and Riverpaw is described in the supplied content."
+          },
+          {
+            "faction_id": "Kobolds",
+            "stance": "neutral",
+            "description": "No direct relation between Blackrock and kobolds is asserted in the content provided."
+          },
+          {
+            "faction_id": "Horde",
+            "stance": "allied",
+            "description": "Blackrock Clan is identified as an orcish clan typically associated with the Horde in the content's summaries of hostilities."
+          },
+          {
+            "faction_id": "Stonemason's Guild",
+            "stance": "neutral",
+            "description": "No relationship between Blackrock Clan and the Stonemason's Guild is described in the supplied material."
+          }
+        ],
+        "exclusive_with": [],
+        "ideology": "Orc clan focused on strength, conquest, and territorial gains (per the historical summaries present in the content).",
+        "goals": [
+          "Raid and seize territory from human settlements",
+          "Fight Alliance forces in contested areas"
+        ],
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          },
+          {
+            "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest",
+            "domain": "warcraft.wiki.gg",
+            "tier": "primary",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          }
+        ],
+        "confidence": 0.7
+      },
+      {
+        "name": "Horde",
+        "parent_faction_id": "",
+        "level": "major_faction",
+        "inter_faction": [
+          {
+            "faction_id": "Kingdom of Stormwind",
+            "stance": "hostile",
+            "description": "The content repeatedly frames the Horde (orcs/Blackrock) as historical enemies of Stormwind/humans."
+          },
+          {
+            "faction_id": "Alliance",
+            "stance": "hostile",
+            "description": "The Alliance and Horde are repeatedly presented as opposing major factions in the provided summaries."
+          },
+          {
+            "faction_id": "Defias Brotherhood",
+            "stance": "neutral",
+            "description": "The supplied content does not assert a formal alliance or enmity between the Horde and the Defias within Elwynn Forest summaries."
+          },
+          {
+            "faction_id": "Stormwind Guard",
+            "stance": "hostile",
+            "description": "The Guard defends against Horde incursions historically mentioned in the content."
+          },
+          {
+            "faction_id": "Brotherhood of Northshire",
+            "stance": "hostile",
+            "description": "Local Alliance-aligned groups oppose Horde forces per the content's framing of Alliance vs Horde conflict."
+          },
+          {
+            "faction_id": "Riverpaw Pack",
+            "stance": "neutral",
+            "description": "The content does not link the Horde institutionally with Riverpaw; Riverpaw are indigenous gnolls treated as separate threats."
+          },
+          {
+            "faction_id": "Kobolds",
+            "stance": "neutral",
+            "description": "Kobolds are presented as local creatures; no Horde affiliation is stated in the content."
+          },
+          {
+            "faction_id": "Blackrock Clan",
+            "stance": "allied",
+            "description": "Blackrock orcs are identified as a Horde-associated orcish clan in the content's historical summaries."
+          },
+          {
+            "faction_id": "Stonemason's Guild",
+            "stance": "neutral",
+            "description": "No relation between the Horde and the Stonemason's Guild is provided in the supplied content."
+          }
+        ],
+        "exclusive_with": [
+          "Alliance"
+        ],
+        "ideology": "Coalition of non-Alliance races (orcs historically prominent) valuing strength and survival; framed as opposing the Alliance in the content.",
+        "goals": [
+          "Expand influence and secure territory (historical framing in content)",
+          "Oppose Alliance/Stormwind forces in conflict"
+        ],
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          },
+          {
+            "url": "http://warcraft.wiki.gg/wiki/Elwynn_Forest",
+            "domain": "warcraft.wiki.gg",
+            "tier": "primary",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          }
+        ],
+        "confidence": 0.7
+      },
+      {
+        "name": "Stonemason's Guild",
+        "parent_faction_id": "",
+        "level": "guild",
+        "inter_faction": [
+          {
+            "faction_id": "Kingdom of Stormwind",
+            "stance": "neutral",
+            "description": "Content links the Stonemason's Guild historically to grievances with Stormwind (workers feeling cheated) but does not present a continuous institutional war against Stormwind\u2014this summary-level material ties the guild to the origin of the Defias."
+          },
+          {
+            "faction_id": "Alliance",
+            "stance": "neutral",
+            "description": "No explicit Alliance-level policy toward the Stonemason's Guild is provided; the guild is discussed mainly as the origin group for Defias members in the content."
+          },
+          {
+            "faction_id": "Defias Brotherhood",
+            "stance": "allied",
+            "description": "Multiple summaries in the provided content explicitly state the Defias Brotherhood formed from disgruntled stonemasons (direct historical link in the material)."
+          },
+          {
+            "faction_id": "Stormwind Guard",
+            "stance": "neutral",
+            "description": "The content does not provide an ongoing institutional stance between the Guard and the Stonemason's Guild beyond the historical grievances described."
+          },
+          {
+            "faction_id": "Brotherhood of Northshire",
+            "stance": "neutral",
+            "description": "No explicit relation between Northshire organizations and the Stonemason's Guild is present in the provided content."
+          },
+          {
+            "faction_id": "Riverpaw Pack",
+            "stance": "neutral",
+            "description": "No relationship between Riverpaw and the Stonemason's Guild is described in the supplied material."
+          },
+          {
+            "faction_id": "Kobolds",
+            "stance": "neutral",
+            "description": "No relation between kobolds and the Stonemason's Guild is asserted in the provided content."
+          },
+          {
+            "faction_id": "Blackrock Clan",
+            "stance": "neutral",
+            "description": "No direct relationship between Blackrock Clan and the Stonemason's Guild is described in the supplied material."
+          },
+          {
+            "faction_id": "Horde",
+            "stance": "neutral",
+            "description": "The content does not link the Stonemason's Guild institutionally with the Horde."
+          }
+        ],
+        "exclusive_with": [],
+        "ideology": "Craftsmen guild concerned with masonry/trades; in Elwynn summaries it is described as the origin community whose members later formed the Defias Brotherhood after feeling cheated.",
+        "goals": [
+          "Organize and regulate stonecraft and masonry (implied)",
+          "(Historically) represent stonemasons whose grievances contributed to the founding of the Defias Brotherhood"
+        ],
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_storyline",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          },
+          {
+            "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest",
+            "domain": "warcraft.wiki.gg",
+            "tier": "primary",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          }
+        ],
+        "confidence": 0.6
+      }
+    ],
+    "lore": [
+      {
+        "zone_id": "elwynn_forest",
+        "title": "Foundation of Stormwind and Early Settlement of Elwynn",
+        "category": "history",
+        "content": "Stormwind was founded centuries ago as a human kingdom in the Eastern Kingdoms; its establishment (by human lines descended from Arathi/Stromgarde influences in canonical accounts) created the political center that governs Elwynn Forest. What happened \u2192 why \u2192 consequences: To secure a human foothold in the Eastern Kingdoms and organize human polities after periods of fragmentation, settlers established Stormwind and surrounding farmsteads. This led to Elwynn Forest becoming a fertile agricultural hinterland\u2014hosting farms, logging camps, mines, and small settlements such as Goldshire and Northshire Abbey\u2014integral to Stormwind's economy and defense. Named actors: founding human houses (early Stormwind/Arathi-related lines), Stormwind city in later eras. Timeline placement: centurial foundation predating the First War; serves as background for all later events in Elwynn Forest.",
+        "era": "Pre-First War / Foundational era (centuries before the First War)",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          },
+          {
+            "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest",
+            "domain": "warcraft.wiki.gg",
+            "tier": "primary",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          }
+        ],
+        "confidence": 0.9
+      },
+      {
+        "zone_id": "elwynn_forest",
+        "title": "First and Second Wars: Occupation, Recovery, and Economic Aftermath",
+        "category": "history",
+        "content": "During the First War the Horde advanced into the human kingdoms, including Stormwind's territories; Elwynn Forest and its settlements suffered occupation and damage (Goldshire and Northshire were specifically noted as affected). After the First War and again following the Second War, Stormwind was retaken by humans\u2014restoration required massive rebuilding. What happened \u2192 why \u2192 consequences: Horde conquest (First War) and later conflicts forced the razing and rebuilding of infrastructure; after the Second War the cost of reconstruction strained Stormwind's coffers. The economic strain and perceived mistreatment of laborers and masons during reconstruction are a direct causal chain that contributed to social unrest and the later rise of the Defias Brotherhood. Named actors: the Horde (Orcs), Stormwind defenders, Anduin Lothar (as a named First War figure in the broader timeline). Timeline placement: First War (Horde occupation) \u2192 Post-Second War reconstruction and social fallout.",
+        "era": "First War; Post-Second War (immediate aftermath)",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_storyline",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          },
+          {
+            "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest",
+            "domain": "warcraft.wiki.gg",
+            "tier": "primary",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          }
+        ],
+        "confidence": 0.9
+      },
+      {
+        "zone_id": "elwynn_forest",
+        "title": "Rise of the Defias Brotherhood (economic grievance and banditry)",
+        "category": "history",
+        "content": "The Defias Brotherhood arose in the wake of Stormwind's costly reconstruction after the wars. What happened \u2192 why \u2192 consequences: Stonemasons and laborers who worked on Stormwind's rebuilding believed they had been cheated of pay and recognition; this grievance catalyzed the formation of the Defias Brotherhood, an organized band of thieves and insurgents who used raids and banditry to strike at Stormwind's interests. The Brotherhood's activities extended beyond Westfall into nearby territories like Elwynn Forest, increasing danger for travelers and necessitating stronger militia action. Named actors: the Defias Brotherhood, unpaid masons/stonemasons, Stormwind authorities. Timeline placement: Post-Second War reconstruction period leading into the game's early stories (pre-Classical quest era).",
+        "era": "Post-Second War (lead-in to Defias-era unrest)",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_storyline",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          },
+          {
+            "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest",
+            "domain": "warcraft.wiki.gg",
+            "tier": "primary",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          }
+        ],
+        "confidence": 0.9
+      },
+      {
+        "zone_id": "elwynn_forest",
+        "title": "Hogger and the Riverpaw Pack \u2014 local menace turned legend",
+        "category": "mythology",
+        "content": "Hogger, a gnoll chieftain of the Riverpaw pack, became the archetypal low-level challenge for new adventurers in Elwynn Forest. What happened \u2192 why \u2192 consequences: As leader of the Riverpaw gnolls, Hogger's aggression against settlers and travelers made him a focal point for early Stormwind security operations; due to his high difficulty relative to early players in Classic WoW he evolved into a community legend and cultural touchstone (memes, references in other content, later reappearances and homages in expansions). Named actors: Hogger, the Riverpaw pack, Stormwind guards (who seek his capture or death). Timeline placement: Prominent throughout Classic-era questing and referenced in later expansions (e.g., Cataclysm adjustments, Trial of the Champion memory appearances).",
+        "era": "Classic era (continues as a cultural/lore reference in later expansions)",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Hogger",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          },
+          {
+            "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest",
+            "domain": "warcraft.wiki.gg",
+            "tier": "primary",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          }
+        ],
+        "confidence": 0.9
+      },
+      {
+        "zone_id": "elwynn_forest",
+        "title": "Fargodeep Mine and the Kobold Threat",
+        "category": "history",
+        "content": "Fargodeep Mine is a local resource site that fell under increasing kobold control during periods of unrest. What happened \u2192 why \u2192 consequences: Kobolds seized parts of the mine and threatened local economies (mining and gold extraction), prompting Marshal Dughan and other Stormwind authorities to task adventurers with clearing kobold camps, recovering trade goods (notably 'kobold candles' used in local quests), and reasserting control. The disruption to mining and trade contributed to local insecurity in Elwynn and demonstrated how small-scale resource contests could destabilize rural Stormwind territories. Named actors: Kobold leaders (e.g., Goldtooth in quest accounts), Marshal Dughan, William Pestle (quest-involved NPC), adventurers. Timeline placement: Early quest-era conflicts (classic questlines, level 5\u201312 arc).",
+        "era": "Classic quest era (early game: levels 5\u201312)",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_(Classic)_quests",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          },
+          {
+            "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest_(Classic)_quests",
+            "domain": "warcraft.wiki.gg",
+            "tier": "primary",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          }
+        ],
+        "confidence": 0.8
+      },
+      {
+        "zone_id": "elwynn_forest",
+        "title": "Kobold Candles, Gold Dust and Local Economic Power Sources",
+        "category": "power_source",
+        "content": "Local resources in Elwynn\u2014particularly those tied to Fargodeep Mine\u2014function as economic power sources that drive quests and conflicts. What happened \u2192 why \u2192 consequences: Kobold control of mine outputs (e.g., gold, 'kobold candles' used as quest items) became a source of friction: merchants and NPCs (such as William Pestle and Remy 'Two Times') required those goods, and their disruption forced adventurers into action. These small-scale resource flows illustrate how material goods (not solely magical energies) serve as 'power' in the zone\u2014fueling livelihoods, quest economies, and occasional banditry. Named actors: kobolds, William Pestle, Remy 'Two Times', local farmers and miners. Timeline placement: Early quest-era economic conflicts (levels 5\u201312) and persistent local economy theme.",
+        "era": "Classic quest era (early game: levels 5\u201312)",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_(Classic)_quests",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          },
+          {
+            "url": "https://classic-wow-archive.fandom.com/wiki/Elwynn_Forest",
+            "domain": "classic-wow-archive.fandom.com",
+            "tier": "tertiary",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          }
+        ],
+        "confidence": 0.7
+      },
+      {
+        "zone_id": "elwynn_forest",
+        "title": "Stonefield\u2013Maclure Feud and Small-Scale Social Conflicts",
+        "category": "history",
+        "content": "Local family feuds\u2014exemplified by the Stonefield and Maclure families\u2014provide a social microhistory of Elwynn's rural communities. What happened \u2192 why \u2192 consequences: Disputes (for example, Auntie Bernice Stonefield's missing necklace and romantic entanglements like Maybell Maclure and Tommy Joe Stonefield) escalate into adventurer-involved quests; these incidents reveal how petty conflicts and interpersonal grievances can interlock with larger security concerns (kobold thieves, stolen goods) and require outside intervention. Named actors: Auntie Bernice Stonefield, Billy Maclure, Maybell Maclure, Tommy Joe Stonefield, Gramma Stonefield, William Pestle. Timeline placement: Early quest-era vignettes concurrent with kobold and Riverpaw troubles.",
+        "era": "Classic quest era (early game: levels 5\u201312)",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_questing_guide",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          },
+          {
+            "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest_(Classic)",
+            "domain": "warcraft.wiki.gg",
+            "tier": "primary",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          }
+        ],
+        "confidence": 0.7
+      },
+      {
+        "zone_id": "elwynn_forest",
+        "title": "Cataclysm and Post-Lich King Threats: Landscape and Security Shifts",
+        "category": "cosmology",
+        "content": "Large-scale world events (notably the Cataclysm and the era around the Lich King's fall) affected Elwynn Forest by destabilizing regional defenses and opening the area to renewed threats. What happened \u2192 why \u2192 consequences: The Cataclysm reshaped terrain and weakened natural defenses in many regions, and the power vacuum after the Lich King's defeat allowed opportunistic groups (kobolds, Blackrock orcs in some accounts, and increased banditry) to press into formerly secure territories. The consequence was a renewed need for recruitment, militia deployment (Marshal McBride, Marshal Dughan) and mobilization of Stormwind forces to defend the kingdom's frontier; it also altered local questlines to reflect increased instability. Named actors: Marshal McBride, Marshal Dughan, Blackrock orcs (as invaders in some post-Cataclysm accounts), Lich King (as antecedent figure). Timeline placement: Post-Lich King era into Cataclysm (expansion-era changes reflected in zone storylines).",
+        "era": "Post-Lich King / Cataclysm era (expansion-era changes)",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          },
+          {
+            "url": "http://warcraft.wiki.gg/wiki/Elwynn_Forest",
+            "domain": "warcraft.wiki.gg",
+            "tier": "primary",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          }
+        ],
+        "confidence": 0.8
+      },
+      {
+        "zone_id": "elwynn_forest",
+        "title": "Recruitment and Local Defense: Marshals, Guards and the Militia",
+        "category": "history",
+        "content": "Following repeated threats\u2014kobolds, gnolls (Riverpaw), murlocs, bandits\u2014the Stormwind authorities actively recruited and organized local defense forces centered on figures like Marshal McBride and Marshal Dughan. What happened \u2192 why \u2192 consequences: With the kingdom's army stretched and local security threatened, Marshals recruited new levies and assigned deputies (e.g., Deputy Rainer, Guard Thomas) to protect farms, garrisons and trade routes; adventurers are frequently pressed into service to supplement these forces. This recruitment stabilized the frontier enough to restore trade and farming, but also created ongoing military obligations for Stormwind's peacetime economy. Named actors: Marshal McBride, Marshal Dughan, Deputy Rainer, Guard Thomas, Marshal Dughan. Timeline placement: Ongoing across Classic-era quests and reiterated in later expansion storylines when threats re-emerge.",
+        "era": "Classic quest era through expansion-era security events",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Marshal_McBride",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          },
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Marshal_Dughan",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T00:00:00Z"
+          }
+        ],
+        "confidence": 0.8
+      }
+    ],
+    "narrative_items": [
+      {
+        "name": "Consecrated Letter",
+        "zone_id": "elwynn_forest",
+        "story_arc": "One of several class-specific letters given by Marshal McBride at Northshire Abbey that initiate or relate to early class questlines for Paladins within Elwynn Forest.",
+        "wielder_lineage": [
+          "Marshal McBride",
+          "player"
+        ],
+        "power_description": "A ceremonial/quest letter with holy significance that functions as an initiation/quest item for paladin class quests.",
+        "significance": "notable",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T12:00:00Z"
+          },
+          {
+            "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest",
+            "domain": "warcraft.wiki.gg",
+            "tier": "primary",
+            "accessed_at": "2026-02-26T12:00:00Z"
+          }
+        ],
+        "confidence": 0.7
+      },
+      {
+        "name": "Encrypted Letter",
+        "zone_id": "elwynn_forest",
+        "story_arc": "Class-specific letter provided by Marshal McBride at Northshire Abbey that ties into the Rogue starting narrative in Elwynn Forest.",
+        "wielder_lineage": [
+          "Marshal McBride",
+          "player"
+        ],
+        "power_description": "A letter containing secretive information used to start or progress Rogue class quests.",
+        "significance": "notable",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T12:00:00Z"
+          },
+          {
+            "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest",
+            "domain": "warcraft.wiki.gg",
+            "tier": "primary",
+            "accessed_at": "2026-02-26T12:00:00Z"
+          }
+        ],
+        "confidence": 0.7
+      },
+      {
+        "name": "Simple Letter",
+        "zone_id": "elwynn_forest",
+        "story_arc": "A basic class letter from Marshal McBride related to the Warrior starting storyline in Elwynn Forest.",
+        "wielder_lineage": [
+          "Marshal McBride",
+          "player"
+        ],
+        "power_description": "A simple quest letter used to initiate or progress Warrior-class starting quests.",
+        "significance": "notable",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T12:00:00Z"
+          },
+          {
+            "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest",
+            "domain": "warcraft.wiki.gg",
+            "tier": "primary",
+            "accessed_at": "2026-02-26T12:00:00Z"
+          }
+        ],
+        "confidence": 0.7
+      },
+      {
+        "name": "Hallowed Letter",
+        "zone_id": "elwynn_forest",
+        "story_arc": "A priest-class letter from Marshal McBride at Northshire Abbey that ties into the Priest initiation and early quests in Elwynn Forest.",
+        "wielder_lineage": [
+          "Marshal McBride",
+          "player"
+        ],
+        "power_description": "A blessed/holy letter used as a quest/initiation item for Priest-class quests.",
+        "significance": "notable",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T12:00:00Z"
+          },
+          {
+            "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest",
+            "domain": "warcraft.wiki.gg",
+            "tier": "primary",
+            "accessed_at": "2026-02-26T12:00:00Z"
+          }
+        ],
+        "confidence": 0.7
+      },
+      {
+        "name": "Glyphic Letter",
+        "zone_id": "elwynn_forest",
+        "story_arc": "A Mage-class letter given by Marshal McBride used to connect players to mage-specific starting quests in Elwynn Forest.",
+        "wielder_lineage": [
+          "Marshal McBride",
+          "player"
+        ],
+        "power_description": "A letter inscribed with magical glyphs serving as a quest/initiation item for Mages.",
+        "significance": "notable",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T12:00:00Z"
+          },
+          {
+            "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest",
+            "domain": "warcraft.wiki.gg",
+            "tier": "primary",
+            "accessed_at": "2026-02-26T12:00:00Z"
+          }
+        ],
+        "confidence": 0.7
+      },
+      {
+        "name": "Tainted Letter",
+        "zone_id": "elwynn_forest",
+        "story_arc": "A Warlock-class letter from Marshal McBride that ties into the Warlock beginning quest narrative in Elwynn Forest.",
+        "wielder_lineage": [
+          "Marshal McBride",
+          "player"
+        ],
+        "power_description": "A corrupted/tainted letter used as a quest/initiation item for Warlock-class quests.",
+        "significance": "notable",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T12:00:00Z"
+          },
+          {
+            "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest",
+            "domain": "warcraft.wiki.gg",
+            "tier": "primary",
+            "accessed_at": "2026-02-26T12:00:00Z"
+          }
+        ],
+        "confidence": 0.7
+      },
+      {
+        "name": "The Stolen Tome",
+        "zone_id": "elwynn_forest",
+        "story_arc": "A Warlock-related quest tome referenced in Elwynn Forest starting quests (given by Drusilla La Salle) that contains forbidden knowledge relevant to the Warlock class storyline.",
+        "wielder_lineage": [
+          "Drusilla La Salle",
+          "player"
+        ],
+        "power_description": "A tome containing dark/forbidden knowledge used as a class quest item for Warlocks.",
+        "significance": "quest",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T12:00:00Z"
+          },
+          {
+            "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest",
+            "domain": "warcraft.wiki.gg",
+            "tier": "primary",
+            "accessed_at": "2026-02-26T12:00:00Z"
+          }
+        ],
+        "confidence": 0.7
+      },
+      {
+        "name": "Tome of Divinity",
+        "zone_id": "elwynn_forest",
+        "story_arc": "A paladin-class quest item in Elwynn Forest essential for paladin aspirants to learn early divine abilities and to progress the paladin starting questline.",
+        "wielder_lineage": [
+          "paladin aspirants",
+          "player"
+        ],
+        "power_description": "A scripture/tome granting access to or teaching early paladin spells and rites; functions as a class/quest item.",
+        "significance": "quest",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_questing_guide",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T12:00:00Z"
+          },
+          {
+            "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest_(Classic)_quests",
+            "domain": "warcraft.wiki.gg",
+            "tier": "primary",
+            "accessed_at": "2026-02-26T12:00:00Z"
+          }
+        ],
+        "confidence": 0.7
+      },
+      {
+        "name": "Gakin's Summons",
+        "zone_id": "elwynn_forest",
+        "story_arc": "A Warlock class quest item that allows the summoning of a voidwalker; part of the Warlock initiation quests in/around Elwynn Forest.",
+        "wielder_lineage": [
+          "Warlock quest-givers",
+          "player"
+        ],
+        "power_description": "A summons-type quest item that enables the summoning of a voidwalker (class-ability progression item).",
+        "significance": "notable",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T12:00:00Z"
+          },
+          {
+            "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest",
+            "domain": "warcraft.wiki.gg",
+            "tier": "primary",
+            "accessed_at": "2026-02-26T12:00:00Z"
+          }
+        ],
+        "confidence": 0.7
+      },
+      {
+        "name": "Elwynn Forest Scroll",
+        "zone_id": "elwynn_forest",
+        "story_arc": "A quest/item tied to the Rogue 'Preparation' quest that teleports the user to Elwynn Forest; used in early-class preparation and travel in the starting zone.",
+        "wielder_lineage": [
+          "Rogues",
+          "player"
+        ],
+        "power_description": "A scroll that teleports the user to Elwynn Forest (travel/quest utility item).",
+        "significance": "quest",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_Scroll",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T12:00:00Z"
+          },
+          {
+            "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest_(Classic)_quests",
+            "domain": "warcraft.wiki.gg",
+            "tier": "primary",
+            "accessed_at": "2026-02-26T12:00:00Z"
+          }
+        ],
+        "confidence": 0.9
+      },
+      {
+        "name": "Bernice's Necklace",
+        "zone_id": "elwynn_forest",
+        "story_arc": "A Stonefield family heirloom central to the 'Lost Necklace' quest chain; the player must retrieve it (claimed taken by Goldtooth/Kobolds) and return it to Bernice/Auntie Bernice Stonefield.",
+        "wielder_lineage": [
+          "Auntie Bernice Stonefield",
+          "Billy Maclure",
+          "Goldtooth (kobold)",
+          "player"
+        ],
+        "power_description": "A familial necklace used as a quest token/keepsake; primary significance is narrative (proof of recovery).",
+        "significance": "quest",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_(Classic)_quests",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T12:00:00Z"
+          },
+          {
+            "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest_(Classic)_quests",
+            "domain": "warcraft.wiki.gg",
+            "tier": "primary",
+            "accessed_at": "2026-02-26T12:00:00Z"
+          }
+        ],
+        "confidence": 0.9
+      },
+      {
+        "name": "Brass Collar",
+        "zone_id": "elwynn_forest",
+        "story_arc": "Proof item obtained by defeating 'Princess' (the prize pig) in the Stonefield Farm quest 'Princess Must Die!'; turned in to Ma Stonefield to complete the quest.",
+        "wielder_lineage": [
+          "Princess (pig)",
+          "player",
+          "Ma Stonefield"
+        ],
+        "power_description": "A physical collar used as proof-of-deed quest item (no special powers beyond narrative significance).",
+        "significance": "quest",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_(Classic)_quests",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T12:00:00Z"
+          },
+          {
+            "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest_(Classic)_quests",
+            "domain": "warcraft.wiki.gg",
+            "tier": "primary",
+            "accessed_at": "2026-02-26T12:00:00Z"
+          }
+        ],
+        "confidence": 0.9
+      },
+      {
+        "name": "Weather-worn Boots",
+        "zone_id": "elwynn_forest",
+        "story_arc": "One possible reward item for completing the 'Princess Must Die!' quest at Stonefield Farm; tied to the narrative of resolving the Stonefield/Maclure local feud and crop protection.",
+        "wielder_lineage": [
+          "quest reward recipients (players)"
+        ],
+        "power_description": "Cosmetic/starting-era equipment rewarded for completing the quest (narrative reward item).",
+        "significance": "notable",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_(Classic)_quests",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T12:00:00Z"
+          }
+        ],
+        "confidence": 0.7
+      },
+      {
+        "name": "Brass-studded Bracers",
+        "zone_id": "elwynn_forest",
+        "story_arc": "An alternative reward from the 'Princess Must Die!' quest offered by Ma Stonefield; a narrative reward item tied to that quest.",
+        "wielder_lineage": [
+          "quest reward recipients (players)"
+        ],
+        "power_description": "Quest reward equipment (narrative significance as compensation for completing the Stonefield task).",
+        "significance": "notable",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_(Classic)_quests",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T12:00:00Z"
+          }
+        ],
+        "confidence": 0.7
+      },
+      {
+        "name": "Farmer's Boots",
+        "zone_id": "elwynn_forest",
+        "story_arc": "Another selectable reward for completing the 'Princess Must Die!' quest; ties into the Stonefield farm storyline.",
+        "wielder_lineage": [
+          "quest reward recipients (players)"
+        ],
+        "power_description": "Quest reward equipment with narrative tie to Stonefield Farm task completion.",
+        "significance": "notable",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_(Classic)_quests",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T12:00:00Z"
+          }
+        ],
+        "confidence": 0.7
+      },
+      {
+        "name": "Bartleby's Mug",
+        "zone_id": "elwynn_forest",
+        "story_arc": "A tavern-related quest item in Elwynn Forest involving retrieving a lost mug for a tavern patron (Bartleby); reinforces local social/narrative color in Goldshire.",
+        "wielder_lineage": [
+          "Bartleby",
+          "player"
+        ],
+        "power_description": "A simple physical mug used as a quest fetch-item tied to tavern/Goldshire narratives.",
+        "significance": "notable",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_questing_guide",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T12:00:00Z"
+          },
+          {
+            "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest",
+            "domain": "warcraft.wiki.gg",
+            "tier": "primary",
+            "accessed_at": "2026-02-26T12:00:00Z"
+          }
+        ],
+        "confidence": 0.7
+      },
+      {
+        "name": "Wanted: \"Hogger\" (Wanted Poster)",
+        "zone_id": "elwynn_forest",
+        "story_arc": "A wanted poster/quest item tied to the 'Wanted: Hogger' quest, which directs players to hunt the notorious Gnoll 'Hogger' as part of establishing reputation and dealing with threats in Elwynn Forest.",
+        "wielder_lineage": [
+          "Stormwind authorities",
+          "player"
+        ],
+        "power_description": "Physical wanted poster used as quest flavor/evidence and to initiate the bounty on Hogger.",
+        "significance": "notable",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Hogger",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T12:00:00Z"
+          },
+          {
+            "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest_(Classic)_quests",
+            "domain": "warcraft.wiki.gg",
+            "tier": "primary",
+            "accessed_at": "2026-02-26T12:00:00Z"
+          }
+        ],
+        "confidence": 0.9
+      }
+    ],
+    "sources": [
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T13:59:42.413135"
+      },
+      {
+        "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest",
+        "domain": "warcraft.wiki.gg",
+        "tier": "primary",
+        "accessed_at": "2026-02-26T13:59:51.640618"
+      },
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T13:59:42.723488"
+      },
+      {
+        "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest",
+        "domain": "warcraft.wiki.gg",
+        "tier": "primary",
+        "accessed_at": "2026-02-26T13:59:47.270883"
+      },
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest?printable=yes",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T14:00:10.752317"
+      },
+      {
+        "url": "https://classic-wow-archive.fandom.com/wiki/Elwynn_Forest",
+        "domain": "classic-wow-archive.fandom.com",
+        "tier": "tertiary",
+        "accessed_at": "2026-02-26T14:00:30.741674"
+      },
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_storyline",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T14:00:40.010411"
+      },
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T13:59:42.747254"
+      },
+      {
+        "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest",
+        "domain": "warcraft.wiki.gg",
+        "tier": "primary",
+        "accessed_at": "2026-02-26T13:59:52.003093"
+      },
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_storyline",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T14:00:01.284919"
+      },
+      {
+        "url": "http://warcraft.wiki.gg/wiki/Elwynn_Forest",
+        "domain": "warcraft.wiki.gg",
+        "tier": "primary",
+        "accessed_at": "2026-02-26T14:00:06.908788"
+      },
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_questing_guide",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T14:00:12.305129"
+      },
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Hogger",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T14:00:55.238337"
+      },
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_(Classic)_quests",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T13:59:47.883739"
+      },
+      {
+        "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest_(Classic)_quests",
+        "domain": "warcraft.wiki.gg",
+        "tier": "primary",
+        "accessed_at": "2026-02-26T13:59:53.503674"
+      },
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_(Classic)",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T14:00:08.632197"
+      },
+      {
+        "url": "https://wowwiki-archive.fandom.com/wiki/Elwynn_Forest_questing_guide",
+        "domain": "wowwiki-archive.fandom.com",
+        "tier": "tertiary",
+        "accessed_at": "2026-02-26T14:00:44.398720"
+      },
+      {
+        "url": "https://www.wowhead.com/zone=12",
+        "domain": "www.wowhead.com",
+        "tier": "tertiary",
+        "accessed_at": "2026-02-26T14:00:49.319455"
+      },
+      {
+        "url": "https://classicdb.ch/?quests=0.12",
+        "domain": "classicdb.ch",
+        "tier": "tertiary",
+        "accessed_at": "2026-02-26T14:00:57.751699"
+      },
+      {
+        "url": "https://classicdb.ch/?quest=88",
+        "domain": "classicdb.ch",
+        "tier": "tertiary",
+        "accessed_at": "2026-02-26T14:01:07.711356"
+      },
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_Scroll",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T14:01:19.351418"
+      },
+      {
+        "url": "https://classicdb.ch/?quest=87",
+        "domain": "classicdb.ch",
+        "tier": "tertiary",
+        "accessed_at": "2026-02-26T14:01:31.228081"
+      },
+      {
+        "url": "https://classicdb.ch/?item=981",
+        "domain": "classicdb.ch",
+        "tier": "tertiary",
+        "accessed_at": "2026-02-26T14:01:42.645857"
+      },
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T13:59:44.591718"
+      },
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_storyline",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T13:59:50.316765"
+      },
+      {
+        "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest",
+        "domain": "warcraft.wiki.gg",
+        "tier": "primary",
+        "accessed_at": "2026-02-26T13:59:54.296661"
+      },
+      {
+        "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest_(Classic)",
+        "domain": "warcraft.wiki.gg",
+        "tier": "primary",
+        "accessed_at": "2026-02-26T14:00:28.386225"
+      },
+      {
+        "url": "http://worldofwarcraft.blizzard.com/news/12855773/new-player-guide-human-starting-zone-elwynn-forest-5-10",
+        "domain": "worldofwarcraft.blizzard.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T14:00:36.231969"
+      },
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Marshal_McBride",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T14:00:46.211120"
+      },
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Hogger",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T14:00:54.805685"
+      },
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Goldshire",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T14:01:14.937388"
+      },
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Stonefield_Farm",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T14:01:25.807535"
+      },
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Innkeeper_Farley",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T14:01:37.255060"
+      },
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Marshal_Dughan",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T14:02:00.758619"
+      },
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Stormwind_(faction)",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T14:02:11.337593"
+      },
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Riverpaw_pack",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T14:02:20.895581"
+      }
+    ],
+    "confidence": {
+      "npcs": 0.0
+    },
+    "conflicts": [
+      {
+        "data_point": "Faction name normalization between NPC entries and factions list",
+        "source_a": {
+          "url": "https://wowpedia.fandom.com/wiki/Marshal_Dughan",
+          "domain": "wowpedia.fandom.com",
+          "tier": "official",
+          "accessed_at": "2026-02-26T00:00:00Z"
+        },
+        "claim_a": "Marshal Dughan (and several NPCs) use the faction id string 'Stormwind (kingdom)'.",
+        "source_b": {
+          "url": "https://wowpedia.fandom.com/wiki/Stormwind_(faction)",
+          "domain": "wowpedia.fandom.com",
+          "tier": "official",
+          "accessed_at": "2026-02-26T00:00:00Z"
+        },
+        "claim_b": "The canonical faction entry is named 'Kingdom of Stormwind' in the factions list.",
+        "resolution": "Normalize faction identifiers across NPC and faction records. Prefer the canonical faction name used in the factions section ('Kingdom of Stormwind') and map alternative strings ('Stormwind (kingdom)', 'Stormwind Army') to it (or to 'Stormwind Guard' where appropriate) after verifying intended sub-faction semantics in primary sources (wowpedia/warcraft.wiki.gg)."
+      },
+      {
+        "data_point": "Riverpaw naming/capitalization mismatch",
+        "source_a": {
+          "url": "https://wowpedia.fandom.com/wiki/Hogger",
+          "domain": "wowpedia.fandom.com",
+          "tier": "official",
+          "accessed_at": "2026-02-26T00:00:00Z"
+        },
+        "claim_a": "Hogger's faction_ids include 'Riverpaw pack' (lowercase 'pack').",
+        "source_b": {
+          "url": "https://wowpedia.fandom.com/wiki/Riverpaw_pack",
+          "domain": "wowpedia.fandom.com",
+          "tier": "official",
+          "accessed_at": "2026-02-26T00:00:00Z"
+        },
+        "claim_b": "Factions list contains 'Riverpaw Pack' (capitalized 'Pack').",
+        "resolution": "Standardize capitalization and spacing to 'Riverpaw Pack' (or canonical identifier) across NPC and faction records to avoid duplicate/near-duplicate faction nodes."
+      },
+      {
+        "data_point": "NPC-specified factions missing from factions list (Deputy Rainer)",
+        "source_a": {
+          "url": "https://wowpedia.fandom.com/wiki/Westbrook_Garrison",
+          "domain": "wowpedia.fandom.com",
+          "tier": "official",
+          "accessed_at": "2026-02-26T00:00:00Z"
+        },
+        "claim_a": "Deputy Rainer's faction_ids include 'Stormwind Army' and 'Westbrook Garrison' (per Deputy Rainer entry).",
+        "source_b": {
+          "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+          "domain": "wowpedia.fandom.com",
+          "tier": "official",
+          "accessed_at": "2026-02-26T00:00:00Z"
+        },
+        "claim_b": "Factions list (provided) does not contain entries named 'Stormwind Army' or 'Westbrook Garrison' \u2014 similar concepts appear under 'Stormwind Guard' or 'Kingdom of Stormwind' but not exact matches.",
+        "resolution": "Add 'Westbrook Garrison' and/or 'Stormwind Army' as explicit faction/sub-faction entries (with sources), or map them to existing factions ('Stormwind Guard' / 'Kingdom of Stormwind') if those are intended. Confirm with primary sources (wowpedia/warcraft.wiki.gg) whether these are distinct institutional entities or colloquial/local garrison names."
+      },
+      {
+        "data_point": "Zone object missing narrative/political fields while lore entries provide detailed arcs",
+        "source_a": {
+          "url": "N/A (zone object in provided dataset)",
+          "domain": "internal_dataset",
+          "tier": "secondary",
+          "accessed_at": "2026-02-26T00:00:00Z"
+        },
+        "claim_a": "Zone 'Elwynn Forest' record has empty narrative_arc, political_climate, sources, and confidence = 0.0.",
+        "source_b": {
+          "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_storyline",
+          "domain": "wowpedia.fandom.com",
+          "tier": "official",
+          "accessed_at": "2026-02-26T00:00:00Z"
+        },
+        "claim_b": "Multiple lore entries (e.g., 'Rise of the Defias Brotherhood', 'First and Second Wars', 'Recruitment and Local Defense') provide narrative arcs, political context, era placement and sources for Elwynn Forest.",
+        "resolution": "Populate the zone-level narrative_arc, political_climate, sources, and confidence fields using the summarized lore entries (and their sources). The zone record should reference the same primary sources used in lore entries (wowpedia/warcraft.wiki.gg) and include aggregated narrative summaries and political climate details (Defias unrest; Alliance/Stormwind dominance; local threats: kobolds, Riverpaw, etc.)."
+      },
+      {
+        "data_point": "NPCs referenced in lore and narrative_items are missing from the NPCs list",
+        "source_a": {
+          "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_(Classic)_quests",
+          "domain": "wowpedia.fandom.com",
+          "tier": "official",
+          "accessed_at": "2026-02-26T00:00:00Z"
+        },
+        "claim_a": "Lore and narrative_items reference many named NPCs (William Pestle, Remy 'Two Times', Auntie Bernice Stonefield, Billy Maclure, Maybell Maclure, Tommy Joe Stonefield, Gramma Stonefield, Ma Stonefield, Bartleby, Drusilla La Salle, Princess (pig), etc.).",
+        "source_b": {
+          "url": "N/A (npcs list in provided dataset)",
+          "domain": "internal_dataset",
+          "tier": "secondary",
+          "accessed_at": "2026-02-26T00:00:00Z"
+        },
+        "claim_b": "The npcs list (16 entries) does not include the above quest-specific NPCs/actors despite them being named in lore and narrative_items.",
+        "resolution": "Add missing quest NPCs to the npcs list (at least as minimal stubs with sources) or mark them deliberately omitted if they are understood to be 'minor/quest-only' non-indexed entities. If included, populate role, faction_ids, quest_threads, and relationships where available from primary sources."
+      },
+      {
+        "data_point": "NPC faction id value 'Gnome' not represented in factions list",
+        "source_a": {
+          "url": "https://wowpedia.fandom.com/wiki/Agee_Tyler%27s_farm",
+          "domain": "wowpedia.fandom.com",
+          "tier": "official",
+          "accessed_at": "2026-02-26T00:00:00Z"
+        },
+        "claim_a": "NPC 'Agee Tyler' has faction_ids: ['Gnome'].",
+        "source_b": {
+          "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+          "domain": "wowpedia.fandom.com",
+          "tier": "official",
+          "accessed_at": "2026-02-26T00:00:00Z"
+        },
+        "claim_b": "Factions list does not include a top-level 'Gnome' faction entry (factions are more often represented under 'Alliance' or specific cities/clans).",
+        "resolution": "Either add a 'Gnome' faction entry (if the dataset intends to index playable races as factions) or replace 'Gnome' with a membership under 'Alliance' or 'Ironforge' depending on Agee Tyler's canonical affiliation. Confirm usage intent and standardize."
+      }
+    ],
+    "quality_warnings": [
+      "shallow_narrative_arc",
+      "no_npc_personality_data"
+    ]
+  }
+}

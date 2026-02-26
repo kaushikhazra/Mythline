@@ -1,0 +1,1951 @@
+{
+  "metadata": {
+    "zone_name": "elwynn_forest",
+    "skip_discovery": false,
+    "timestamp": "2026-02-26T02:14:39.311161",
+    "elapsed_seconds": 347.6
+  },
+  "metrics": {
+    "completeness": {
+      "zone_data_present": true,
+      "narrative_arc_chars": 951,
+      "npc_count": 17,
+      "npcs_with_personality": 0,
+      "npcs_with_role": 10,
+      "npcs_with_motivations": 0,
+      "faction_count": 4,
+      "factions_with_ideology": 4,
+      "factions_with_goals": 4,
+      "factions_with_relations": 4,
+      "lore_count": 6,
+      "lore_with_content": 6,
+      "narrative_item_count": 1
+    },
+    "sources": {
+      "total_sources": 33,
+      "unique_domains": 9,
+      "domains": [
+        "azerothcollector.com",
+        "dungeon.guide",
+        "gamer-guides.com",
+        "warcraft.wiki.gg",
+        "worldofwarcraft.fandom.com",
+        "worldofwarcraft.video.tm",
+        "wowclassicdb.com",
+        "wowpedia.fandom.com",
+        "wowquesting.weebly.com"
+      ],
+      "tier_distribution": {
+        "primary": 7,
+        "official": 15,
+        "tertiary": 11
+      }
+    },
+    "cross_reference": {
+      "ran": true,
+      "is_consistent": true,
+      "conflict_count": 1,
+      "confidence": {
+        "zone": 0.8,
+        "npcs": 0.3,
+        "factions": 0.9,
+        "lore": 0.9,
+        "narrative_items": 0.8
+      }
+    },
+    "discovery": {
+      "zone_count": 4,
+      "zones": [
+        "redridge_mountains",
+        "duskwood",
+        "westfall",
+        "burning_steppes"
+      ]
+    },
+    "tokens": {
+      "orchestrator": 10382,
+      "worker": 356993,
+      "total": 367375
+    },
+    "quality_warnings": [
+      "no_npc_personality_data"
+    ],
+    "final_confidence": {
+      "zone": 0.8,
+      "npcs": 0.3,
+      "factions": 0.9,
+      "lore": 0.9,
+      "narrative_items": 0.8
+    }
+  },
+  "orchestrator_result": {
+    "zone_data": {
+      "name": "Elwynn Forest",
+      "game": "wow",
+      "level_range": {
+        "min": 1,
+        "max": 30
+      },
+      "narrative_arc": "Elwynn Forest is the starting zone for humans in the Kingdom of Stormwind, hosting tales of conflict and community as it strives to maintain peace. Following the defeat of the Defias Brotherhood, the area found itself in relative tranquility but faced new threats from kobold invasions in its gold mines, intrusions from wild beasts, and lingering rivalries among local farmers, notably the Stonefields and the Maclures. The local governance, led by the Alliance, has been stretched thin due to resource constraints. New adventurers from Northshire Valley rally to restore order under the guidance of figures such as Marshal Dughan in Goldshire. These adventurers embark on quests to eliminate the kobold menace, mediate family feuds, and tackle creature attacks in a bid to ensure a secure environment where trade and farming can thrive. Despite triumphs, the underlying tensions reflect the ongoing uncertainty in the balance of power in the region.",
+      "political_climate": "Elwynn Forest is governed by the Alliance, with citizens engaged in farming, logging, and mining. Due to the army being spread thin, the region faces neglect that allows rivalries to fester, particularly between the Maclures and Stonefields, along with the persistent threat posed by kobolds. The balance of local life is precarious, with citizens often caught in the crossfire of these unresolved issues, further complicating community relationships.",
+      "access_gating": [],
+      "phase_states": [
+        {
+          "phase_name": "Cataclysm Changes",
+          "description": "The storyline reflects the state of Elwynn Forest before the Cataclysm, focusing on the tranquility disrupted by kobold invasions.",
+          "trigger": ""
+        },
+        {
+          "phase_name": "Quest Progression Phases",
+          "description": "Players undertake multiple quests, escalating from simple tasks in Northshire to increasingly complex missions dealing with local conflicts.",
+          "trigger": ""
+        }
+      ],
+      "connected_zones": [
+        "duskwood",
+        "westfall",
+        "redridge-mountains"
+      ],
+      "era": "Classic Era",
+      "sources": [
+        {
+          "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_questing_guide",
+          "domain": "wowpedia",
+          "tier": "official",
+          "accessed_at": "2026-02-26T02:14:14.946138"
+        },
+        {
+          "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest",
+          "domain": "warcraft.wiki.gg",
+          "tier": "primary",
+          "accessed_at": "2026-02-26T02:14:14.946138"
+        }
+      ],
+      "confidence": 0.8
+    },
+    "npcs": [
+      {
+        "name": "Marshal Dughan",
+        "zone_id": "",
+        "faction_ids": [],
+        "personality": "",
+        "motivations": [],
+        "relationships": [],
+        "quest_threads": [
+          "WANTED: \"Hogger\""
+        ],
+        "phased_state": "",
+        "role": "faction_leader",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Marshal_Dughan",
+            "domain": "wowpedia",
+            "tier": "official",
+            "accessed_at": "2026-02-26T02:14:23.120770"
+          }
+        ],
+        "confidence": 1.0
+      },
+      {
+        "name": "Marshal McBride",
+        "zone_id": "",
+        "faction_ids": [],
+        "personality": "",
+        "motivations": [],
+        "relationships": [],
+        "quest_threads": [],
+        "phased_state": "",
+        "role": "faction_leader",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Marshal_McBride",
+            "domain": "wowpedia",
+            "tier": "official",
+            "accessed_at": "2026-02-26T02:14:23.120770"
+          }
+        ],
+        "confidence": 1.0
+      },
+      {
+        "name": "Guard Thomas",
+        "zone_id": "",
+        "faction_ids": [],
+        "personality": "",
+        "motivations": [],
+        "relationships": [],
+        "quest_threads": [],
+        "phased_state": "",
+        "role": "guard",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Guard_Thomas",
+            "domain": "wowpedia",
+            "tier": "official",
+            "accessed_at": "2026-02-26T02:14:23.120770"
+          }
+        ],
+        "confidence": 1.0
+      },
+      {
+        "name": "Deputy Rainer",
+        "zone_id": "",
+        "faction_ids": [],
+        "personality": "",
+        "motivations": [],
+        "relationships": [],
+        "quest_threads": [],
+        "phased_state": "",
+        "role": "faction_leader",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Deputy_Rainer",
+            "domain": "wowpedia",
+            "tier": "official",
+            "accessed_at": "2026-02-26T02:14:23.120770"
+          }
+        ],
+        "confidence": 1.0
+      },
+      {
+        "name": "Billy Maclure",
+        "zone_id": "",
+        "faction_ids": [],
+        "personality": "",
+        "motivations": [],
+        "relationships": [],
+        "quest_threads": [
+          "Lost Necklace",
+          "Pie for Billy",
+          "Back to Billy"
+        ],
+        "phased_state": "",
+        "role": "civilian",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Billy_Maclure",
+            "domain": "wowpedia",
+            "tier": "official",
+            "accessed_at": "2026-02-26T02:14:23.120770"
+          }
+        ],
+        "confidence": 1.0
+      },
+      {
+        "name": "Maybell Maclure",
+        "zone_id": "",
+        "faction_ids": [],
+        "personality": "",
+        "motivations": [],
+        "relationships": [],
+        "quest_threads": [
+          "A Visit With Maybell",
+          "Young Lovers",
+          "Speak with Gramma",
+          "Note to William",
+          "Collecting Kelp",
+          "The Escape"
+        ],
+        "phased_state": "",
+        "role": "civilian",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Maybell_Maclure",
+            "domain": "wowpedia",
+            "tier": "official",
+            "accessed_at": "2026-02-26T02:14:23.120770"
+          }
+        ],
+        "confidence": 1.0
+      },
+      {
+        "name": "Auntie Bernice Stonefield",
+        "zone_id": "",
+        "faction_ids": [],
+        "personality": "",
+        "motivations": [],
+        "relationships": [],
+        "quest_threads": [
+          "Lost Necklace",
+          "Pie for Billy",
+          "Back to Billy"
+        ],
+        "phased_state": "",
+        "role": "civilian",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/%22Auntie%22_Bernice_Stonefield",
+            "domain": "wowpedia",
+            "tier": "official",
+            "accessed_at": "2026-02-26T02:14:23.120770"
+          }
+        ],
+        "confidence": 1.0
+      },
+      {
+        "name": "Hogger",
+        "zone_id": "",
+        "faction_ids": [],
+        "personality": "",
+        "motivations": [],
+        "relationships": [],
+        "quest_threads": [
+          "WANTED: \"Hogger\""
+        ],
+        "phased_state": "",
+        "role": "boss",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Hogger",
+            "domain": "wowpedia",
+            "tier": "official",
+            "accessed_at": "2026-02-26T02:14:23.120770"
+          }
+        ],
+        "confidence": 1.0
+      },
+      {
+        "name": "Remy \"Two Times\"",
+        "zone_id": "",
+        "faction_ids": [],
+        "personality": "",
+        "motivations": [],
+        "relationships": [],
+        "quest_threads": [],
+        "phased_state": "",
+        "role": "vendor",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Remy_%22Two_Times%22",
+            "domain": "wowpedia",
+            "tier": "official",
+            "accessed_at": "2026-02-26T02:14:23.120770"
+          }
+        ],
+        "confidence": 1.0
+      },
+      {
+        "name": "Rolf Hartford",
+        "zone_id": "",
+        "faction_ids": [],
+        "personality": "",
+        "motivations": [],
+        "relationships": [],
+        "quest_threads": [],
+        "phased_state": "",
+        "role": "",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Rolf_Hartford",
+            "domain": "wowpedia",
+            "tier": "official",
+            "accessed_at": "2026-02-26T02:14:23.120770"
+          }
+        ],
+        "confidence": 1.0
+      },
+      {
+        "name": "Malakai Stone",
+        "zone_id": "",
+        "faction_ids": [],
+        "personality": "",
+        "motivations": [],
+        "relationships": [],
+        "quest_threads": [],
+        "phased_state": "",
+        "role": "",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Malakai_Stone",
+            "domain": "wowpedia",
+            "tier": "official",
+            "accessed_at": "2026-02-26T02:14:23.120770"
+          }
+        ],
+        "confidence": 1.0
+      },
+      {
+        "name": "Smith Argus",
+        "zone_id": "",
+        "faction_ids": [],
+        "personality": "",
+        "motivations": [],
+        "relationships": [],
+        "quest_threads": [
+          "A Swift Message",
+          "Continue to Stormwind",
+          "Dungar Longdrink",
+          "Return to Argus"
+        ],
+        "phased_state": "",
+        "role": "",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Smith_Argus",
+            "domain": "wowpedia",
+            "tier": "official",
+            "accessed_at": "2026-02-26T02:14:23.120770"
+          }
+        ],
+        "confidence": 1.0
+      },
+      {
+        "name": "General Hammond Clay",
+        "zone_id": "",
+        "faction_ids": [],
+        "personality": "",
+        "motivations": [],
+        "relationships": [],
+        "quest_threads": [],
+        "phased_state": "",
+        "role": "",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/General_Hammond_Clay",
+            "domain": "wowpedia",
+            "tier": "official",
+            "accessed_at": "2026-02-26T02:14:23.120770"
+          }
+        ],
+        "confidence": 1.0
+      },
+      {
+        "name": "Maginor Dumas",
+        "zone_id": "",
+        "faction_ids": [],
+        "personality": "",
+        "motivations": [],
+        "relationships": [],
+        "quest_threads": [],
+        "phased_state": "",
+        "role": "",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Maginor_Dumas",
+            "domain": "wowpedia",
+            "tier": "official",
+            "accessed_at": "2026-02-26T02:14:23.120770"
+          }
+        ],
+        "confidence": 1.0
+      },
+      {
+        "name": "High Sorcerer Andromath",
+        "zone_id": "",
+        "faction_ids": [],
+        "personality": "",
+        "motivations": [],
+        "relationships": [],
+        "quest_threads": [],
+        "phased_state": "",
+        "role": "",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/High_Sorcerer_Andromath",
+            "domain": "wowpedia",
+            "tier": "official",
+            "accessed_at": "2026-02-26T02:14:23.120770"
+          }
+        ],
+        "confidence": 1.0
+      },
+      {
+        "name": "Billy Maclure",
+        "zone_id": "",
+        "faction_ids": [],
+        "personality": "",
+        "motivations": [],
+        "relationships": [],
+        "quest_threads": [],
+        "phased_state": "",
+        "role": "",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Billy_Maclure",
+            "domain": "wowpedia",
+            "tier": "official",
+            "accessed_at": "2026-02-26T02:14:23.120770"
+          }
+        ],
+        "confidence": 1.0
+      },
+      {
+        "name": "Princess",
+        "zone_id": "",
+        "faction_ids": [],
+        "personality": "",
+        "motivations": [],
+        "relationships": [],
+        "quest_threads": [
+          "Princess Must Die!"
+        ],
+        "phased_state": "",
+        "role": "notable creature",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Princess_(boar)",
+            "domain": "wowpedia",
+            "tier": "official",
+            "accessed_at": "2026-02-26T02:14:23.120770"
+          }
+        ],
+        "confidence": 1.0
+      }
+    ],
+    "factions": [
+      {
+        "name": "Kingdom of Stormwind",
+        "parent_faction_id": "",
+        "level": "major_faction",
+        "inter_faction": [
+          {
+            "faction_id": "Defias Brotherhood",
+            "stance": "hostile",
+            "description": "Sworn enemies \u2014 the militia actively hunts Defias operatives"
+          },
+          {
+            "faction_id": "Horde",
+            "stance": "hostile",
+            "description": "Historically antagonistic."
+          }
+        ],
+        "exclusive_with": [
+          "Defias Brotherhood",
+          "Horde"
+        ],
+        "ideology": "Strength and unity of the human race, emphasizing resilience and military prowess.",
+        "goals": [
+          "Maintain safety and prosperity of citizens",
+          "Uphold the values of the Alliance."
+        ],
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Stormwind_(faction)",
+            "domain": "wowpedia",
+            "tier": "official",
+            "accessed_at": "2026-02-26T02:14:15.133755"
+          },
+          {
+            "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest",
+            "domain": "warcraft.wiki.gg",
+            "tier": "primary",
+            "accessed_at": "2026-02-26T02:14:15.133755"
+          }
+        ],
+        "confidence": 0.9
+      },
+      {
+        "name": "Defias Brotherhood",
+        "parent_faction_id": "",
+        "level": "criminal",
+        "inter_faction": [
+          {
+            "faction_id": "Kingdom of Stormwind",
+            "stance": "hostile",
+            "description": "Directly opposed, viewed as corrupt."
+          },
+          {
+            "faction_id": "Horde",
+            "stance": "neutral",
+            "description": "Not directly involved with the same objectives."
+          }
+        ],
+        "exclusive_with": [
+          "Kingdom of Stormwind"
+        ],
+        "ideology": "Revenge against the oppressors \u2014 reclaiming power and resources.",
+        "goals": [
+          "Undermine the Stormwind government",
+          "Reclaim power and resources."
+        ],
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Defias_Brotherhood",
+            "domain": "wowpedia",
+            "tier": "official",
+            "accessed_at": "2026-02-26T02:14:15.133755"
+          },
+          {
+            "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest",
+            "domain": "warcraft.wiki.gg",
+            "tier": "primary",
+            "accessed_at": "2026-02-26T02:14:15.133755"
+          }
+        ],
+        "confidence": 0.9
+      },
+      {
+        "name": "Elwynn Forest Militia",
+        "parent_faction_id": "",
+        "level": "military",
+        "inter_faction": [
+          {
+            "faction_id": "Kingdom of Stormwind",
+            "stance": "allied",
+            "description": "Operates under the authority of the Stormwind government."
+          },
+          {
+            "faction_id": "Defias Brotherhood",
+            "stance": "hostile",
+            "description": "Targeted for their crimes against citizens."
+          }
+        ],
+        "exclusive_with": [
+          "Defias Brotherhood"
+        ],
+        "ideology": "Protection of local populace and maintenance of order in Elwynn Forest.",
+        "goals": [
+          "Defend against threats like kobolds and murlocs",
+          "Maintain peace and security."
+        ],
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+            "domain": "wowpedia",
+            "tier": "official",
+            "accessed_at": "2026-02-26T02:14:15.133755"
+          },
+          {
+            "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest",
+            "domain": "warcraft.wiki.gg",
+            "tier": "primary",
+            "accessed_at": "2026-02-26T02:14:15.133755"
+          }
+        ],
+        "confidence": 0.9
+      },
+      {
+        "name": "Riverpaw Pack",
+        "parent_faction_id": "",
+        "level": "tribal",
+        "inter_faction": [
+          {
+            "faction_id": "Kingdom of Stormwind",
+            "stance": "hostile",
+            "description": "Frequently raid and attack for resources."
+          },
+          {
+            "faction_id": "Defias Brotherhood",
+            "stance": "neutral",
+            "description": "Both operate in Elwynn, with no direct conflict."
+          }
+        ],
+        "exclusive_with": [],
+        "ideology": "Territorial dominance and survival in the region.",
+        "goals": [
+          "Raid local settlements for resources.",
+          "Assert dominance over territory."
+        ],
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+            "domain": "wowpedia",
+            "tier": "official",
+            "accessed_at": "2026-02-26T02:14:15.133755"
+          },
+          {
+            "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest",
+            "domain": "warcraft.wiki.gg",
+            "tier": "primary",
+            "accessed_at": "2026-02-26T02:14:15.133755"
+          }
+        ],
+        "confidence": 0.9
+      }
+    ],
+    "lore": [
+      {
+        "zone_id": "elwynn_forest",
+        "title": "Foundation of Stormwind",
+        "category": "history",
+        "content": "Centuries ago, the Arathi bloodline founded Stormwind following the dissolution of the Arathor Kingdom. This foundation marked the beginning of a new political entity, establishing the principles of governance that would shape the region for centuries to come.",
+        "era": "Pre-First War",
+        "sources": [
+          {
+            "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest_storyline",
+            "domain": "warcraft.wiki.gg",
+            "tier": "primary",
+            "accessed_at": "2026-02-26T02:14:01.209655"
+          }
+        ],
+        "confidence": 0.9
+      },
+      {
+        "zone_id": "elwynn_forest",
+        "title": "First War and Its Impact",
+        "category": "history",
+        "content": "During the First War, the Horde captured Elwynn Forest, razing many of its towns, including Goldshire and Northshire. This devastation resulted in a significant loss of life and stability in the region, requiring significant efforts to restore and rebuild.",
+        "era": "First War",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_storyline",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T02:14:01.209655"
+          }
+        ],
+        "confidence": 0.9
+      },
+      {
+        "zone_id": "elwynn_forest",
+        "title": "The Emergence of the Defias Brotherhood",
+        "category": "history",
+        "content": "In the aftermath of the Second War, discontented workers formed the Defias Brotherhood, a faction composed mainly of laborers who felt wronged by the reconstruction efforts. They became a significant threat to peace in Elwynn Forest as they sought revenge for their perceived injustices.",
+        "era": "Post-Second War",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Defias_Brotherhood",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T02:14:01.209655"
+          }
+        ],
+        "confidence": 0.9
+      },
+      {
+        "zone_id": "elwynn_forest",
+        "title": "Scourge Invasion",
+        "category": "history",
+        "content": "During the Scourge Invasion, Elwynn Forest faced attacks from undead forces, representing a new and insidious threat to the region. This invasion prompted the mobilization of both the Stormwind Army and the Argent Crusade to defend the land and its people.",
+        "era": "Post-Lich King",
+        "sources": [
+          {
+            "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest_storyline",
+            "domain": "warcraft.wiki.gg",
+            "tier": "primary",
+            "accessed_at": "2026-02-26T02:14:01.209655"
+          }
+        ],
+        "confidence": 0.8
+      },
+      {
+        "zone_id": "elwynn_forest",
+        "title": "Blackrock Clan's Attack",
+        "category": "history",
+        "content": "The Cataclysm event led to breach of natural defenses, allowing Blackrock orcs to invade Elwynn Forest. This invasion exacerbated the already strained resources of Stormwind and led to heightened military presence in the region to protect its inhabitants.",
+        "era": "Cataclysm",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_storyline",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T02:14:01.209655"
+          }
+        ],
+        "confidence": 0.8
+      },
+      {
+        "zone_id": "elwynn_forest",
+        "title": "Myth of the Curse of Duskwood",
+        "category": "mythology",
+        "content": "Local lore speaks of the Curse of Duskwood, a malediction that has plagued the area, resulting in the transformation of creatures such as spiders into grotesque versions of themselves. This myth reflects the fears and tensions surrounding dark influences in nearby regions.",
+        "era": "Ancient",
+        "sources": [
+          {
+            "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest_storyline",
+            "domain": "warcraft.wiki.gg",
+            "tier": "primary",
+            "accessed_at": "2026-02-26T02:14:01.209655"
+          }
+        ],
+        "confidence": 0.7
+      }
+    ],
+    "narrative_items": [
+      {
+        "name": "Bernice's Necklace",
+        "zone_id": "",
+        "story_arc": "The necklace is a key item in the quest 'Lost Necklace', which involves helping Auntie Bernice Stonefield.",
+        "wielder_lineage": [
+          "Auntie Bernice Stonefield"
+        ],
+        "power_description": "A sentimental item that signifies family ties.",
+        "significance": "notable",
+        "sources": [
+          {
+            "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest_(Classic)_quests",
+            "domain": "warcraft.wiki.gg",
+            "tier": "primary",
+            "accessed_at": "2026-02-26T02:13:48.131104"
+          },
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_questing_guide",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T02:13:48.131104"
+          }
+        ],
+        "confidence": 0.8
+      }
+    ],
+    "sources": [
+      {
+        "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest_(Classic)_quests",
+        "domain": "warcraft.wiki.gg",
+        "tier": "primary",
+        "accessed_at": "2026-02-26T02:09:15.039569"
+      },
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_questing_guide",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T02:09:16.459856"
+      },
+      {
+        "url": "https://gamer-guides.com/wow-hardcore/elwynn-forest/",
+        "domain": "gamer-guides.com",
+        "tier": "tertiary",
+        "accessed_at": "2026-02-26T02:09:17.741949"
+      },
+      {
+        "url": "https://wowclassicdb.com/quests/eastern-kingdoms/elwynn-forest",
+        "domain": "wowclassicdb.com",
+        "tier": "tertiary",
+        "accessed_at": "2026-02-26T02:09:18.161936"
+      },
+      {
+        "url": "https://worldofwarcraft.fandom.com/wiki/Elwynn_Forest",
+        "domain": "worldofwarcraft.fandom.com",
+        "tier": "tertiary",
+        "accessed_at": "2026-02-26T02:09:35.384562"
+      },
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_(Classic)_quests",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T02:09:35.387770"
+      },
+      {
+        "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest_storyline",
+        "domain": "warcraft.wiki.gg",
+        "tier": "primary",
+        "accessed_at": "2026-02-26T02:09:13.846111"
+      },
+      {
+        "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest",
+        "domain": "warcraft.wiki.gg",
+        "tier": "primary",
+        "accessed_at": "2026-02-26T02:09:18.985562"
+      },
+      {
+        "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest_NPCs",
+        "domain": "warcraft.wiki.gg",
+        "tier": "primary",
+        "accessed_at": "2026-02-26T02:09:19.286076"
+      },
+      {
+        "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest_questing_guide",
+        "domain": "warcraft.wiki.gg",
+        "tier": "primary",
+        "accessed_at": "2026-02-26T02:09:19.705386"
+      },
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T02:09:28.561484"
+      },
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_storyline",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T02:09:28.564019"
+      },
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest/NPCs",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T02:09:33.940434"
+      },
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_storyline",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T02:09:09.975952"
+      },
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T02:09:12.655158"
+      },
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_questing_guide",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T02:09:16.463671"
+      },
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_(Classic)",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T02:09:24.024832"
+      },
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_NPCs",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T02:09:40.270402"
+      },
+      {
+        "url": "https://worldofwarcraft.video.tm/the-lore-elwynn-forest-world-of-warcraft-lore",
+        "domain": "worldofwarcraft.video.tm",
+        "tier": "tertiary",
+        "accessed_at": "2026-02-26T02:09:45.274912"
+      },
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Stormwind_(faction)",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T02:09:15.033471"
+      },
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T02:09:17.385694"
+      },
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_storyline",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T02:09:18.677989"
+      },
+      {
+        "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest",
+        "domain": "warcraft.wiki.gg",
+        "tier": "primary",
+        "accessed_at": "2026-02-26T02:09:27.760614"
+      },
+      {
+        "url": "https://dungeon.guide/zones/elwynnforest",
+        "domain": "dungeon.guide",
+        "tier": "tertiary",
+        "accessed_at": "2026-02-26T02:09:31.775367"
+      },
+      {
+        "url": "https://gamer-guides.com/wow-hardcore/elwynn-forest/",
+        "domain": "gamer-guides.com",
+        "tier": "tertiary",
+        "accessed_at": "2026-02-26T02:09:32.985724"
+      },
+      {
+        "url": "https://gamer-guides.com/wow-hardcore/elwynn-forest/",
+        "domain": "gamer-guides.com",
+        "tier": "tertiary",
+        "accessed_at": "2026-02-26T02:09:40.061855"
+      },
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Defias_Brotherhood",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T02:09:45.892876"
+      },
+      {
+        "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest_storyline",
+        "domain": "warcraft.wiki.gg",
+        "tier": "primary",
+        "accessed_at": "2026-02-26T02:09:09.905676"
+      },
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T02:09:12.607883"
+      },
+      {
+        "url": "https://azerothcollector.com/elwynn-forest/",
+        "domain": "azerothcollector.com",
+        "tier": "tertiary",
+        "accessed_at": "2026-02-26T02:09:20.411763"
+      },
+      {
+        "url": "https://gamer-guides.com/wow-hardcore/elwynn-forest/",
+        "domain": "gamer-guides.com",
+        "tier": "tertiary",
+        "accessed_at": "2026-02-26T02:09:22.310095"
+      },
+      {
+        "url": "https://wowquesting.weebly.com/elwynn-forest.html",
+        "domain": "wowquesting.weebly.com",
+        "tier": "tertiary",
+        "accessed_at": "2026-02-26T02:09:33.126096"
+      },
+      {
+        "url": "https://worldofwarcraft.video.tm/the-lore-elwynn-forest-world-of-warcraft-lore",
+        "domain": "worldofwarcraft.video.tm",
+        "tier": "tertiary",
+        "accessed_at": "2026-02-26T02:09:39.489447"
+      }
+    ],
+    "cross_ref_result": {
+      "is_consistent": true,
+      "conflicts": [
+        {
+          "data_point": "Princess (NPC)",
+          "source_a": {
+            "url": "https://wowpedia.fandom.com/wiki/Princess_(boar)",
+            "domain": "wowpedia",
+            "tier": "official",
+            "accessed_at": "2026-02-26T02:14:23.120770"
+          },
+          "claim_a": "Princess is a notable creature.",
+          "source_b": {
+            "url": "https://wowpedia.fandom.com/wiki/Princess_(boar)",
+            "domain": "wowpedia",
+            "tier": "official",
+            "accessed_at": "2026-02-26T02:14:23.120770"
+          },
+          "claim_b": "Princess is categorized as an NPC.",
+          "resolution": "Princess is classified as a notable creature, which conflicts with the NPC classification; should not be listed as an NPC."
+        }
+      ],
+      "confidence": {
+        "zone": 0.8,
+        "npcs": 0.3,
+        "factions": 0.9,
+        "lore": 0.9,
+        "narrative_items": 0.8
+      },
+      "notes": "The NPC list includes 'Princess', a notable creature, which is a misclassification. The narrative item 'Bernice's Necklace' is correctly classified."
+    },
+    "discovered_zones": [
+      "redridge_mountains",
+      "duskwood",
+      "westfall",
+      "burning_steppes"
+    ],
+    "orchestrator_tokens": 10382,
+    "worker_tokens": 356993
+  },
+  "research_package": {
+    "zone_name": "elwynn_forest",
+    "zone_data": {
+      "name": "Elwynn Forest",
+      "game": "wow",
+      "level_range": {
+        "min": 1,
+        "max": 30
+      },
+      "narrative_arc": "Elwynn Forest is the starting zone for humans in the Kingdom of Stormwind, hosting tales of conflict and community as it strives to maintain peace. Following the defeat of the Defias Brotherhood, the area found itself in relative tranquility but faced new threats from kobold invasions in its gold mines, intrusions from wild beasts, and lingering rivalries among local farmers, notably the Stonefields and the Maclures. The local governance, led by the Alliance, has been stretched thin due to resource constraints. New adventurers from Northshire Valley rally to restore order under the guidance of figures such as Marshal Dughan in Goldshire. These adventurers embark on quests to eliminate the kobold menace, mediate family feuds, and tackle creature attacks in a bid to ensure a secure environment where trade and farming can thrive. Despite triumphs, the underlying tensions reflect the ongoing uncertainty in the balance of power in the region.",
+      "political_climate": "Elwynn Forest is governed by the Alliance, with citizens engaged in farming, logging, and mining. Due to the army being spread thin, the region faces neglect that allows rivalries to fester, particularly between the Maclures and Stonefields, along with the persistent threat posed by kobolds. The balance of local life is precarious, with citizens often caught in the crossfire of these unresolved issues, further complicating community relationships.",
+      "access_gating": [],
+      "phase_states": [
+        {
+          "phase_name": "Cataclysm Changes",
+          "description": "The storyline reflects the state of Elwynn Forest before the Cataclysm, focusing on the tranquility disrupted by kobold invasions.",
+          "trigger": ""
+        },
+        {
+          "phase_name": "Quest Progression Phases",
+          "description": "Players undertake multiple quests, escalating from simple tasks in Northshire to increasingly complex missions dealing with local conflicts.",
+          "trigger": ""
+        }
+      ],
+      "connected_zones": [
+        "duskwood",
+        "westfall",
+        "redridge-mountains"
+      ],
+      "era": "Classic Era",
+      "sources": [
+        {
+          "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_questing_guide",
+          "domain": "wowpedia",
+          "tier": "official",
+          "accessed_at": "2026-02-26T02:14:14.946138"
+        },
+        {
+          "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest",
+          "domain": "warcraft.wiki.gg",
+          "tier": "primary",
+          "accessed_at": "2026-02-26T02:14:14.946138"
+        }
+      ],
+      "confidence": 0.8
+    },
+    "npcs": [
+      {
+        "name": "Marshal Dughan",
+        "zone_id": "",
+        "faction_ids": [],
+        "personality": "",
+        "motivations": [],
+        "relationships": [],
+        "quest_threads": [
+          "WANTED: \"Hogger\""
+        ],
+        "phased_state": "",
+        "role": "faction_leader",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Marshal_Dughan",
+            "domain": "wowpedia",
+            "tier": "official",
+            "accessed_at": "2026-02-26T02:14:23.120770"
+          }
+        ],
+        "confidence": 1.0
+      },
+      {
+        "name": "Marshal McBride",
+        "zone_id": "",
+        "faction_ids": [],
+        "personality": "",
+        "motivations": [],
+        "relationships": [],
+        "quest_threads": [],
+        "phased_state": "",
+        "role": "faction_leader",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Marshal_McBride",
+            "domain": "wowpedia",
+            "tier": "official",
+            "accessed_at": "2026-02-26T02:14:23.120770"
+          }
+        ],
+        "confidence": 1.0
+      },
+      {
+        "name": "Guard Thomas",
+        "zone_id": "",
+        "faction_ids": [],
+        "personality": "",
+        "motivations": [],
+        "relationships": [],
+        "quest_threads": [],
+        "phased_state": "",
+        "role": "guard",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Guard_Thomas",
+            "domain": "wowpedia",
+            "tier": "official",
+            "accessed_at": "2026-02-26T02:14:23.120770"
+          }
+        ],
+        "confidence": 1.0
+      },
+      {
+        "name": "Deputy Rainer",
+        "zone_id": "",
+        "faction_ids": [],
+        "personality": "",
+        "motivations": [],
+        "relationships": [],
+        "quest_threads": [],
+        "phased_state": "",
+        "role": "faction_leader",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Deputy_Rainer",
+            "domain": "wowpedia",
+            "tier": "official",
+            "accessed_at": "2026-02-26T02:14:23.120770"
+          }
+        ],
+        "confidence": 1.0
+      },
+      {
+        "name": "Billy Maclure",
+        "zone_id": "",
+        "faction_ids": [],
+        "personality": "",
+        "motivations": [],
+        "relationships": [],
+        "quest_threads": [
+          "Lost Necklace",
+          "Pie for Billy",
+          "Back to Billy"
+        ],
+        "phased_state": "",
+        "role": "civilian",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Billy_Maclure",
+            "domain": "wowpedia",
+            "tier": "official",
+            "accessed_at": "2026-02-26T02:14:23.120770"
+          }
+        ],
+        "confidence": 1.0
+      },
+      {
+        "name": "Maybell Maclure",
+        "zone_id": "",
+        "faction_ids": [],
+        "personality": "",
+        "motivations": [],
+        "relationships": [],
+        "quest_threads": [
+          "A Visit With Maybell",
+          "Young Lovers",
+          "Speak with Gramma",
+          "Note to William",
+          "Collecting Kelp",
+          "The Escape"
+        ],
+        "phased_state": "",
+        "role": "civilian",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Maybell_Maclure",
+            "domain": "wowpedia",
+            "tier": "official",
+            "accessed_at": "2026-02-26T02:14:23.120770"
+          }
+        ],
+        "confidence": 1.0
+      },
+      {
+        "name": "Auntie Bernice Stonefield",
+        "zone_id": "",
+        "faction_ids": [],
+        "personality": "",
+        "motivations": [],
+        "relationships": [],
+        "quest_threads": [
+          "Lost Necklace",
+          "Pie for Billy",
+          "Back to Billy"
+        ],
+        "phased_state": "",
+        "role": "civilian",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/%22Auntie%22_Bernice_Stonefield",
+            "domain": "wowpedia",
+            "tier": "official",
+            "accessed_at": "2026-02-26T02:14:23.120770"
+          }
+        ],
+        "confidence": 1.0
+      },
+      {
+        "name": "Hogger",
+        "zone_id": "",
+        "faction_ids": [],
+        "personality": "",
+        "motivations": [],
+        "relationships": [],
+        "quest_threads": [
+          "WANTED: \"Hogger\""
+        ],
+        "phased_state": "",
+        "role": "boss",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Hogger",
+            "domain": "wowpedia",
+            "tier": "official",
+            "accessed_at": "2026-02-26T02:14:23.120770"
+          }
+        ],
+        "confidence": 1.0
+      },
+      {
+        "name": "Remy \"Two Times\"",
+        "zone_id": "",
+        "faction_ids": [],
+        "personality": "",
+        "motivations": [],
+        "relationships": [],
+        "quest_threads": [],
+        "phased_state": "",
+        "role": "vendor",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Remy_%22Two_Times%22",
+            "domain": "wowpedia",
+            "tier": "official",
+            "accessed_at": "2026-02-26T02:14:23.120770"
+          }
+        ],
+        "confidence": 1.0
+      },
+      {
+        "name": "Rolf Hartford",
+        "zone_id": "",
+        "faction_ids": [],
+        "personality": "",
+        "motivations": [],
+        "relationships": [],
+        "quest_threads": [],
+        "phased_state": "",
+        "role": "",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Rolf_Hartford",
+            "domain": "wowpedia",
+            "tier": "official",
+            "accessed_at": "2026-02-26T02:14:23.120770"
+          }
+        ],
+        "confidence": 1.0
+      },
+      {
+        "name": "Malakai Stone",
+        "zone_id": "",
+        "faction_ids": [],
+        "personality": "",
+        "motivations": [],
+        "relationships": [],
+        "quest_threads": [],
+        "phased_state": "",
+        "role": "",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Malakai_Stone",
+            "domain": "wowpedia",
+            "tier": "official",
+            "accessed_at": "2026-02-26T02:14:23.120770"
+          }
+        ],
+        "confidence": 1.0
+      },
+      {
+        "name": "Smith Argus",
+        "zone_id": "",
+        "faction_ids": [],
+        "personality": "",
+        "motivations": [],
+        "relationships": [],
+        "quest_threads": [
+          "A Swift Message",
+          "Continue to Stormwind",
+          "Dungar Longdrink",
+          "Return to Argus"
+        ],
+        "phased_state": "",
+        "role": "",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Smith_Argus",
+            "domain": "wowpedia",
+            "tier": "official",
+            "accessed_at": "2026-02-26T02:14:23.120770"
+          }
+        ],
+        "confidence": 1.0
+      },
+      {
+        "name": "General Hammond Clay",
+        "zone_id": "",
+        "faction_ids": [],
+        "personality": "",
+        "motivations": [],
+        "relationships": [],
+        "quest_threads": [],
+        "phased_state": "",
+        "role": "",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/General_Hammond_Clay",
+            "domain": "wowpedia",
+            "tier": "official",
+            "accessed_at": "2026-02-26T02:14:23.120770"
+          }
+        ],
+        "confidence": 1.0
+      },
+      {
+        "name": "Maginor Dumas",
+        "zone_id": "",
+        "faction_ids": [],
+        "personality": "",
+        "motivations": [],
+        "relationships": [],
+        "quest_threads": [],
+        "phased_state": "",
+        "role": "",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Maginor_Dumas",
+            "domain": "wowpedia",
+            "tier": "official",
+            "accessed_at": "2026-02-26T02:14:23.120770"
+          }
+        ],
+        "confidence": 1.0
+      },
+      {
+        "name": "High Sorcerer Andromath",
+        "zone_id": "",
+        "faction_ids": [],
+        "personality": "",
+        "motivations": [],
+        "relationships": [],
+        "quest_threads": [],
+        "phased_state": "",
+        "role": "",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/High_Sorcerer_Andromath",
+            "domain": "wowpedia",
+            "tier": "official",
+            "accessed_at": "2026-02-26T02:14:23.120770"
+          }
+        ],
+        "confidence": 1.0
+      },
+      {
+        "name": "Billy Maclure",
+        "zone_id": "",
+        "faction_ids": [],
+        "personality": "",
+        "motivations": [],
+        "relationships": [],
+        "quest_threads": [],
+        "phased_state": "",
+        "role": "",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Billy_Maclure",
+            "domain": "wowpedia",
+            "tier": "official",
+            "accessed_at": "2026-02-26T02:14:23.120770"
+          }
+        ],
+        "confidence": 1.0
+      },
+      {
+        "name": "Princess",
+        "zone_id": "",
+        "faction_ids": [],
+        "personality": "",
+        "motivations": [],
+        "relationships": [],
+        "quest_threads": [
+          "Princess Must Die!"
+        ],
+        "phased_state": "",
+        "role": "notable creature",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Princess_(boar)",
+            "domain": "wowpedia",
+            "tier": "official",
+            "accessed_at": "2026-02-26T02:14:23.120770"
+          }
+        ],
+        "confidence": 1.0
+      }
+    ],
+    "factions": [
+      {
+        "name": "Kingdom of Stormwind",
+        "parent_faction_id": "",
+        "level": "major_faction",
+        "inter_faction": [
+          {
+            "faction_id": "Defias Brotherhood",
+            "stance": "hostile",
+            "description": "Sworn enemies \u2014 the militia actively hunts Defias operatives"
+          },
+          {
+            "faction_id": "Horde",
+            "stance": "hostile",
+            "description": "Historically antagonistic."
+          }
+        ],
+        "exclusive_with": [
+          "Defias Brotherhood",
+          "Horde"
+        ],
+        "ideology": "Strength and unity of the human race, emphasizing resilience and military prowess.",
+        "goals": [
+          "Maintain safety and prosperity of citizens",
+          "Uphold the values of the Alliance."
+        ],
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Stormwind_(faction)",
+            "domain": "wowpedia",
+            "tier": "official",
+            "accessed_at": "2026-02-26T02:14:15.133755"
+          },
+          {
+            "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest",
+            "domain": "warcraft.wiki.gg",
+            "tier": "primary",
+            "accessed_at": "2026-02-26T02:14:15.133755"
+          }
+        ],
+        "confidence": 0.9
+      },
+      {
+        "name": "Defias Brotherhood",
+        "parent_faction_id": "",
+        "level": "criminal",
+        "inter_faction": [
+          {
+            "faction_id": "Kingdom of Stormwind",
+            "stance": "hostile",
+            "description": "Directly opposed, viewed as corrupt."
+          },
+          {
+            "faction_id": "Horde",
+            "stance": "neutral",
+            "description": "Not directly involved with the same objectives."
+          }
+        ],
+        "exclusive_with": [
+          "Kingdom of Stormwind"
+        ],
+        "ideology": "Revenge against the oppressors \u2014 reclaiming power and resources.",
+        "goals": [
+          "Undermine the Stormwind government",
+          "Reclaim power and resources."
+        ],
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Defias_Brotherhood",
+            "domain": "wowpedia",
+            "tier": "official",
+            "accessed_at": "2026-02-26T02:14:15.133755"
+          },
+          {
+            "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest",
+            "domain": "warcraft.wiki.gg",
+            "tier": "primary",
+            "accessed_at": "2026-02-26T02:14:15.133755"
+          }
+        ],
+        "confidence": 0.9
+      },
+      {
+        "name": "Elwynn Forest Militia",
+        "parent_faction_id": "",
+        "level": "military",
+        "inter_faction": [
+          {
+            "faction_id": "Kingdom of Stormwind",
+            "stance": "allied",
+            "description": "Operates under the authority of the Stormwind government."
+          },
+          {
+            "faction_id": "Defias Brotherhood",
+            "stance": "hostile",
+            "description": "Targeted for their crimes against citizens."
+          }
+        ],
+        "exclusive_with": [
+          "Defias Brotherhood"
+        ],
+        "ideology": "Protection of local populace and maintenance of order in Elwynn Forest.",
+        "goals": [
+          "Defend against threats like kobolds and murlocs",
+          "Maintain peace and security."
+        ],
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+            "domain": "wowpedia",
+            "tier": "official",
+            "accessed_at": "2026-02-26T02:14:15.133755"
+          },
+          {
+            "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest",
+            "domain": "warcraft.wiki.gg",
+            "tier": "primary",
+            "accessed_at": "2026-02-26T02:14:15.133755"
+          }
+        ],
+        "confidence": 0.9
+      },
+      {
+        "name": "Riverpaw Pack",
+        "parent_faction_id": "",
+        "level": "tribal",
+        "inter_faction": [
+          {
+            "faction_id": "Kingdom of Stormwind",
+            "stance": "hostile",
+            "description": "Frequently raid and attack for resources."
+          },
+          {
+            "faction_id": "Defias Brotherhood",
+            "stance": "neutral",
+            "description": "Both operate in Elwynn, with no direct conflict."
+          }
+        ],
+        "exclusive_with": [],
+        "ideology": "Territorial dominance and survival in the region.",
+        "goals": [
+          "Raid local settlements for resources.",
+          "Assert dominance over territory."
+        ],
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+            "domain": "wowpedia",
+            "tier": "official",
+            "accessed_at": "2026-02-26T02:14:15.133755"
+          },
+          {
+            "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest",
+            "domain": "warcraft.wiki.gg",
+            "tier": "primary",
+            "accessed_at": "2026-02-26T02:14:15.133755"
+          }
+        ],
+        "confidence": 0.9
+      }
+    ],
+    "lore": [
+      {
+        "zone_id": "elwynn_forest",
+        "title": "Foundation of Stormwind",
+        "category": "history",
+        "content": "Centuries ago, the Arathi bloodline founded Stormwind following the dissolution of the Arathor Kingdom. This foundation marked the beginning of a new political entity, establishing the principles of governance that would shape the region for centuries to come.",
+        "era": "Pre-First War",
+        "sources": [
+          {
+            "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest_storyline",
+            "domain": "warcraft.wiki.gg",
+            "tier": "primary",
+            "accessed_at": "2026-02-26T02:14:01.209655"
+          }
+        ],
+        "confidence": 0.9
+      },
+      {
+        "zone_id": "elwynn_forest",
+        "title": "First War and Its Impact",
+        "category": "history",
+        "content": "During the First War, the Horde captured Elwynn Forest, razing many of its towns, including Goldshire and Northshire. This devastation resulted in a significant loss of life and stability in the region, requiring significant efforts to restore and rebuild.",
+        "era": "First War",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_storyline",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T02:14:01.209655"
+          }
+        ],
+        "confidence": 0.9
+      },
+      {
+        "zone_id": "elwynn_forest",
+        "title": "The Emergence of the Defias Brotherhood",
+        "category": "history",
+        "content": "In the aftermath of the Second War, discontented workers formed the Defias Brotherhood, a faction composed mainly of laborers who felt wronged by the reconstruction efforts. They became a significant threat to peace in Elwynn Forest as they sought revenge for their perceived injustices.",
+        "era": "Post-Second War",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Defias_Brotherhood",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T02:14:01.209655"
+          }
+        ],
+        "confidence": 0.9
+      },
+      {
+        "zone_id": "elwynn_forest",
+        "title": "Scourge Invasion",
+        "category": "history",
+        "content": "During the Scourge Invasion, Elwynn Forest faced attacks from undead forces, representing a new and insidious threat to the region. This invasion prompted the mobilization of both the Stormwind Army and the Argent Crusade to defend the land and its people.",
+        "era": "Post-Lich King",
+        "sources": [
+          {
+            "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest_storyline",
+            "domain": "warcraft.wiki.gg",
+            "tier": "primary",
+            "accessed_at": "2026-02-26T02:14:01.209655"
+          }
+        ],
+        "confidence": 0.8
+      },
+      {
+        "zone_id": "elwynn_forest",
+        "title": "Blackrock Clan's Attack",
+        "category": "history",
+        "content": "The Cataclysm event led to breach of natural defenses, allowing Blackrock orcs to invade Elwynn Forest. This invasion exacerbated the already strained resources of Stormwind and led to heightened military presence in the region to protect its inhabitants.",
+        "era": "Cataclysm",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_storyline",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T02:14:01.209655"
+          }
+        ],
+        "confidence": 0.8
+      },
+      {
+        "zone_id": "elwynn_forest",
+        "title": "Myth of the Curse of Duskwood",
+        "category": "mythology",
+        "content": "Local lore speaks of the Curse of Duskwood, a malediction that has plagued the area, resulting in the transformation of creatures such as spiders into grotesque versions of themselves. This myth reflects the fears and tensions surrounding dark influences in nearby regions.",
+        "era": "Ancient",
+        "sources": [
+          {
+            "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest_storyline",
+            "domain": "warcraft.wiki.gg",
+            "tier": "primary",
+            "accessed_at": "2026-02-26T02:14:01.209655"
+          }
+        ],
+        "confidence": 0.7
+      }
+    ],
+    "narrative_items": [
+      {
+        "name": "Bernice's Necklace",
+        "zone_id": "",
+        "story_arc": "The necklace is a key item in the quest 'Lost Necklace', which involves helping Auntie Bernice Stonefield.",
+        "wielder_lineage": [
+          "Auntie Bernice Stonefield"
+        ],
+        "power_description": "A sentimental item that signifies family ties.",
+        "significance": "notable",
+        "sources": [
+          {
+            "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest_(Classic)_quests",
+            "domain": "warcraft.wiki.gg",
+            "tier": "primary",
+            "accessed_at": "2026-02-26T02:13:48.131104"
+          },
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_questing_guide",
+            "domain": "wowpedia.fandom.com",
+            "tier": "official",
+            "accessed_at": "2026-02-26T02:13:48.131104"
+          }
+        ],
+        "confidence": 0.8
+      }
+    ],
+    "sources": [
+      {
+        "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest_(Classic)_quests",
+        "domain": "warcraft.wiki.gg",
+        "tier": "primary",
+        "accessed_at": "2026-02-26T02:09:15.039569"
+      },
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_questing_guide",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T02:09:16.459856"
+      },
+      {
+        "url": "https://gamer-guides.com/wow-hardcore/elwynn-forest/",
+        "domain": "gamer-guides.com",
+        "tier": "tertiary",
+        "accessed_at": "2026-02-26T02:09:17.741949"
+      },
+      {
+        "url": "https://wowclassicdb.com/quests/eastern-kingdoms/elwynn-forest",
+        "domain": "wowclassicdb.com",
+        "tier": "tertiary",
+        "accessed_at": "2026-02-26T02:09:18.161936"
+      },
+      {
+        "url": "https://worldofwarcraft.fandom.com/wiki/Elwynn_Forest",
+        "domain": "worldofwarcraft.fandom.com",
+        "tier": "tertiary",
+        "accessed_at": "2026-02-26T02:09:35.384562"
+      },
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_(Classic)_quests",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T02:09:35.387770"
+      },
+      {
+        "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest_storyline",
+        "domain": "warcraft.wiki.gg",
+        "tier": "primary",
+        "accessed_at": "2026-02-26T02:09:13.846111"
+      },
+      {
+        "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest",
+        "domain": "warcraft.wiki.gg",
+        "tier": "primary",
+        "accessed_at": "2026-02-26T02:09:18.985562"
+      },
+      {
+        "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest_NPCs",
+        "domain": "warcraft.wiki.gg",
+        "tier": "primary",
+        "accessed_at": "2026-02-26T02:09:19.286076"
+      },
+      {
+        "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest_questing_guide",
+        "domain": "warcraft.wiki.gg",
+        "tier": "primary",
+        "accessed_at": "2026-02-26T02:09:19.705386"
+      },
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T02:09:28.561484"
+      },
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_storyline",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T02:09:28.564019"
+      },
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest/NPCs",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T02:09:33.940434"
+      },
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_storyline",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T02:09:09.975952"
+      },
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T02:09:12.655158"
+      },
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_questing_guide",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T02:09:16.463671"
+      },
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_(Classic)",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T02:09:24.024832"
+      },
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_NPCs",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T02:09:40.270402"
+      },
+      {
+        "url": "https://worldofwarcraft.video.tm/the-lore-elwynn-forest-world-of-warcraft-lore",
+        "domain": "worldofwarcraft.video.tm",
+        "tier": "tertiary",
+        "accessed_at": "2026-02-26T02:09:45.274912"
+      },
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Stormwind_(faction)",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T02:09:15.033471"
+      },
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T02:09:17.385694"
+      },
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_storyline",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T02:09:18.677989"
+      },
+      {
+        "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest",
+        "domain": "warcraft.wiki.gg",
+        "tier": "primary",
+        "accessed_at": "2026-02-26T02:09:27.760614"
+      },
+      {
+        "url": "https://dungeon.guide/zones/elwynnforest",
+        "domain": "dungeon.guide",
+        "tier": "tertiary",
+        "accessed_at": "2026-02-26T02:09:31.775367"
+      },
+      {
+        "url": "https://gamer-guides.com/wow-hardcore/elwynn-forest/",
+        "domain": "gamer-guides.com",
+        "tier": "tertiary",
+        "accessed_at": "2026-02-26T02:09:32.985724"
+      },
+      {
+        "url": "https://gamer-guides.com/wow-hardcore/elwynn-forest/",
+        "domain": "gamer-guides.com",
+        "tier": "tertiary",
+        "accessed_at": "2026-02-26T02:09:40.061855"
+      },
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Defias_Brotherhood",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T02:09:45.892876"
+      },
+      {
+        "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest_storyline",
+        "domain": "warcraft.wiki.gg",
+        "tier": "primary",
+        "accessed_at": "2026-02-26T02:09:09.905676"
+      },
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T02:09:12.607883"
+      },
+      {
+        "url": "https://azerothcollector.com/elwynn-forest/",
+        "domain": "azerothcollector.com",
+        "tier": "tertiary",
+        "accessed_at": "2026-02-26T02:09:20.411763"
+      },
+      {
+        "url": "https://gamer-guides.com/wow-hardcore/elwynn-forest/",
+        "domain": "gamer-guides.com",
+        "tier": "tertiary",
+        "accessed_at": "2026-02-26T02:09:22.310095"
+      },
+      {
+        "url": "https://wowquesting.weebly.com/elwynn-forest.html",
+        "domain": "wowquesting.weebly.com",
+        "tier": "tertiary",
+        "accessed_at": "2026-02-26T02:09:33.126096"
+      },
+      {
+        "url": "https://worldofwarcraft.video.tm/the-lore-elwynn-forest-world-of-warcraft-lore",
+        "domain": "worldofwarcraft.video.tm",
+        "tier": "tertiary",
+        "accessed_at": "2026-02-26T02:09:39.489447"
+      }
+    ],
+    "confidence": {
+      "zone": 0.8,
+      "npcs": 0.3,
+      "factions": 0.9,
+      "lore": 0.9,
+      "narrative_items": 0.8
+    },
+    "conflicts": [
+      {
+        "data_point": "Princess (NPC)",
+        "source_a": {
+          "url": "https://wowpedia.fandom.com/wiki/Princess_(boar)",
+          "domain": "wowpedia",
+          "tier": "official",
+          "accessed_at": "2026-02-26T02:14:23.120770"
+        },
+        "claim_a": "Princess is a notable creature.",
+        "source_b": {
+          "url": "https://wowpedia.fandom.com/wiki/Princess_(boar)",
+          "domain": "wowpedia",
+          "tier": "official",
+          "accessed_at": "2026-02-26T02:14:23.120770"
+        },
+        "claim_b": "Princess is categorized as an NPC.",
+        "resolution": "Princess is classified as a notable creature, which conflicts with the NPC classification; should not be listed as an NPC."
+      }
+    ],
+    "quality_warnings": [
+      "no_npc_personality_data"
+    ]
+  }
+}

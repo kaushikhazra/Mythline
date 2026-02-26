@@ -1,0 +1,1394 @@
+{
+  "metadata": {
+    "zone_name": "elwynn_forest",
+    "skip_discovery": true,
+    "timestamp": "2026-02-26T01:48:36.045912",
+    "elapsed_seconds": 313.7
+  },
+  "metrics": {
+    "completeness": {
+      "zone_data_present": true,
+      "narrative_arc_chars": 727,
+      "npc_count": 0,
+      "npcs_with_personality": 0,
+      "npcs_with_role": 0,
+      "npcs_with_motivations": 0,
+      "faction_count": 5,
+      "factions_with_ideology": 5,
+      "factions_with_goals": 5,
+      "factions_with_relations": 0,
+      "lore_count": 6,
+      "lore_with_content": 6,
+      "narrative_item_count": 12
+    },
+    "sources": {
+      "total_sources": 20,
+      "unique_domains": 4,
+      "domains": [
+        "azerothcollector.com",
+        "warcraft.wiki.gg",
+        "wowclassicdb.com",
+        "wowpedia.fandom.com"
+      ],
+      "tier_distribution": {
+        "primary": 1,
+        "tertiary": 2,
+        "official": 17
+      }
+    },
+    "cross_reference": {
+      "ran": true,
+      "is_consistent": true,
+      "conflict_count": 0,
+      "confidence": {
+        "zone": 1.0,
+        "npcs": 0.2,
+        "factions": 0.8,
+        "lore": 0.9,
+        "narrative_items": 0.4
+      }
+    },
+    "discovery": {
+      "zone_count": 0,
+      "zones": []
+    },
+    "tokens": {
+      "orchestrator": 8557,
+      "worker": 320866,
+      "total": 329423
+    },
+    "quality_warnings": [
+      "missing_antagonists"
+    ],
+    "final_confidence": {
+      "zone": 1.0,
+      "npcs": 0.2,
+      "factions": 0.8,
+      "lore": 0.9,
+      "narrative_items": 0.4
+    }
+  },
+  "orchestrator_result": {
+    "zone_data": {
+      "name": "Elwynn Forest",
+      "game": "wow",
+      "level_range": {
+        "min": 1,
+        "max": 20
+      },
+      "narrative_arc": "Elwynn Forest serves as the starting zone for humans in the kingdom of Stormwind, following the fall of the Defias Brotherhood. The region, characterized by its tranquil woodlands and the bustling trade hub of Goldshire, faces threats from kobold invasions in the gold mines, rivalries among farmers, and wild animal attacks. With the local army stretched thin, citizens, including newly recruited adventurers from Northshire Valley, are tasked with restoring peace. They are greeted by Marshal Dughan, who assigns them various quests to address these issues. These quests reflect the political climate of the area, where the governance of Stormwind aims to protect its inhabitants while managing ongoing threats and rivalries.",
+      "political_climate": "The governing faction is the Alliance, with the citizens of Elwynn Forest primarily engaged in logging, farming, fishing, and mining to supply Stormwind City. The political climate is tense due to the ongoing kobold invasions and the rivalry between the Maclure and Stonefield families, complicating local governance and community relations.",
+      "access_gating": [],
+      "phase_states": [
+        {
+          "phase_name": "Cataclysm Changes",
+          "description": "The storyline reflects the pre-Cataclysm state of Elwynn Forest, focusing on quests that involve local conflicts and resource management.",
+          "trigger": ""
+        }
+      ],
+      "connected_zones": [
+        "westfall",
+        "redridge-mountains",
+        "duskwood"
+      ],
+      "era": "Classic",
+      "sources": [
+        {
+          "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+          "domain": "wowpedia",
+          "tier": "official",
+          "accessed_at": "2026-02-26T01:48:07.606279"
+        },
+        {
+          "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_storyline",
+          "domain": "wowpedia",
+          "tier": "official",
+          "accessed_at": "2026-02-26T01:48:07.606279"
+        }
+      ],
+      "confidence": 1.0
+    },
+    "npcs": [],
+    "factions": [
+      {
+        "name": "Kingdom of Stormwind",
+        "parent_faction_id": "",
+        "level": "major_faction",
+        "inter_faction": [],
+        "exclusive_with": [],
+        "ideology": "Guardianship and protection of territories, promoting safety and prosperity for its citizens.",
+        "goals": [
+          "Maintain order and security in Elwynn Forest and surrounding areas."
+        ],
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+            "domain": "wowpedia",
+            "tier": "official",
+            "accessed_at": "2026-02-26T01:48:10.070671"
+          },
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Stormwind_(faction)",
+            "domain": "wowpedia",
+            "tier": "official",
+            "accessed_at": "2026-02-26T01:48:10.070671"
+          }
+        ],
+        "confidence": 0.9
+      },
+      {
+        "name": "Brotherhood of Northshire",
+        "parent_faction_id": "",
+        "level": "guild",
+        "inter_faction": [],
+        "exclusive_with": [],
+        "ideology": "Focus on recruiting and training adventurers to maintain peace in Elwynn Forest.",
+        "goals": [
+          "Protect the region from threats and uphold justice."
+        ],
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_storyline",
+            "domain": "wowpedia",
+            "tier": "official",
+            "accessed_at": "2026-02-26T01:48:10.070671"
+          },
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+            "domain": "wowpedia",
+            "tier": "official",
+            "accessed_at": "2026-02-26T01:48:10.070671"
+          }
+        ],
+        "confidence": 0.9
+      },
+      {
+        "name": "Defias Brotherhood",
+        "parent_faction_id": "",
+        "level": "criminal",
+        "inter_faction": [],
+        "exclusive_with": [],
+        "ideology": "Formed by disgruntled workers seeking revenge against the Kingdom.",
+        "goals": [
+          "Undermine the Kingdom of Stormwind and seek revenge for perceived injustices."
+        ],
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+            "domain": "wowpedia",
+            "tier": "official",
+            "accessed_at": "2026-02-26T01:48:10.070671"
+          },
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_storyline",
+            "domain": "wowpedia",
+            "tier": "official",
+            "accessed_at": "2026-02-26T01:48:10.070671"
+          }
+        ],
+        "confidence": 0.9
+      },
+      {
+        "name": "Blackrock Clan",
+        "parent_faction_id": "",
+        "level": "military",
+        "inter_faction": [],
+        "exclusive_with": [],
+        "ideology": "Desire to reclaim lost power and territory after the Second War.",
+        "goals": [
+          "Invade and conquer human territories, particularly Elwynn Forest."
+        ],
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+            "domain": "wowpedia",
+            "tier": "official",
+            "accessed_at": "2026-02-26T01:48:10.070671"
+          }
+        ],
+        "confidence": 0.8
+      },
+      {
+        "name": "Riverpaw Gnolls",
+        "parent_faction_id": "",
+        "level": "tribal",
+        "inter_faction": [],
+        "exclusive_with": [],
+        "ideology": "Survival and territorial dominance.",
+        "goals": [
+          "Establish control over Elwynn Forest and its resources."
+        ],
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+            "domain": "wowpedia",
+            "tier": "official",
+            "accessed_at": "2026-02-26T01:48:10.070671"
+          }
+        ],
+        "confidence": 0.8
+      }
+    ],
+    "lore": [
+      {
+        "zone_id": "elwynn_forest",
+        "title": "Mines and Kobolds",
+        "category": "history",
+        "content": "The Fargodeep Mine is overrun by kobolds, prompting Marshal Dughan to send adventurers to scout the mine. Increased kobold activity threatens local mining operations, leading to increased patrols to secure the mines as adventurers gather kobold candles and gold dust.",
+        "era": "Early Era",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_storyline",
+            "domain": "wowpedia",
+            "tier": "official",
+            "accessed_at": "2026-02-26T01:48:11.970973"
+          },
+          {
+            "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest_(Classic)_quests",
+            "domain": "warcraft.wiki",
+            "tier": "primary",
+            "accessed_at": "2026-02-26T01:48:11.970973"
+          }
+        ],
+        "confidence": 0.9
+      },
+      {
+        "zone_id": "elwynn_forest",
+        "title": "Maclures vs Stonefields",
+        "category": "history",
+        "content": "A feud arises between the Maclure and Stonefield families over a lost necklace believed to be stolen by Billy Maclure. Auntie Bernice Stonefield's conviction leads to adventurers retrieving the necklace from Goldtooth, a kobold, highlighting the importance of resolving familial conflicts in a community strained by such disputes.",
+        "era": "Early Era",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_storyline",
+            "domain": "wowpedia",
+            "tier": "official",
+            "accessed_at": "2026-02-26T01:48:11.970973"
+          },
+          {
+            "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest_(Classic)_quests",
+            "domain": "warcraft.wiki",
+            "tier": "primary",
+            "accessed_at": "2026-02-26T01:48:11.970973"
+          }
+        ],
+        "confidence": 0.9
+      },
+      {
+        "zone_id": "elwynn_forest",
+        "title": "A Swift Message",
+        "category": "history",
+        "content": "Adventurers are tasked with delivering a vital message to strengthen alliances and coordinate efforts against regional threats. This reflects the continuous need for communication amid the backdrop of increasing tensions caused by wild animals and kobold activities.",
+        "era": "Early Era",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_storyline",
+            "domain": "wowpedia",
+            "tier": "official",
+            "accessed_at": "2026-02-26T01:48:11.970973"
+          },
+          {
+            "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest_(Classic)_quests",
+            "domain": "warcraft.wiki",
+            "tier": "primary",
+            "accessed_at": "2026-02-26T01:48:11.970973"
+          }
+        ],
+        "confidence": 0.9
+      },
+      {
+        "zone_id": "elwynn_forest",
+        "title": "On to Eastvale",
+        "category": "history",
+        "content": "Adventurers are directed to Eastvale Logging Camp as security against threats from wild animals and kobolds is needed. This task shows how local economies and safety are intertwined, emphasizing the effect of external threats on community stability.",
+        "era": "Early Era",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_storyline",
+            "domain": "wowpedia",
+            "tier": "official",
+            "accessed_at": "2026-02-26T01:48:11.970973"
+          },
+          {
+            "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest_(Classic)_quests",
+            "domain": "warcraft.wiki",
+            "tier": "primary",
+            "accessed_at": "2026-02-26T01:48:11.970973"
+          }
+        ],
+        "confidence": 0.9
+      },
+      {
+        "zone_id": "elwynn_forest",
+        "title": "Westbrook Garrison",
+        "category": "history",
+        "content": "As reports of increased gnoll and thief activity arise, adventurers assist at Westbrook Garrison. Ongoing threats necessitate a coordinated military response by local forces, demonstrating the importance of organizing community defense against common enemies.",
+        "era": "Early Era",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_storyline",
+            "domain": "wowpedia",
+            "tier": "official",
+            "accessed_at": "2026-02-26T01:48:11.970973"
+          },
+          {
+            "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest_(Classic)_quests",
+            "domain": "warcraft.wiki",
+            "tier": "primary",
+            "accessed_at": "2026-02-26T01:48:11.970973"
+          }
+        ],
+        "confidence": 0.9
+      },
+      {
+        "zone_id": "elwynn_forest",
+        "title": "Broader Struggles in Elwynn Forest",
+        "category": "mythology",
+        "content": "The events within Elwynn Forest highlight the themes of community, conflict resolution, and the ongoing struggle between the Alliance and various threats. These themes suggest a moral backdrop to the gameplay, where cooperation is essential for overcoming challenges.",
+        "era": "Classic Era",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_storyline",
+            "domain": "wowpedia",
+            "tier": "official",
+            "accessed_at": "2026-02-26T01:48:11.970973"
+          },
+          {
+            "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest_(Classic)",
+            "domain": "warcraft.wiki",
+            "tier": "primary",
+            "accessed_at": "2026-02-26T01:48:11.970973"
+          }
+        ],
+        "confidence": 0.8
+      }
+    ],
+    "narrative_items": [
+      {
+        "name": "Small Wooden Hammer",
+        "zone_id": "",
+        "story_arc": "Dropped by Gug Fatcandle, a rare NPC in Elwynn Forest, contributing to the lore of the area.",
+        "wielder_lineage": [
+          "Gug Fatcandle"
+        ],
+        "power_description": "A simple wooden hammer, often used by miners.",
+        "significance": "notable",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_(Classic)",
+            "domain": "Wowpedia",
+            "tier": "official",
+            "accessed_at": "2026-02-26T01:48:15.926799"
+          }
+        ],
+        "confidence": 0.9
+      },
+      {
+        "name": "Pale Skinner",
+        "zone_id": "",
+        "story_arc": "Dropped by Fedfennel, a rare NPC known for hunting in Elwynn Forest.",
+        "wielder_lineage": [
+          "Fedfennel"
+        ],
+        "power_description": "A dagger used for skinning animals.",
+        "significance": "notable",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_(Classic)",
+            "domain": "Wowpedia",
+            "tier": "official",
+            "accessed_at": "2026-02-26T01:48:15.926799"
+          }
+        ],
+        "confidence": 0.9
+      },
+      {
+        "name": "Boarhide Leggings",
+        "zone_id": "",
+        "story_arc": "Dropped by Gruff Swiftbite, a rare beast in Elwynn Forest.",
+        "wielder_lineage": [
+          "Gruff Swiftbite"
+        ],
+        "power_description": "Leggings made from boarhide, providing decent protection.",
+        "significance": "notable",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_(Classic)",
+            "domain": "Wowpedia",
+            "tier": "official",
+            "accessed_at": "2026-02-26T01:48:15.926799"
+          }
+        ],
+        "confidence": 0.9
+      },
+      {
+        "name": "Jeweled Dagger",
+        "zone_id": "",
+        "story_arc": "Dropped by Morgaine The Sly, a rare NPC known for thievery.",
+        "wielder_lineage": [
+          "Morgaine The Sly"
+        ],
+        "power_description": "A dagger adorned with jewels, favored by rogues.",
+        "significance": "notable",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_(Classic)",
+            "domain": "Wowpedia",
+            "tier": "official",
+            "accessed_at": "2026-02-26T01:48:15.926799"
+          }
+        ],
+        "confidence": 0.9
+      },
+      {
+        "name": "Lithe Boots",
+        "zone_id": "",
+        "story_arc": "Also dropped by Morgaine The Sly, enhancing agility.",
+        "wielder_lineage": [
+          "Morgaine The Sly"
+        ],
+        "power_description": "Boots that increase movement speed.",
+        "significance": "notable",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_(Classic)",
+            "domain": "Wowpedia",
+            "tier": "official",
+            "accessed_at": "2026-02-26T01:48:15.926799"
+          }
+        ],
+        "confidence": 0.9
+      },
+      {
+        "name": "Brood Mother Carapace",
+        "zone_id": "",
+        "story_arc": "Dropped by Mother Fang, a rare creature in Elwynn Forest.",
+        "wielder_lineage": [
+          "Mother Fang"
+        ],
+        "power_description": "A protective carapace from a powerful beast.",
+        "significance": "notable",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_(Classic)",
+            "domain": "Wowpedia",
+            "tier": "official",
+            "accessed_at": "2026-02-26T01:48:15.926799"
+          }
+        ],
+        "confidence": 0.9
+      },
+      {
+        "name": "Web Covered Boots",
+        "zone_id": "",
+        "story_arc": "Also dropped by Mother Fang, known for its stealth.",
+        "wielder_lineage": [
+          "Mother Fang"
+        ],
+        "power_description": "Boots that enhance stealth capabilities.",
+        "significance": "notable",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_(Classic)",
+            "domain": "Wowpedia",
+            "tier": "official",
+            "accessed_at": "2026-02-26T01:48:15.926799"
+          }
+        ],
+        "confidence": 0.9
+      },
+      {
+        "name": "Ratty Old Belt",
+        "zone_id": "",
+        "story_arc": "Dropped by Narg The Taskmaster, a rare NPC in Elwynn Forest.",
+        "wielder_lineage": [
+          "Narg The Taskmaster"
+        ],
+        "power_description": "An old belt, worn and tattered.",
+        "significance": "notable",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_(Classic)",
+            "domain": "Wowpedia",
+            "tier": "official",
+            "accessed_at": "2026-02-26T01:48:15.926799"
+          }
+        ],
+        "confidence": 0.9
+      },
+      {
+        "name": "Studded Blackjack",
+        "zone_id": "",
+        "story_arc": "Also dropped by Narg The Taskmaster, used for subduing foes.",
+        "wielder_lineage": [
+          "Narg The Taskmaster"
+        ],
+        "power_description": "A blackjack used for stealthy attacks.",
+        "significance": "notable",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_(Classic)",
+            "domain": "Wowpedia",
+            "tier": "official",
+            "accessed_at": "2026-02-26T01:48:15.926799"
+          }
+        ],
+        "confidence": 0.9
+      },
+      {
+        "name": "Fingerless Gloves",
+        "zone_id": "",
+        "story_arc": "Dropped by Thuros Lightfingers, a rare NPC known for thievery.",
+        "wielder_lineage": [
+          "Thuros Lightfingers"
+        ],
+        "power_description": "Gloves that enhance grip and dexterity.",
+        "significance": "notable",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_(Classic)",
+            "domain": "Wowpedia",
+            "tier": "official",
+            "accessed_at": "2026-02-26T01:48:15.926799"
+          }
+        ],
+        "confidence": 0.9
+      },
+      {
+        "name": "Thuggish Shield",
+        "zone_id": "",
+        "story_arc": "Also dropped by Thuros Lightfingers, used for defense.",
+        "wielder_lineage": [
+          "Thuros Lightfingers"
+        ],
+        "power_description": "A shield designed for thuggish combat.",
+        "significance": "notable",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_(Classic)",
+            "domain": "Wowpedia",
+            "tier": "official",
+            "accessed_at": "2026-02-26T01:48:15.926799"
+          }
+        ],
+        "confidence": 0.9
+      },
+      {
+        "name": "Bernice's Necklace",
+        "zone_id": "",
+        "story_arc": "The necklace is a key item in the quest 'Lost Necklace', which involves helping Auntie Bernice Stonefield.",
+        "wielder_lineage": [
+          "Auntie Bernice Stonefield"
+        ],
+        "power_description": "A sentimental item that signifies family ties.",
+        "significance": "notable",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_(Classic)",
+            "domain": "Wowpedia",
+            "tier": "official",
+            "accessed_at": "2026-02-26T01:48:15.926799"
+          }
+        ],
+        "confidence": 0.9
+      }
+    ],
+    "sources": [
+      {
+        "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest_(Classic)_quests",
+        "domain": "warcraft.wiki.gg",
+        "tier": "primary",
+        "accessed_at": "2026-02-26T01:43:50.284020"
+      },
+      {
+        "url": "https://wowclassicdb.com/quests/eastern-kingdoms/elwynn-forest",
+        "domain": "wowclassicdb.com",
+        "tier": "tertiary",
+        "accessed_at": "2026-02-26T01:43:50.288105"
+      },
+      {
+        "url": "https://azerothcollector.com/elwynn-forest/",
+        "domain": "azerothcollector.com",
+        "tier": "tertiary",
+        "accessed_at": "2026-02-26T01:43:50.289633"
+      },
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_(Classic)",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T01:43:50.292181"
+      },
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_questing_guide",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T01:43:50.461154"
+      },
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_storyline",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T01:43:44.012856"
+      },
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T01:43:44.032774"
+      },
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_(Classic)",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T01:43:53.497263"
+      },
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_questing_guide",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T01:43:53.499583"
+      },
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_storyline",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T01:43:57.709556"
+      },
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_questing_guide",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T01:43:57.712154"
+      },
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_storyline",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T01:43:41.227555"
+      },
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T01:43:41.243475"
+      },
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_(Classic)",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T01:43:44.023240"
+      },
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T01:43:44.809043"
+      },
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Stormwind_(faction)",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T01:43:45.194681"
+      },
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_storyline",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T01:43:57.440920"
+      },
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Stormwind_Army",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T01:44:02.806407"
+      },
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_(Classic)",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T01:44:14.757832"
+      },
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_questing_guide",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T01:44:14.759409"
+      }
+    ],
+    "cross_ref_result": {
+      "is_consistent": true,
+      "conflicts": [],
+      "confidence": {
+        "zone": 1.0,
+        "npcs": 0.2,
+        "factions": 0.8,
+        "lore": 0.9,
+        "narrative_items": 0.4
+      },
+      "notes": "Factions are mostly consistent but missing some references from the narrative. NPCs are completely absent while multiple references in quests suggest active presence; narrative items incorrectly reference NPCs, which led to low confidence scoring."
+    },
+    "discovered_zones": [],
+    "orchestrator_tokens": 8557,
+    "worker_tokens": 320866
+  },
+  "research_package": {
+    "zone_name": "elwynn_forest",
+    "zone_data": {
+      "name": "Elwynn Forest",
+      "game": "wow",
+      "level_range": {
+        "min": 1,
+        "max": 20
+      },
+      "narrative_arc": "Elwynn Forest serves as the starting zone for humans in the kingdom of Stormwind, following the fall of the Defias Brotherhood. The region, characterized by its tranquil woodlands and the bustling trade hub of Goldshire, faces threats from kobold invasions in the gold mines, rivalries among farmers, and wild animal attacks. With the local army stretched thin, citizens, including newly recruited adventurers from Northshire Valley, are tasked with restoring peace. They are greeted by Marshal Dughan, who assigns them various quests to address these issues. These quests reflect the political climate of the area, where the governance of Stormwind aims to protect its inhabitants while managing ongoing threats and rivalries.",
+      "political_climate": "The governing faction is the Alliance, with the citizens of Elwynn Forest primarily engaged in logging, farming, fishing, and mining to supply Stormwind City. The political climate is tense due to the ongoing kobold invasions and the rivalry between the Maclure and Stonefield families, complicating local governance and community relations.",
+      "access_gating": [],
+      "phase_states": [
+        {
+          "phase_name": "Cataclysm Changes",
+          "description": "The storyline reflects the pre-Cataclysm state of Elwynn Forest, focusing on quests that involve local conflicts and resource management.",
+          "trigger": ""
+        }
+      ],
+      "connected_zones": [
+        "westfall",
+        "redridge-mountains",
+        "duskwood"
+      ],
+      "era": "Classic",
+      "sources": [
+        {
+          "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+          "domain": "wowpedia",
+          "tier": "official",
+          "accessed_at": "2026-02-26T01:48:07.606279"
+        },
+        {
+          "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_storyline",
+          "domain": "wowpedia",
+          "tier": "official",
+          "accessed_at": "2026-02-26T01:48:07.606279"
+        }
+      ],
+      "confidence": 1.0
+    },
+    "npcs": [],
+    "factions": [
+      {
+        "name": "Kingdom of Stormwind",
+        "parent_faction_id": "",
+        "level": "major_faction",
+        "inter_faction": [],
+        "exclusive_with": [],
+        "ideology": "Guardianship and protection of territories, promoting safety and prosperity for its citizens.",
+        "goals": [
+          "Maintain order and security in Elwynn Forest and surrounding areas."
+        ],
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+            "domain": "wowpedia",
+            "tier": "official",
+            "accessed_at": "2026-02-26T01:48:10.070671"
+          },
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Stormwind_(faction)",
+            "domain": "wowpedia",
+            "tier": "official",
+            "accessed_at": "2026-02-26T01:48:10.070671"
+          }
+        ],
+        "confidence": 0.9
+      },
+      {
+        "name": "Brotherhood of Northshire",
+        "parent_faction_id": "",
+        "level": "guild",
+        "inter_faction": [],
+        "exclusive_with": [],
+        "ideology": "Focus on recruiting and training adventurers to maintain peace in Elwynn Forest.",
+        "goals": [
+          "Protect the region from threats and uphold justice."
+        ],
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_storyline",
+            "domain": "wowpedia",
+            "tier": "official",
+            "accessed_at": "2026-02-26T01:48:10.070671"
+          },
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+            "domain": "wowpedia",
+            "tier": "official",
+            "accessed_at": "2026-02-26T01:48:10.070671"
+          }
+        ],
+        "confidence": 0.9
+      },
+      {
+        "name": "Defias Brotherhood",
+        "parent_faction_id": "",
+        "level": "criminal",
+        "inter_faction": [],
+        "exclusive_with": [],
+        "ideology": "Formed by disgruntled workers seeking revenge against the Kingdom.",
+        "goals": [
+          "Undermine the Kingdom of Stormwind and seek revenge for perceived injustices."
+        ],
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+            "domain": "wowpedia",
+            "tier": "official",
+            "accessed_at": "2026-02-26T01:48:10.070671"
+          },
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_storyline",
+            "domain": "wowpedia",
+            "tier": "official",
+            "accessed_at": "2026-02-26T01:48:10.070671"
+          }
+        ],
+        "confidence": 0.9
+      },
+      {
+        "name": "Blackrock Clan",
+        "parent_faction_id": "",
+        "level": "military",
+        "inter_faction": [],
+        "exclusive_with": [],
+        "ideology": "Desire to reclaim lost power and territory after the Second War.",
+        "goals": [
+          "Invade and conquer human territories, particularly Elwynn Forest."
+        ],
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+            "domain": "wowpedia",
+            "tier": "official",
+            "accessed_at": "2026-02-26T01:48:10.070671"
+          }
+        ],
+        "confidence": 0.8
+      },
+      {
+        "name": "Riverpaw Gnolls",
+        "parent_faction_id": "",
+        "level": "tribal",
+        "inter_faction": [],
+        "exclusive_with": [],
+        "ideology": "Survival and territorial dominance.",
+        "goals": [
+          "Establish control over Elwynn Forest and its resources."
+        ],
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+            "domain": "wowpedia",
+            "tier": "official",
+            "accessed_at": "2026-02-26T01:48:10.070671"
+          }
+        ],
+        "confidence": 0.8
+      }
+    ],
+    "lore": [
+      {
+        "zone_id": "elwynn_forest",
+        "title": "Mines and Kobolds",
+        "category": "history",
+        "content": "The Fargodeep Mine is overrun by kobolds, prompting Marshal Dughan to send adventurers to scout the mine. Increased kobold activity threatens local mining operations, leading to increased patrols to secure the mines as adventurers gather kobold candles and gold dust.",
+        "era": "Early Era",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_storyline",
+            "domain": "wowpedia",
+            "tier": "official",
+            "accessed_at": "2026-02-26T01:48:11.970973"
+          },
+          {
+            "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest_(Classic)_quests",
+            "domain": "warcraft.wiki",
+            "tier": "primary",
+            "accessed_at": "2026-02-26T01:48:11.970973"
+          }
+        ],
+        "confidence": 0.9
+      },
+      {
+        "zone_id": "elwynn_forest",
+        "title": "Maclures vs Stonefields",
+        "category": "history",
+        "content": "A feud arises between the Maclure and Stonefield families over a lost necklace believed to be stolen by Billy Maclure. Auntie Bernice Stonefield's conviction leads to adventurers retrieving the necklace from Goldtooth, a kobold, highlighting the importance of resolving familial conflicts in a community strained by such disputes.",
+        "era": "Early Era",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_storyline",
+            "domain": "wowpedia",
+            "tier": "official",
+            "accessed_at": "2026-02-26T01:48:11.970973"
+          },
+          {
+            "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest_(Classic)_quests",
+            "domain": "warcraft.wiki",
+            "tier": "primary",
+            "accessed_at": "2026-02-26T01:48:11.970973"
+          }
+        ],
+        "confidence": 0.9
+      },
+      {
+        "zone_id": "elwynn_forest",
+        "title": "A Swift Message",
+        "category": "history",
+        "content": "Adventurers are tasked with delivering a vital message to strengthen alliances and coordinate efforts against regional threats. This reflects the continuous need for communication amid the backdrop of increasing tensions caused by wild animals and kobold activities.",
+        "era": "Early Era",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_storyline",
+            "domain": "wowpedia",
+            "tier": "official",
+            "accessed_at": "2026-02-26T01:48:11.970973"
+          },
+          {
+            "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest_(Classic)_quests",
+            "domain": "warcraft.wiki",
+            "tier": "primary",
+            "accessed_at": "2026-02-26T01:48:11.970973"
+          }
+        ],
+        "confidence": 0.9
+      },
+      {
+        "zone_id": "elwynn_forest",
+        "title": "On to Eastvale",
+        "category": "history",
+        "content": "Adventurers are directed to Eastvale Logging Camp as security against threats from wild animals and kobolds is needed. This task shows how local economies and safety are intertwined, emphasizing the effect of external threats on community stability.",
+        "era": "Early Era",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_storyline",
+            "domain": "wowpedia",
+            "tier": "official",
+            "accessed_at": "2026-02-26T01:48:11.970973"
+          },
+          {
+            "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest_(Classic)_quests",
+            "domain": "warcraft.wiki",
+            "tier": "primary",
+            "accessed_at": "2026-02-26T01:48:11.970973"
+          }
+        ],
+        "confidence": 0.9
+      },
+      {
+        "zone_id": "elwynn_forest",
+        "title": "Westbrook Garrison",
+        "category": "history",
+        "content": "As reports of increased gnoll and thief activity arise, adventurers assist at Westbrook Garrison. Ongoing threats necessitate a coordinated military response by local forces, demonstrating the importance of organizing community defense against common enemies.",
+        "era": "Early Era",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_storyline",
+            "domain": "wowpedia",
+            "tier": "official",
+            "accessed_at": "2026-02-26T01:48:11.970973"
+          },
+          {
+            "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest_(Classic)_quests",
+            "domain": "warcraft.wiki",
+            "tier": "primary",
+            "accessed_at": "2026-02-26T01:48:11.970973"
+          }
+        ],
+        "confidence": 0.9
+      },
+      {
+        "zone_id": "elwynn_forest",
+        "title": "Broader Struggles in Elwynn Forest",
+        "category": "mythology",
+        "content": "The events within Elwynn Forest highlight the themes of community, conflict resolution, and the ongoing struggle between the Alliance and various threats. These themes suggest a moral backdrop to the gameplay, where cooperation is essential for overcoming challenges.",
+        "era": "Classic Era",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_storyline",
+            "domain": "wowpedia",
+            "tier": "official",
+            "accessed_at": "2026-02-26T01:48:11.970973"
+          },
+          {
+            "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest_(Classic)",
+            "domain": "warcraft.wiki",
+            "tier": "primary",
+            "accessed_at": "2026-02-26T01:48:11.970973"
+          }
+        ],
+        "confidence": 0.8
+      }
+    ],
+    "narrative_items": [
+      {
+        "name": "Small Wooden Hammer",
+        "zone_id": "",
+        "story_arc": "Dropped by Gug Fatcandle, a rare NPC in Elwynn Forest, contributing to the lore of the area.",
+        "wielder_lineage": [
+          "Gug Fatcandle"
+        ],
+        "power_description": "A simple wooden hammer, often used by miners.",
+        "significance": "notable",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_(Classic)",
+            "domain": "Wowpedia",
+            "tier": "official",
+            "accessed_at": "2026-02-26T01:48:15.926799"
+          }
+        ],
+        "confidence": 0.9
+      },
+      {
+        "name": "Pale Skinner",
+        "zone_id": "",
+        "story_arc": "Dropped by Fedfennel, a rare NPC known for hunting in Elwynn Forest.",
+        "wielder_lineage": [
+          "Fedfennel"
+        ],
+        "power_description": "A dagger used for skinning animals.",
+        "significance": "notable",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_(Classic)",
+            "domain": "Wowpedia",
+            "tier": "official",
+            "accessed_at": "2026-02-26T01:48:15.926799"
+          }
+        ],
+        "confidence": 0.9
+      },
+      {
+        "name": "Boarhide Leggings",
+        "zone_id": "",
+        "story_arc": "Dropped by Gruff Swiftbite, a rare beast in Elwynn Forest.",
+        "wielder_lineage": [
+          "Gruff Swiftbite"
+        ],
+        "power_description": "Leggings made from boarhide, providing decent protection.",
+        "significance": "notable",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_(Classic)",
+            "domain": "Wowpedia",
+            "tier": "official",
+            "accessed_at": "2026-02-26T01:48:15.926799"
+          }
+        ],
+        "confidence": 0.9
+      },
+      {
+        "name": "Jeweled Dagger",
+        "zone_id": "",
+        "story_arc": "Dropped by Morgaine The Sly, a rare NPC known for thievery.",
+        "wielder_lineage": [
+          "Morgaine The Sly"
+        ],
+        "power_description": "A dagger adorned with jewels, favored by rogues.",
+        "significance": "notable",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_(Classic)",
+            "domain": "Wowpedia",
+            "tier": "official",
+            "accessed_at": "2026-02-26T01:48:15.926799"
+          }
+        ],
+        "confidence": 0.9
+      },
+      {
+        "name": "Lithe Boots",
+        "zone_id": "",
+        "story_arc": "Also dropped by Morgaine The Sly, enhancing agility.",
+        "wielder_lineage": [
+          "Morgaine The Sly"
+        ],
+        "power_description": "Boots that increase movement speed.",
+        "significance": "notable",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_(Classic)",
+            "domain": "Wowpedia",
+            "tier": "official",
+            "accessed_at": "2026-02-26T01:48:15.926799"
+          }
+        ],
+        "confidence": 0.9
+      },
+      {
+        "name": "Brood Mother Carapace",
+        "zone_id": "",
+        "story_arc": "Dropped by Mother Fang, a rare creature in Elwynn Forest.",
+        "wielder_lineage": [
+          "Mother Fang"
+        ],
+        "power_description": "A protective carapace from a powerful beast.",
+        "significance": "notable",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_(Classic)",
+            "domain": "Wowpedia",
+            "tier": "official",
+            "accessed_at": "2026-02-26T01:48:15.926799"
+          }
+        ],
+        "confidence": 0.9
+      },
+      {
+        "name": "Web Covered Boots",
+        "zone_id": "",
+        "story_arc": "Also dropped by Mother Fang, known for its stealth.",
+        "wielder_lineage": [
+          "Mother Fang"
+        ],
+        "power_description": "Boots that enhance stealth capabilities.",
+        "significance": "notable",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_(Classic)",
+            "domain": "Wowpedia",
+            "tier": "official",
+            "accessed_at": "2026-02-26T01:48:15.926799"
+          }
+        ],
+        "confidence": 0.9
+      },
+      {
+        "name": "Ratty Old Belt",
+        "zone_id": "",
+        "story_arc": "Dropped by Narg The Taskmaster, a rare NPC in Elwynn Forest.",
+        "wielder_lineage": [
+          "Narg The Taskmaster"
+        ],
+        "power_description": "An old belt, worn and tattered.",
+        "significance": "notable",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_(Classic)",
+            "domain": "Wowpedia",
+            "tier": "official",
+            "accessed_at": "2026-02-26T01:48:15.926799"
+          }
+        ],
+        "confidence": 0.9
+      },
+      {
+        "name": "Studded Blackjack",
+        "zone_id": "",
+        "story_arc": "Also dropped by Narg The Taskmaster, used for subduing foes.",
+        "wielder_lineage": [
+          "Narg The Taskmaster"
+        ],
+        "power_description": "A blackjack used for stealthy attacks.",
+        "significance": "notable",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_(Classic)",
+            "domain": "Wowpedia",
+            "tier": "official",
+            "accessed_at": "2026-02-26T01:48:15.926799"
+          }
+        ],
+        "confidence": 0.9
+      },
+      {
+        "name": "Fingerless Gloves",
+        "zone_id": "",
+        "story_arc": "Dropped by Thuros Lightfingers, a rare NPC known for thievery.",
+        "wielder_lineage": [
+          "Thuros Lightfingers"
+        ],
+        "power_description": "Gloves that enhance grip and dexterity.",
+        "significance": "notable",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_(Classic)",
+            "domain": "Wowpedia",
+            "tier": "official",
+            "accessed_at": "2026-02-26T01:48:15.926799"
+          }
+        ],
+        "confidence": 0.9
+      },
+      {
+        "name": "Thuggish Shield",
+        "zone_id": "",
+        "story_arc": "Also dropped by Thuros Lightfingers, used for defense.",
+        "wielder_lineage": [
+          "Thuros Lightfingers"
+        ],
+        "power_description": "A shield designed for thuggish combat.",
+        "significance": "notable",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_(Classic)",
+            "domain": "Wowpedia",
+            "tier": "official",
+            "accessed_at": "2026-02-26T01:48:15.926799"
+          }
+        ],
+        "confidence": 0.9
+      },
+      {
+        "name": "Bernice's Necklace",
+        "zone_id": "",
+        "story_arc": "The necklace is a key item in the quest 'Lost Necklace', which involves helping Auntie Bernice Stonefield.",
+        "wielder_lineage": [
+          "Auntie Bernice Stonefield"
+        ],
+        "power_description": "A sentimental item that signifies family ties.",
+        "significance": "notable",
+        "sources": [
+          {
+            "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_(Classic)",
+            "domain": "Wowpedia",
+            "tier": "official",
+            "accessed_at": "2026-02-26T01:48:15.926799"
+          }
+        ],
+        "confidence": 0.9
+      }
+    ],
+    "sources": [
+      {
+        "url": "https://warcraft.wiki.gg/wiki/Elwynn_Forest_(Classic)_quests",
+        "domain": "warcraft.wiki.gg",
+        "tier": "primary",
+        "accessed_at": "2026-02-26T01:43:50.284020"
+      },
+      {
+        "url": "https://wowclassicdb.com/quests/eastern-kingdoms/elwynn-forest",
+        "domain": "wowclassicdb.com",
+        "tier": "tertiary",
+        "accessed_at": "2026-02-26T01:43:50.288105"
+      },
+      {
+        "url": "https://azerothcollector.com/elwynn-forest/",
+        "domain": "azerothcollector.com",
+        "tier": "tertiary",
+        "accessed_at": "2026-02-26T01:43:50.289633"
+      },
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_(Classic)",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T01:43:50.292181"
+      },
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_questing_guide",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T01:43:50.461154"
+      },
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_storyline",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T01:43:44.012856"
+      },
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T01:43:44.032774"
+      },
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_(Classic)",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T01:43:53.497263"
+      },
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_questing_guide",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T01:43:53.499583"
+      },
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_storyline",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T01:43:57.709556"
+      },
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_questing_guide",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T01:43:57.712154"
+      },
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_storyline",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T01:43:41.227555"
+      },
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T01:43:41.243475"
+      },
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_(Classic)",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T01:43:44.023240"
+      },
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T01:43:44.809043"
+      },
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Stormwind_(faction)",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T01:43:45.194681"
+      },
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_storyline",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T01:43:57.440920"
+      },
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Stormwind_Army",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T01:44:02.806407"
+      },
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_(Classic)",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T01:44:14.757832"
+      },
+      {
+        "url": "https://wowpedia.fandom.com/wiki/Elwynn_Forest_questing_guide",
+        "domain": "wowpedia.fandom.com",
+        "tier": "official",
+        "accessed_at": "2026-02-26T01:44:14.759409"
+      }
+    ],
+    "confidence": {
+      "zone": 1.0,
+      "npcs": 0.2,
+      "factions": 0.8,
+      "lore": 0.9,
+      "narrative_items": 0.4
+    },
+    "conflicts": [],
+    "quality_warnings": [
+      "missing_antagonists"
+    ]
+  }
+}
