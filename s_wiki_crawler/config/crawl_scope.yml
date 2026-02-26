@@ -1,0 +1,82 @@
+categories:
+  zone_overview:
+    search_queries:
+      - "site:wowpedia.fandom.com {zone} zone"
+      - "{zone} zone {game} wiki overview"
+    preferred_domains:
+      - wowpedia.fandom.com
+      - warcraft.wiki.gg
+    max_pages: 5
+    include_patterns:
+      - "*/wiki/*"
+    exclude_patterns:
+      - "*/Special:*"
+      - "*/User:*"
+      - "*/Talk:*"
+      - "*/File:*"
+      - "*/Template:*"
+
+  npcs:
+    search_queries:
+      - "site:wowpedia.fandom.com {zone} NPCs notable characters"
+      - "{zone} NPCs {game} wiki"
+    preferred_domains:
+      - wowpedia.fandom.com
+      - warcraft.wiki.gg
+    max_pages: 10
+    include_patterns: []
+    exclude_patterns:
+      - "*/Special:*"
+      - "*/User:*"
+
+  factions:
+    search_queries:
+      - "site:wowpedia.fandom.com {zone} factions organizations"
+      - "{zone} factions {game} wiki"
+    preferred_domains:
+      - wowpedia.fandom.com
+      - warcraft.wiki.gg
+    max_pages: 8
+    include_patterns: []
+    exclude_patterns:
+      - "*/Special:*"
+      - "*/User:*"
+
+  lore:
+    search_queries:
+      - "site:wowpedia.fandom.com {zone} lore history"
+      - "{zone} lore mythology {game} wiki"
+    preferred_domains:
+      - wowpedia.fandom.com
+      - warcraft.wiki.gg
+    max_pages: 8
+    include_patterns: []
+    exclude_patterns:
+      - "*/Special:*"
+      - "*/User:*"
+
+  quests:
+    search_queries:
+      - "site:wowpedia.fandom.com {zone} quests quest chains"
+      - "{zone} quests {game} wiki"
+    preferred_domains:
+      - wowpedia.fandom.com
+      - warcraft.wiki.gg
+    max_pages: 10
+    include_patterns: []
+    exclude_patterns:
+      - "*/Special:*"
+      - "*/User:*"
+
+  narrative_items:
+    search_queries:
+      - "site:wowpedia.fandom.com {zone} items artifacts legendary"
+      - "{zone} notable items {game} wiki"
+    preferred_domains:
+      - wowpedia.fandom.com
+      - warcraft.wiki.gg
+    max_pages: 6
+    include_patterns: []
+    exclude_patterns:
+      - "*/Special:*"
+      - "*/User:*"

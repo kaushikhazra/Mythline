@@ -15,10 +15,14 @@ MCP_STORAGE_PORT = int(os.getenv("MCP_STORAGE_PORT", "8005"))
 
 server = FastMCP(name="Storage Service", host="0.0.0.0", port=MCP_STORAGE_PORT)
 
-VALID_TABLES = {"zone", "npc", "faction", "lore", "narrative_item"}
+VALID_TABLES = {
+    "zone", "npc", "faction", "lore", "narrative_item",
+    "crawl_zone", "crawl_page", "crawl_domain",
+}
 VALID_RELATIONS = {
     "connects_to", "belongs_to", "located_in", "relates_to",
     "child_of", "stance_toward", "found_in", "about",
+    "has_page", "connected_to", "links_to", "from_domain",
 }
 
 

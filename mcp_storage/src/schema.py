@@ -21,6 +21,24 @@ SCHEMA_STATEMENTS = [
     "DEFINE TABLE IF NOT EXISTS found_in TYPE RELATION IN narrative_item OUT zone",
     "DEFINE TABLE IF NOT EXISTS about TYPE RELATION IN lore OUT zone",
 
+    # --- Wiki Crawler tables ---
+    "DEFINE TABLE IF NOT EXISTS crawl_zone SCHEMALESS",
+    "DEFINE TABLE IF NOT EXISTS crawl_page SCHEMALESS",
+    "DEFINE TABLE IF NOT EXISTS crawl_domain SCHEMALESS",
+
+    # --- Wiki Crawler relation tables ---
+    "DEFINE TABLE IF NOT EXISTS has_page TYPE RELATION IN crawl_zone OUT crawl_page",
+    "DEFINE TABLE IF NOT EXISTS connected_to TYPE RELATION IN crawl_zone OUT crawl_zone",
+    "DEFINE TABLE IF NOT EXISTS links_to TYPE RELATION IN crawl_page OUT crawl_page",
+    "DEFINE TABLE IF NOT EXISTS from_domain TYPE RELATION IN crawl_page OUT crawl_domain",
+
+    # --- Wiki Crawler indexes ---
+    "DEFINE INDEX IF NOT EXISTS idx_crawl_zone_status ON crawl_zone FIELDS status",
+    "DEFINE INDEX IF NOT EXISTS idx_crawl_zone_crawled_at ON crawl_zone FIELDS crawled_at",
+    "DEFINE INDEX IF NOT EXISTS idx_crawl_page_url ON crawl_page FIELDS url UNIQUE",
+    "DEFINE INDEX IF NOT EXISTS idx_crawl_page_type ON crawl_page FIELDS page_type",
+    "DEFINE INDEX IF NOT EXISTS idx_crawl_page_domain ON crawl_page FIELDS domain",
+
     # --- Vector indexes (MTREE, validated in PoC) ---
     "DEFINE INDEX IF NOT EXISTS idx_zone_embedding ON zone FIELDS embedding MTREE DIMENSION 1536 DIST COSINE TYPE F32",
     "DEFINE INDEX IF NOT EXISTS idx_npc_embedding ON npc FIELDS embedding MTREE DIMENSION 1536 DIST COSINE TYPE F32",

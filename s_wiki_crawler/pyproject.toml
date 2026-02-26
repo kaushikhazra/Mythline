@@ -1,0 +1,28 @@
+[project]
+name = "s-wiki-crawler"
+version = "0.1.0"
+description = "Deterministic wiki crawler service for Mythline knowledge acquisition"
+requires-python = ">=3.12"
+dependencies = [
+    "pydantic>=2.0.0",
+    "aio-pika>=9.0.0",
+    "httpx>=0.28.0",
+    "pyyaml>=6.0.0",
+    "mcp>=1.26.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+    "pytest-asyncio>=1.3.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"

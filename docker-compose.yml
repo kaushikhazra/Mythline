@@ -116,6 +116,36 @@ services:
       start_period: 40s
     restart: unless-stopped
 
+  # --- Deterministic Services ---
+
+  wiki-crawler:
+    build:
+      context: .
+      dockerfile: s_wiki_crawler/Dockerfile
+    environment:
+      SERVICE_ID: wiki_crawler
+      GAME_NAME: wow
+      RABBITMQ_URL: amqp://mythline:mythline@rabbitmq:5672/
+      CRAWL_JOB_QUEUE: s.wiki_crawler.jobs
+      MCP_STORAGE_URL: http://mcp-storage:8005/mcp
+      MCP_WEB_SEARCH_URL: http://mcp-web-search:8006/mcp
+      CRAWL4AI_URL: http://crawl4ai:11235
+      CRAWL_CACHE_ROOT: /data/cache
+      RATE_LIMIT_REQUESTS_PER_MINUTE: "30"
+      REFRESH_INTERVAL_HOURS: "168"
+    volumes:
+      - wiki_cache:/data/cache
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      mcp-storage:
+        condition: service_healthy
+      mcp-web-search:
+        condition: service_healthy
+      crawl4ai:
+        condition: service_healthy
+    restart: unless-stopped
+
   # --- Agents ---
 
   world-lore-researcher:
@@ -153,3 +183,4 @@ services:
 volumes:
   surrealdb_data:
   rabbitmq_data:
+  wiki_cache:
