@@ -1,5 +1,7 @@
 """Tests for configuration module — env var loading, source priority, and research topics."""
 
+import pytest
+
 from src.config import (
     AGENT_ID,
     AGENT_ROLE,
@@ -18,10 +20,14 @@ from src.config import (
     RATE_LIMIT_REQUESTS_PER_MINUTE,
     STATUS_QUEUE,
     VALIDATOR_QUEUE,
+    _TOPICS_CONFIG,
     get_all_trusted_domains,
     get_source_domains_by_tier,
     get_source_tier_for_domain,
     get_source_weight,
+    get_topic_instructions,
+    get_topic_schema_hints,
+    get_topic_section_header,
     load_research_topics,
     load_sources_config,
 )
@@ -154,3 +160,71 @@ class TestResearchTopics:
             formatted = topic["instructions"].format(zone="Westfall", game="wow")
             assert "Westfall" in formatted
             assert "wow" in formatted
+
+
+class TestTopicAccessors:
+    """Tests for the topic accessor functions moved from pipeline.py."""
+
+    def test_topics_config_has_five_entries(self):
+        assert len(_TOPICS_CONFIG) == 5
+
+    def test_get_topic_instructions_returns_string(self):
+        result = get_topic_instructions("zone_overview_research")
+        assert isinstance(result, str)
+        assert len(result) > 0
+
+    def test_get_topic_instructions_all_topics(self):
+        expected_topics = [
+            "zone_overview_research",
+            "npc_research",
+            "faction_research",
+            "lore_research",
+            "narrative_items_research",
+        ]
+        for topic in expected_topics:
+            result = get_topic_instructions(topic)
+            assert "{zone}" in result, f"{topic} missing {{zone}} placeholder"
+            assert "{game}" in result, f"{topic} missing {{game}} placeholder"
+
+    def test_get_topic_instructions_format(self):
+        result = get_topic_instructions("zone_overview_research")
+        formatted = result.format(zone="Elwynn Forest", game="wow")
+        assert "Elwynn Forest" in formatted
+        assert "wow" in formatted
+
+    def test_get_topic_instructions_invalid_key(self):
+        with pytest.raises(KeyError):
+            get_topic_instructions("nonexistent_topic")
+
+    def test_get_topic_section_header_returns_markdown(self):
+        result = get_topic_section_header("zone_overview_research")
+        assert result.startswith("## ")
+
+    def test_get_topic_section_header_all_topics(self):
+        for topic in _TOPICS_CONFIG:
+            result = get_topic_section_header(topic)
+            assert isinstance(result, str)
+            assert result.startswith("## ")
+
+    def test_get_topic_section_header_invalid_key(self):
+        with pytest.raises(KeyError):
+            get_topic_section_header("nonexistent_topic")
+
+    def test_get_topic_schema_hints_returns_string(self):
+        result = get_topic_schema_hints("npc_research")
+        assert isinstance(result, str)
+        assert len(result) > 0
+
+    def test_get_topic_schema_hints_npc_content(self):
+        result = get_topic_schema_hints("npc_research")
+        assert "personality" in result.lower()
+
+    def test_get_topic_schema_hints_all_topics(self):
+        for topic in _TOPICS_CONFIG:
+            result = get_topic_schema_hints(topic)
+            assert isinstance(result, str)
+            assert len(result) > 0
+
+    def test_get_topic_schema_hints_invalid_key(self):
+        with pytest.raises(KeyError):
+            get_topic_schema_hints("nonexistent_topic")

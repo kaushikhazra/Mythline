@@ -1,8 +1,9 @@
 """Daemon — job consumer for the World Lore Researcher.
 
 Connects to RabbitMQ, consumes research jobs from the job queue,
-executes zone research pipelines with depth-based wave expansion,
-and publishes status updates. Processes one job at a time (prefetch=1).
+executes zone research via the LLM-driven orchestrator with depth-based
+wave expansion, and publishes status updates. Processes one job at a time
+(prefetch=1).
 """
 
 from __future__ import annotations
@@ -13,15 +14,12 @@ import signal
 
 import aio_pika
 
-from src.agent import LoreResearcher
+from src.agent import LoreResearcher, OrchestratorResult
 from src.checkpoint import (
     add_tokens_used,
     check_daily_budget_reset,
-    delete_checkpoint,
     is_daily_budget_exhausted,
-    list_checkpoints,
     load_budget,
-    load_checkpoint,
     save_budget,
 )
 from src.config import (
@@ -32,20 +30,86 @@ from src.config import (
     VALIDATOR_QUEUE,
 )
 from src.models import (
+    FactionStance,
     JobStatus,
     JobStatusUpdate,
     MessageEnvelope,
     MessageType,
-    ResearchCheckpoint,
     ResearchJob,
+    ResearchPackage,
+    ZoneData,
+    ZoneExtraction,
     ZoneFailure,
 )
 from src.logging_config import setup_logging
-from src.pipeline import PIPELINE_STEPS, run_pipeline
 
 logger = logging.getLogger(__name__)
 
-TOTAL_STEPS = len(PIPELINE_STEPS)
+
+# ---------------------------------------------------------------------------
+# Packaging helpers (moved from pipeline.py per D6)
+# ---------------------------------------------------------------------------
+
+
+def _compute_quality_warnings(extraction: ZoneExtraction) -> list[str]:
+    """Compute quality warnings based on content thresholds."""
+    warnings: list[str] = []
+
+    if len(extraction.zone.narrative_arc) < 200:
+        warnings.append("shallow_narrative_arc")
+
+    if extraction.npcs and all(not n.personality for n in extraction.npcs):
+        warnings.append("no_npc_personality_data")
+
+    has_antagonist_npc = any(
+        n.occupation and any(
+            keyword in n.occupation.lower()
+            for keyword in ("boss", "antagonist", "villain")
+        )
+        for n in extraction.npcs
+    )
+    has_hostile_faction = any(
+        any(r.stance == FactionStance.HOSTILE for r in f.inter_faction)
+        for f in extraction.factions
+    )
+    zone_mentions_dungeon = any(
+        keyword in extraction.zone.narrative_arc.lower()
+        for keyword in ("dungeon", "raid", "instance", "mine", "mines")
+    ) or any(
+        keyword in entry.content.lower()
+        for entry in extraction.lore
+        for keyword in ("dungeon", "raid", "instance")
+    )
+
+    if zone_mentions_dungeon and not has_antagonist_npc and not has_hostile_faction:
+        warnings.append("missing_antagonists")
+
+    return warnings
+
+
+def _apply_confidence_caps(
+    extraction: ZoneExtraction,
+    confidence: dict[str, float],
+) -> dict[str, float]:
+    """Apply mechanical confidence caps based on field completeness."""
+    capped = dict(confidence)
+
+    if not extraction.npcs:
+        capped["npcs"] = min(capped.get("npcs", 0.0), 0.2)
+    else:
+        total = len(extraction.npcs)
+        empty_personality = sum(1 for n in extraction.npcs if not n.personality)
+        empty_role = sum(1 for n in extraction.npcs if not n.occupation)
+
+        if empty_personality / total > 0.5:
+            capped["npcs"] = min(capped.get("npcs", 0.0), 0.4)
+        if empty_role / total > 0.5:
+            capped["npcs"] = min(capped.get("npcs", 0.0), 0.4)
+
+    if not extraction.factions:
+        capped["factions"] = min(capped.get("factions", 0.0), 0.2)
+
+    return capped
 
 
 class Daemon:
@@ -113,8 +177,6 @@ class Daemon:
         try:
             await self._execute_job(job, researcher)
             await message.ack()
-            # Clean up all per-zone checkpoints only after successful ack
-            await self._cleanup_job_checkpoints(job.job_id)
         except Exception as exc:
             logger.error("job_failed", extra={"job_id": job.job_id}, exc_info=True)
             await self._publish_status(JobStatusUpdate(
@@ -125,7 +187,7 @@ class Daemon:
             await message.nack(requeue=False)
 
     async def _execute_job(self, job: ResearchJob, researcher: LoreResearcher):
-        """Wave-loop job executor — manages zones, depth, crash recovery."""
+        """Wave-loop job executor — manages zones and depth expansion."""
         # Publish ACCEPTED
         await self._publish_status(JobStatusUpdate(
             job_id=job.job_id,
@@ -141,66 +203,14 @@ class Daemon:
         if is_daily_budget_exhausted(budget):
             raise RuntimeError("daily token budget exhausted")
 
-        # Crash recovery — scan for existing per-zone checkpoints
         zones_completed: list[str] = []
         zones_pending: list[str] = [job.zone_name]
         zones_failed_list: list[ZoneFailure] = []
         current_depth = 0
         max_depth = job.depth
 
-        checkpoint_prefix = f"{AGENT_ID}:{job.job_id}:"
-        existing_keys = await list_checkpoints(checkpoint_prefix)
-        recovered_checkpoints: dict[str, ResearchCheckpoint] = {}
-
-        for key in existing_keys:
-            # Key format: {agent_id}:{job_id}:{zone_name}
-            zone_name = key.removeprefix(checkpoint_prefix)
-            if not zone_name:
-                continue
-            cp = await load_checkpoint(key)
-            if not cp:
-                continue
-            recovered_checkpoints[zone_name] = cp
-            if cp.current_step >= TOTAL_STEPS:
-                # Fully completed — skip and recover discovered zones
-                zones_completed.append(zone_name)
-                if zone_name in zones_pending:
-                    zones_pending.remove(zone_name)
-                if max_depth > 0:
-                    discovered = cp.step_data.get("discovered_zones", [])
-                    for z in discovered:
-                        if z not in zones_completed and z not in zones_pending:
-                            zones_pending.append(z)
-                logger.info("crash_recovery_skip_completed", extra={
-                    "job_id": job.job_id, "zone": zone_name,
-                    "discovered_recovered": len(cp.step_data.get("discovered_zones", [])),
-                })
-            else:
-                # Partially completed — resume from last checkpointed step
-                if zone_name not in zones_pending:
-                    zones_pending.append(zone_name)
-                logger.info("crash_recovery_resume_partial", extra={
-                    "job_id": job.job_id, "zone": zone_name,
-                    "current_step": cp.current_step,
-                })
-
-        # Determine starting depth from recovered checkpoints
-        if recovered_checkpoints and zones_pending:
-            max_pending_depth = 0
-            for zn in zones_pending:
-                cp = recovered_checkpoints.get(zn)
-                if cp and cp.wave_depth > 0:
-                    max_pending_depth = max(max_pending_depth, cp.wave_depth)
-            if max_pending_depth > 0:
-                current_depth = max_pending_depth
-            elif job.zone_name in zones_completed and max_depth > 0:
-                # Fallback for legacy checkpoints without wave_depth
-                current_depth = 1
-        elif job.zone_name in zones_completed and max_depth > 0:
-            current_depth = 1
-
         publish_fn = self._make_publish_fn()
-        zones_total = len(zones_pending) + len(zones_completed)
+        zones_total = len(zones_pending)
 
         while zones_pending and current_depth <= max_depth:
             # Process current wave
@@ -209,11 +219,7 @@ class Daemon:
             next_wave: list[str] = []
 
             for zone_name in current_wave:
-                # Determine whether to skip discovery for this zone
                 is_last_wave = current_depth >= max_depth
-                skip_steps: set[str] | None = None
-                if is_last_wave:
-                    skip_steps = {"discover_connected_zones"}
 
                 # Publish ZONE_STARTED
                 await self._publish_status(JobStatusUpdate(
@@ -225,53 +231,40 @@ class Daemon:
                 ))
 
                 try:
-                    # Create or load per-zone checkpoint
-                    checkpoint_key = f"{AGENT_ID}:{job.job_id}:{zone_name}"
-                    checkpoint = await load_checkpoint(checkpoint_key)
-                    if checkpoint and checkpoint.current_step >= TOTAL_STEPS:
-                        # Already completed (crash recovery detected mid-wave)
-                        zones_completed.append(zone_name)
-                        continue
-                    if not checkpoint:
-                        checkpoint = ResearchCheckpoint(
-                            job_id=job.job_id,
-                            zone_name=zone_name,
-                            wave_depth=current_depth,
-                        )
-
-                    # Build step progress callback for this zone
-                    async def on_step_progress(
-                        step_name: str, step_number: int, total_steps: int,
-                        _job_id: str = job.job_id, _zone: str = zone_name,
-                    ):
-                        await self._publish_status(JobStatusUpdate(
-                            job_id=_job_id,
-                            status=JobStatus.STEP_PROGRESS,
-                            zone_name=_zone,
-                            step_name=step_name,
-                            step_number=step_number,
-                            total_steps=total_steps,
-                        ))
-
-                    # Run pipeline with step progress reporting
-                    checkpoint = await run_pipeline(
-                        checkpoint, researcher, publish_fn,
-                        skip_steps=skip_steps,
-                        on_step_progress=on_step_progress,
+                    # Run orchestrator
+                    result = await researcher.research_zone(
+                        zone_name, skip_discovery=is_last_wave,
                     )
 
-                    # Track token usage and persist budget
+                    # Track tokens + persist budget
                     budget = add_tokens_used(budget, researcher.zone_tokens)
                     researcher.reset_zone_state()
                     await save_budget(budget)
 
+                    # Package + publish to validator
+                    package = self._assemble_package(result, zone_name)
+                    envelope = MessageEnvelope(
+                        source_agent=AGENT_ID,
+                        target_agent="world_lore_validator",
+                        message_type=MessageType.RESEARCH_PACKAGE,
+                        payload=package.model_dump(mode="json"),
+                    )
+                    await publish_fn(envelope)
+
+                    # Token observability log
+                    logger.info("zone_tokens", extra={
+                        "zone_name": zone_name,
+                        "total_tokens": result.orchestrator_tokens + result.worker_tokens,
+                        "orchestrator_tokens": result.orchestrator_tokens,
+                        "worker_tokens": result.worker_tokens,
+                    })
+
                     # Zone completed
                     zones_completed.append(zone_name)
 
-                    # Read discovered zones for next wave
+                    # Next wave expansion
                     if not is_last_wave:
-                        discovered = checkpoint.step_data.get("discovered_zones", [])
-                        for z in discovered:
+                        for z in result.discovered_zones:
                             if z not in zones_completed and z not in next_wave:
                                 next_wave.append(z)
 
@@ -323,16 +316,51 @@ class Daemon:
                 zones_total=zones_total,
             ))
 
-    async def _cleanup_job_checkpoints(self, job_id: str):
-        """Delete all per-zone checkpoints for a completed job."""
-        prefix = f"{AGENT_ID}:{job_id}:"
-        keys = await list_checkpoints(prefix)
-        for key in keys:
-            await delete_checkpoint(key)
-        if keys:
-            logger.info("job_checkpoints_cleaned", extra={
-                "job_id": job_id, "count": len(keys),
-            })
+    def _assemble_package(
+        self,
+        result: OrchestratorResult,
+        zone_name: str,
+    ) -> ResearchPackage:
+        """Assemble ResearchPackage from orchestrator output.
+
+        Applies mechanical quality gates (code decisions, not LLM decisions):
+        quality warnings based on content thresholds, confidence caps based
+        on field completeness.
+        """
+        extraction = ZoneExtraction(
+            zone=result.zone_data or ZoneData(
+                name=zone_name,
+                narrative_arc="No narrative arc extracted — zone extraction failed.",
+                political_climate="No political climate extracted.",
+                connected_zones=["unknown"],
+                era="unknown",
+                confidence=0.0,
+            ),
+            npcs=result.npcs,
+            factions=result.factions,
+            lore=result.lore,
+            narrative_items=result.narrative_items,
+        )
+
+        warnings = _compute_quality_warnings(extraction)
+
+        confidence = result.cross_ref_result.confidence if result.cross_ref_result else {}
+        confidence = _apply_confidence_caps(extraction, confidence)
+
+        conflicts = result.cross_ref_result.conflicts if result.cross_ref_result else []
+
+        return ResearchPackage(
+            zone_name=zone_name,
+            zone_data=extraction.zone,
+            npcs=extraction.npcs,
+            factions=extraction.factions,
+            lore=extraction.lore,
+            narrative_items=extraction.narrative_items,
+            sources=result.sources,
+            confidence=confidence,
+            conflicts=conflicts,
+            quality_warnings=warnings,
+        )
 
     async def _publish_status(self, update: JobStatusUpdate):
         """Publish a job status update to the status queue."""

@@ -1,12 +1,15 @@
-"""Tests for the LLM-powered research agent — extraction, cross-reference, research, discovery."""
+"""Tests for the LLM-powered research agent — orchestrator, dataclasses, prompts."""
 
-from unittest.mock import AsyncMock, patch, MagicMock
+from unittest.mock import AsyncMock, MagicMock
 
 import pytest
+from pydantic import ValidationError
 
 import src.agent as agent_module
 from src.agent import (
     EXTRACTION_CATEGORIES,
+    OrchestratorContext,
+    OrchestratorResult,
     ResearchContext,
 )
 from shared.prompt_loader import load_prompt
@@ -21,12 +24,21 @@ from src.models import (
     NPCExtractionResult,
     NarrativeItemData,
     NarrativeItemExtractionResult,
-    ResearchResult,
     SourceReference,
     SourceTier,
     ZoneData,
     ZoneExtraction,
     Conflict,
+)
+from tests.factories import (
+    make_cross_ref,
+    make_extraction,
+    make_faction,
+    make_item,
+    make_lore,
+    make_npc,
+    make_source,
+    make_zone,
 )
 
 
@@ -124,26 +136,39 @@ class TestLoadPrompt:
         with pytest.raises(FileNotFoundError):
             load_prompt(agent_module.__file__, "extract_zone_data")
 
+    def test_loads_orchestrator_system_prompt(self):
+        prompt = load_prompt(agent_module.__file__, "orchestrator_system")
+        assert isinstance(prompt, str)
+        assert "research_topic" in prompt
+        assert "extract_category" in prompt
+        assert "cross_reference" in prompt
+        assert "discover_zones" in prompt
+
+    def test_loads_orchestrator_task_prompt(self):
+        prompt = load_prompt(agent_module.__file__, "orchestrator_task")
+        assert isinstance(prompt, str)
+        assert "{zone_name}" in prompt
+        assert "{game_name}" in prompt
+        assert "{skip_discovery}" in prompt
+
 
 # --- Output models ---
 
 
 class TestZoneExtraction:
     def test_minimal_extraction(self):
-        extraction = ZoneExtraction(
-            zone=ZoneData(name="Elwynn Forest"),
-        )
+        extraction = make_extraction(zone=make_zone(name="Elwynn Forest"))
         assert extraction.zone.name == "Elwynn Forest"
         assert extraction.npcs == []
         assert extraction.factions == []
 
     def test_full_extraction(self):
         extraction = ZoneExtraction(
-            zone=ZoneData(name="Elwynn Forest", narrative_arc="Peaceful beginnings"),
-            npcs=[NPCData(name="Marshal Dughan")],
-            factions=[FactionData(name="Stormwind Guard")],
-            lore=[LoreData(title="History of Elwynn")],
-            narrative_items=[NarrativeItemData(name="Hogger's Claw")],
+            zone=make_zone(name="Elwynn Forest"),
+            npcs=[make_npc(name="Marshal Dughan")],
+            factions=[make_faction(name="Stormwind Guard")],
+            lore=[make_lore(title="History of Elwynn")],
+            narrative_items=[make_item(name="Hogger's Claw")],
         )
         assert len(extraction.npcs) == 1
         assert len(extraction.factions) == 1
@@ -152,8 +177,8 @@ class TestZoneExtraction:
 
     def test_serialization_roundtrip(self):
         extraction = ZoneExtraction(
-            zone=ZoneData(name="Westfall"),
-            npcs=[NPCData(name="Gryan Stoutmantle")],
+            zone=make_zone(name="Westfall"),
+            npcs=[make_npc(name="Gryan Stoutmantle")],
         )
         json_str = extraction.model_dump_json()
         restored = ZoneExtraction.model_validate_json(json_str)
@@ -164,43 +189,59 @@ class TestZoneExtraction:
 class TestExtractionResultModels:
     """Tests for per-category extraction result wrapper models."""
 
-    def test_npc_extraction_result_defaults(self):
-        result = NPCExtractionResult()
-        assert result.npcs == []
+    def test_npc_extraction_result_rejects_empty(self):
+        with pytest.raises(ValidationError):
+            NPCExtractionResult()
+
+    def test_npc_extraction_result_rejects_empty_list(self):
+        with pytest.raises(ValidationError):
+            NPCExtractionResult(npcs=[])
 
     def test_npc_extraction_result_populated(self):
-        result = NPCExtractionResult(npcs=[NPCData(name="Edwin VanCleef")])
+        result = NPCExtractionResult(npcs=[make_npc(name="Edwin VanCleef")])
         assert len(result.npcs) == 1
         assert result.npcs[0].name == "Edwin VanCleef"
 
-    def test_faction_extraction_result_defaults(self):
-        result = FactionExtractionResult()
-        assert result.factions == []
+    def test_faction_extraction_result_rejects_empty(self):
+        with pytest.raises(ValidationError):
+            FactionExtractionResult()
+
+    def test_faction_extraction_result_rejects_empty_list(self):
+        with pytest.raises(ValidationError):
+            FactionExtractionResult(factions=[])
 
     def test_faction_extraction_result_populated(self):
-        result = FactionExtractionResult(factions=[FactionData(name="Defias Brotherhood")])
+        result = FactionExtractionResult(factions=[make_faction(name="Defias Brotherhood")])
         assert len(result.factions) == 1
 
-    def test_lore_extraction_result_defaults(self):
-        result = LoreExtractionResult()
-        assert result.lore == []
+    def test_lore_extraction_result_rejects_empty(self):
+        with pytest.raises(ValidationError):
+            LoreExtractionResult()
+
+    def test_lore_extraction_result_rejects_empty_list(self):
+        with pytest.raises(ValidationError):
+            LoreExtractionResult(lore=[])
 
     def test_lore_extraction_result_populated(self):
-        result = LoreExtractionResult(lore=[LoreData(title="Stonemasons' Betrayal")])
+        result = LoreExtractionResult(lore=[make_lore(title="Stonemasons' Betrayal")])
         assert len(result.lore) == 1
 
-    def test_narrative_item_extraction_result_defaults(self):
-        result = NarrativeItemExtractionResult()
-        assert result.narrative_items == []
+    def test_narrative_item_extraction_result_rejects_empty(self):
+        with pytest.raises(ValidationError):
+            NarrativeItemExtractionResult()
+
+    def test_narrative_item_extraction_result_rejects_empty_list(self):
+        with pytest.raises(ValidationError):
+            NarrativeItemExtractionResult(narrative_items=[])
 
     def test_narrative_item_extraction_result_populated(self):
         result = NarrativeItemExtractionResult(
-            narrative_items=[NarrativeItemData(name="VanCleef's Sword")]
+            narrative_items=[make_item(name="VanCleef's Sword")]
         )
         assert len(result.narrative_items) == 1
 
     def test_serialization_roundtrip(self):
-        result = NPCExtractionResult(npcs=[NPCData(name="Test NPC", personality="Brave")])
+        result = NPCExtractionResult(npcs=[make_npc(name="Test NPC", personality="Brave")])
         json_str = result.model_dump_json()
         restored = NPCExtractionResult.model_validate_json(json_str)
         assert restored.npcs[0].name == "Test NPC"
@@ -247,6 +288,7 @@ class TestCrossReferenceResult:
     def test_inconsistent_result(self):
         result = CrossReferenceResult(
             is_consistent=False,
+            confidence={"zone": 0.5, "npcs": 0.4},
             conflicts=[
                 Conflict(
                     data_point="NPC faction",
@@ -259,23 +301,6 @@ class TestCrossReferenceResult:
         )
         assert result.is_consistent is False
         assert len(result.conflicts) == 1
-
-
-class TestResearchResult:
-    def test_empty_result(self):
-        result = ResearchResult()
-        assert result.raw_content == []
-        assert result.sources == []
-        assert result.summary == ""
-
-    def test_populated_result(self):
-        result = ResearchResult(
-            raw_content=["# Zone content"],
-            sources=[SourceReference(url="https://x.com", domain="x.com", tier=SourceTier.PRIMARY)],
-            summary="Found zone data.",
-        )
-        assert len(result.raw_content) == 1
-        assert len(result.sources) == 1
 
 
 class TestConnectedZonesResult:
@@ -308,6 +333,86 @@ class TestResearchContext:
         assert len(shared_cache) == 2
 
 
+# --- OrchestratorContext ---
+
+
+class TestOrchestratorContext:
+    def test_defaults_empty_accumulators(self):
+        ctx = OrchestratorContext(
+            research_agent=MagicMock(),
+            extraction_agents={},
+            cross_ref_agent=MagicMock(),
+            discovery_agent=MagicMock(),
+            agent_file=__file__,
+            zone_name="test_zone",
+            game_name="wow",
+            crawl_cache={},
+        )
+        assert ctx.research_content == {}
+        assert ctx.sources == []
+        assert ctx.zone_data is None
+        assert ctx.npcs == []
+        assert ctx.factions == []
+        assert ctx.lore == []
+        assert ctx.narrative_items == []
+        assert ctx.cross_ref_result is None
+        assert ctx.discovered_zones == []
+        assert ctx.worker_tokens == 0
+
+    def test_stores_worker_references(self):
+        research = MagicMock()
+        extraction = {"zone": MagicMock()}
+        cross_ref = MagicMock()
+        discovery = MagicMock()
+
+        ctx = OrchestratorContext(
+            research_agent=research,
+            extraction_agents=extraction,
+            cross_ref_agent=cross_ref,
+            discovery_agent=discovery,
+            agent_file=__file__,
+            zone_name="elwynn_forest",
+            game_name="wow",
+            crawl_cache={},
+        )
+
+        assert ctx.research_agent is research
+        assert ctx.extraction_agents is extraction
+        assert ctx.cross_ref_agent is cross_ref
+        assert ctx.discovery_agent is discovery
+
+
+# --- OrchestratorResult ---
+
+
+class TestOrchestratorResult:
+    def test_empty_result(self):
+        result = OrchestratorResult()
+        assert result.zone_data is None
+        assert result.npcs == []
+        assert result.factions == []
+        assert result.lore == []
+        assert result.narrative_items == []
+        assert result.sources == []
+        assert result.cross_ref_result is None
+        assert result.discovered_zones == []
+        assert result.orchestrator_tokens == 0
+        assert result.worker_tokens == 0
+
+    def test_populated_result(self):
+        result = OrchestratorResult(
+            zone_data=make_zone(name="Elwynn Forest"),
+            npcs=[make_npc(name="Marshal Dughan")],
+            sources=[make_source()],
+            orchestrator_tokens=1000,
+            worker_tokens=5000,
+        )
+        assert result.zone_data.name == "Elwynn Forest"
+        assert len(result.npcs) == 1
+        assert result.orchestrator_tokens == 1000
+        assert result.worker_tokens == 5000
+
+
 # --- LoreResearcher init ---
 
 
@@ -324,6 +429,10 @@ class TestLoreResearcherInit:
         assert researcher._cross_ref_agent is not None
         assert researcher._research_agent is not None
         assert researcher._zone_discovery_agent is not None
+
+    def test_creates_orchestrator(self):
+        researcher = _make_researcher()
+        assert researcher._orchestrator is not None
 
     def test_has_crawl_cache(self):
         researcher = _make_researcher()
@@ -343,178 +452,146 @@ class TestResetZoneState:
         assert len(researcher._crawl_cache) == 0
 
 
-# --- extract_category ---
-
-
-class TestExtractCategory:
-    @pytest.mark.asyncio
-    async def test_extract_category_calls_correct_agent(self):
-        researcher = _make_researcher()
-
-        mock_zone_data = ZoneData(name="Elwynn Forest", narrative_arc="Starting zone")
-        mock_result = MagicMock()
-        mock_result.output = mock_zone_data
-
-        mock_agent = MagicMock()
-        mock_agent.run = AsyncMock(return_value=mock_result)
-        researcher._extraction_agents["zone"] = mock_agent
-
-        sources = [
-            SourceReference(url="https://wowpedia.fandom.com/wiki/Elwynn", domain="wowpedia.fandom.com", tier=SourceTier.OFFICIAL),
-        ]
-
-        result = await researcher.extract_category(
-            "zone", "elwynn_forest", "# Zone content", sources,
-        )
-
-        assert result.name == "Elwynn Forest"
-        mock_agent.run.assert_called_once()
-
-    @pytest.mark.asyncio
-    async def test_extract_category_npcs(self):
-        researcher = _make_researcher()
-
-        mock_npcs = NPCExtractionResult(npcs=[NPCData(name="Marshal Dughan")])
-        mock_result = MagicMock()
-        mock_result.output = mock_npcs
-
-        mock_agent = MagicMock()
-        mock_agent.run = AsyncMock(return_value=mock_result)
-        researcher._extraction_agents["npcs"] = mock_agent
-
-        sources = [
-            SourceReference(url="https://wiki.gg/npc", domain="wiki.gg", tier=SourceTier.PRIMARY),
-        ]
-
-        result = await researcher.extract_category(
-            "npcs", "elwynn_forest", "# NPC content", sources,
-        )
-
-        assert len(result.npcs) == 1
-        assert result.npcs[0].name == "Marshal Dughan"
-
-    @pytest.mark.asyncio
-    async def test_extract_category_uses_correct_token_budget(self):
-        researcher = _make_researcher()
-
-        mock_result = MagicMock()
-        mock_result.output = ZoneData(name="Test")
-
-        mock_agent = MagicMock()
-        mock_agent.run = AsyncMock(return_value=mock_result)
-        researcher._extraction_agents["zone"] = mock_agent
-
-        await researcher.extract_category("zone", "test", "", [])
-
-        # Verify usage_limits were passed with correct budget share (10%)
-        call_kwargs = mock_agent.run.call_args[1]
-        budget = call_kwargs["usage_limits"].output_tokens_limit
-        from src.config import PER_ZONE_TOKEN_BUDGET
-        assert budget == int(PER_ZONE_TOKEN_BUDGET * 0.10)
-
-
-# --- cross_reference ---
-
-
-class TestCrossReference:
-    @pytest.mark.asyncio
-    async def test_cross_reference_calls_agent(self):
-        researcher = _make_researcher()
-
-        mock_cr_result = CrossReferenceResult(
-            is_consistent=True,
-            confidence={"zone": 0.95, "npcs": 0.9},
-        )
-
-        mock_result = MagicMock()
-        mock_result.output = mock_cr_result
-
-        researcher._cross_ref_agent = MagicMock()
-        researcher._cross_ref_agent.run = AsyncMock(return_value=mock_result)
-
-        extraction = ZoneExtraction(
-            zone=ZoneData(name="Elwynn Forest"),
-            npcs=[NPCData(name="Marshal Dughan")],
-        )
-
-        result = await researcher.cross_reference(extraction)
-
-        assert result.is_consistent is True
-        assert result.confidence["zone"] == 0.95
-        researcher._cross_ref_agent.run.assert_called_once()
-
-
-# --- research_zone ---
+# --- research_zone (new orchestrator-based) ---
 
 
 class TestResearchZone:
     @pytest.mark.asyncio
-    async def test_returns_research_result(self):
+    async def test_returns_orchestrator_result(self):
         researcher = _make_researcher()
 
         mock_result = MagicMock()
-        mock_result.output = "Researched Elwynn Forest successfully."
+        mock_result.output = "Research complete."
+        usage = MagicMock()
+        usage.total_tokens = 1500
+        mock_result.usage.return_value = usage
 
-        researcher._research_agent = MagicMock()
-        researcher._research_agent.run = AsyncMock(return_value=mock_result)
-        # Mock MCP server context managers
-        researcher._mcp_servers = []
+        researcher._orchestrator = MagicMock()
+        researcher._orchestrator.run = AsyncMock(return_value=mock_result)
 
         result = await researcher.research_zone("elwynn_forest")
 
-        assert isinstance(result, ResearchResult)
-        assert result.summary == "Researched Elwynn Forest successfully."
-        researcher._research_agent.run.assert_called_once()
+        assert isinstance(result, OrchestratorResult)
+        assert result.orchestrator_tokens == 1500
+        researcher._orchestrator.run.assert_called_once()
 
     @pytest.mark.asyncio
-    async def test_captures_deps_content(self):
-        """Verify that content appended to deps during agent run appears in result."""
+    async def test_passes_context_with_workers(self):
         researcher = _make_researcher()
 
-        # Simulate agent run that populates deps via tool calls
-        async def mock_run(prompt, deps=None, usage_limits=None):
-            # Simulate what the crawl tool would do during a real run
-            if deps is not None:
-                deps.raw_content.append("Crawled page content")
-                deps.sources.append(SourceReference(
-                    url="https://wowpedia.fandom.com/wiki/Elwynn",
-                    domain="wowpedia.fandom.com",
-                    tier=SourceTier.OFFICIAL,
-                ))
+        mock_result = MagicMock()
+        mock_result.output = "done"
+        usage = MagicMock()
+        usage.total_tokens = 100
+        mock_result.usage.return_value = usage
+
+        researcher._orchestrator = MagicMock()
+        researcher._orchestrator.run = AsyncMock(return_value=mock_result)
+
+        await researcher.research_zone("elwynn_forest")
+
+        # Verify deps passed to orchestrator contain worker references
+        call_kwargs = researcher._orchestrator.run.call_args[1]
+        ctx = call_kwargs["deps"]
+        assert isinstance(ctx, OrchestratorContext)
+        assert ctx.zone_name == "elwynn_forest"
+        assert ctx.game_name == "wow"
+        assert ctx.research_agent is researcher._research_agent
+
+    @pytest.mark.asyncio
+    async def test_skip_discovery_in_prompt(self):
+        researcher = _make_researcher()
+
+        mock_result = MagicMock()
+        mock_result.output = "done"
+        usage = MagicMock()
+        usage.total_tokens = 100
+        mock_result.usage.return_value = usage
+
+        researcher._orchestrator = MagicMock()
+        researcher._orchestrator.run = AsyncMock(return_value=mock_result)
+
+        await researcher.research_zone("elwynn_forest", skip_discovery=True)
+
+        call_args = researcher._orchestrator.run.call_args[0]
+        prompt = call_args[0]
+        assert "Do NOT call discover_zones" in prompt
+
+    @pytest.mark.asyncio
+    async def test_no_skip_discovery_by_default(self):
+        researcher = _make_researcher()
+
+        mock_result = MagicMock()
+        mock_result.output = "done"
+        usage = MagicMock()
+        usage.total_tokens = 100
+        mock_result.usage.return_value = usage
+
+        researcher._orchestrator = MagicMock()
+        researcher._orchestrator.run = AsyncMock(return_value=mock_result)
+
+        await researcher.research_zone("elwynn_forest")
+
+        call_args = researcher._orchestrator.run.call_args[0]
+        prompt = call_args[0]
+        assert "Do NOT call discover_zones" not in prompt
+
+    @pytest.mark.asyncio
+    async def test_accumulates_zone_tokens(self):
+        researcher = _make_researcher()
+
+        mock_result = MagicMock()
+        mock_result.output = "done"
+        usage = MagicMock()
+        usage.total_tokens = 2000
+        mock_result.usage.return_value = usage
+
+        # Simulate worker tokens accumulated during run
+        async def mock_run(prompt, deps=None, **kwargs):
+            deps.worker_tokens = 3000
+            return mock_result
+
+        researcher._orchestrator = MagicMock()
+        researcher._orchestrator.run = AsyncMock(side_effect=mock_run)
+
+        await researcher.research_zone("elwynn_forest")
+
+        # zone_tokens = orchestrator (2000) + worker (3000)
+        assert researcher.zone_tokens == 5000
+
+    @pytest.mark.asyncio
+    async def test_assembles_result_from_context(self):
+        researcher = _make_researcher()
+
+        zone_data = make_zone(name="Elwynn Forest")
+        npcs = [make_npc(name="Dughan")]
+        sources = [make_source()]
+        cr_result = make_cross_ref()
+        discovered = ["westfall"]
+
+        async def mock_run(prompt, deps=None, **kwargs):
+            deps.zone_data = zone_data
+            deps.npcs = npcs
+            deps.sources = sources
+            deps.cross_ref_result = cr_result
+            deps.discovered_zones = discovered
+            deps.worker_tokens = 1000
             result = MagicMock()
-            result.output = "Summary of research"
+            result.output = "done"
+            usage = MagicMock()
+            usage.total_tokens = 500
+            result.usage.return_value = usage
             return result
 
-        researcher._research_agent = MagicMock()
-        researcher._research_agent.run = AsyncMock(side_effect=mock_run)
-        researcher._mcp_servers = []
+        researcher._orchestrator = MagicMock()
+        researcher._orchestrator.run = AsyncMock(side_effect=mock_run)
 
         result = await researcher.research_zone("elwynn_forest")
 
-        assert len(result.raw_content) == 1
-        assert result.raw_content[0] == "Crawled page content"
-        assert len(result.sources) == 1
-        assert result.sources[0].domain == "wowpedia.fandom.com"
-
-
-# --- discover_connected_zones ---
-
-
-class TestDiscoverConnectedZones:
-    @pytest.mark.asyncio
-    async def test_returns_zone_slugs(self):
-        researcher = _make_researcher()
-
-        mock_result = MagicMock()
-        mock_result.output = ConnectedZonesResult(
-            zone_slugs=["westfall", "stormwind_city"]
-        )
-
-        researcher._zone_discovery_agent = MagicMock()
-        researcher._zone_discovery_agent.run = AsyncMock(return_value=mock_result)
-        researcher._mcp_servers = []
-
-        result = await researcher.discover_connected_zones("elwynn_forest")
-
-        assert result == ["westfall", "stormwind_city"]
-        researcher._zone_discovery_agent.run.assert_called_once()
+        assert result.zone_data is zone_data
+        assert result.npcs is npcs
+        assert result.sources is sources
+        assert result.cross_ref_result is cr_result
+        assert result.discovered_zones == ["westfall"]
+        assert result.orchestrator_tokens == 500
+        assert result.worker_tokens == 1000

@@ -130,21 +130,42 @@ class ValidationFeedback(BaseModel):
 
 
 class ZoneData(BaseModel):
-    name: str
+    name: str = Field(description="Zone name as it appears in-game")
     game: str = "wow"
-    level_range: dict[str, int] = Field(default_factory=lambda: {"min": 0, "max": 0})
-    narrative_arc: str = ""
-    political_climate: str = ""
+    level_range: dict[str, int] = Field(
+        default_factory=lambda: {"min": 0, "max": 0},
+        description="Level range with min and max keys",
+    )
+    narrative_arc: str = Field(
+        min_length=50,
+        description="Detailed narrative arc of the zone's overarching story",
+    )
+    political_climate: str = Field(
+        min_length=20,
+        description="Political climate describing power dynamics and tensions",
+    )
     access_gating: list[str] = Field(default_factory=list)
     phase_states: list[PhaseState] = Field(default_factory=list)
-    connected_zones: list[str] = Field(default_factory=list)
-    era: str = ""
+    connected_zones: list[str] = Field(
+        min_length=1,
+        description="Adjacent zone slugs reachable from this zone",
+    )
+    era: str = Field(
+        min_length=1,
+        description="Primary era or expansion this zone is associated with",
+    )
     sources: list[SourceReference] = Field(default_factory=list)
-    confidence: float = 0.0
+    confidence: float = Field(
+        ge=0.0, le=1.0,
+        description="Confidence score from 0.0 to 1.0 based on source quality",
+    )
 
 
 class NPCData(BaseModel):
-    name: str
+    name: str = Field(
+        min_length=1,
+        description="Canonical in-game name of a single named individual NPC",
+    )
     zone_id: str = ""
     faction_ids: list[str] = Field(default_factory=list)
     personality: str = ""
@@ -152,42 +173,81 @@ class NPCData(BaseModel):
     relationships: list[NPCRelationship] = Field(default_factory=list)
     quest_threads: list[str] = Field(default_factory=list)
     phased_state: str = ""
-    role: str = ""
+    occupation: str = Field(
+        min_length=1,
+        description="NPC role or occupation: quest_giver, vendor, trainer, boss, guard, civilian, etc.",
+    )
     sources: list[SourceReference] = Field(default_factory=list)
-    confidence: float = 0.0
+    confidence: float = Field(
+        ge=0.0, le=1.0,
+        description="Confidence score from 0.0 to 1.0 based on source quality",
+    )
 
 
 class FactionData(BaseModel):
-    name: str
+    name: str = Field(
+        min_length=1,
+        description="Canonical in-game faction name",
+    )
     parent_faction_id: str = ""
     level: str = ""
-    inter_faction: list[FactionRelation] = Field(default_factory=list)
+    inter_faction: list[FactionRelation] = Field(
+        min_length=1,
+        description="Relationships with other factions in this zone",
+    )
     exclusive_with: list[str] = Field(default_factory=list)
-    ideology: str = ""
-    goals: list[str] = Field(default_factory=list)
+    ideology: str = Field(
+        min_length=1,
+        description="Core ideology or belief system driving this faction",
+    )
+    goals: list[str] = Field(
+        min_length=1,
+        description="Active goals this faction pursues in the zone",
+    )
     sources: list[SourceReference] = Field(default_factory=list)
-    confidence: float = 0.0
+    confidence: float = Field(
+        ge=0.0, le=1.0,
+        description="Confidence score from 0.0 to 1.0 based on source quality",
+    )
 
 
 class LoreData(BaseModel):
     zone_id: str = ""
-    title: str = ""
+    title: str = Field(
+        min_length=1,
+        description="Title of this lore entry",
+    )
     category: LoreCategory = LoreCategory.HISTORY
-    content: str = ""
+    content: str = Field(
+        min_length=50,
+        description="Detailed lore content with historical or mythological substance",
+    )
     era: str = ""
     sources: list[SourceReference] = Field(default_factory=list)
-    confidence: float = 0.0
+    confidence: float = Field(
+        ge=0.0, le=1.0,
+        description="Confidence score from 0.0 to 1.0 based on source quality",
+    )
 
 
 class NarrativeItemData(BaseModel):
-    name: str
+    name: str = Field(
+        min_length=1,
+        description="Name of a physical in-game item, weapon, artifact, or quest object",
+    )
     zone_id: str = ""
-    story_arc: str = ""
+    story_arc: str = Field(
+        min_length=1,
+        description="How this item fits into the zone's story or quest chains",
+    )
     wielder_lineage: list[str] = Field(default_factory=list)
     power_description: str = ""
     significance: ItemSignificance = ItemSignificance.NOTABLE
     sources: list[SourceReference] = Field(default_factory=list)
-    confidence: float = 0.0
+    confidence: float = Field(
+        ge=0.0, le=1.0,
+        description="Confidence score from 0.0 to 1.0 based on source quality",
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -297,33 +357,42 @@ class ZoneExtraction(BaseModel):
 
 
 class NPCExtractionResult(BaseModel):
-    npcs: list[NPCData] = Field(default_factory=list)
+    npcs: list[NPCData] = Field(
+        min_length=1,
+        description="Extracted NPCs — named individuals only, not creature types or factions",
+    )
 
 
 class FactionExtractionResult(BaseModel):
-    factions: list[FactionData] = Field(default_factory=list)
+    factions: list[FactionData] = Field(
+        min_length=1,
+        description="Extracted factions with inter-faction relationships",
+    )
 
 
 class LoreExtractionResult(BaseModel):
-    lore: list[LoreData] = Field(default_factory=list)
+    lore: list[LoreData] = Field(
+        min_length=1,
+        description="Extracted lore entries across history, mythology, cosmology categories",
+    )
 
 
 class NarrativeItemExtractionResult(BaseModel):
-    narrative_items: list[NarrativeItemData] = Field(default_factory=list)
+    narrative_items: list[NarrativeItemData] = Field(
+        min_length=1,
+        description="Physical in-game items only — not NPCs, locations, or quest names",
+    )
 
 
 class CrossReferenceResult(BaseModel):
-    is_consistent: bool = True
+    is_consistent: bool = Field(
+        description="True if no conflicts found between extracted data categories",
+    )
     conflicts: list[Conflict] = Field(default_factory=list)
-    confidence: dict[str, float] = Field(default_factory=dict)
+    confidence: dict[str, float] = Field(
+        description="Confidence per category: zone, npcs, factions, lore, narrative_items — all 5 keys required",
+    )
     notes: str = ""
-
-
-class ResearchResult(BaseModel):
-    """Returned by research_zone() — raw crawled content + source references."""
-    raw_content: list[str] = Field(default_factory=list)
-    sources: list[SourceReference] = Field(default_factory=list)
-    summary: str = ""
 
 
 class ConnectedZonesResult(BaseModel):

@@ -6,21 +6,29 @@ middleware bug, but its REST API works perfectly).
 
 Each MCP call creates a fresh session (initialize -> tool call -> close).
 The per-call overhead is negligible for a job-driven daemon.
+
+Crawl requests are rate-limited per domain and validated for CAPTCHA/block
+pages before returning content. See shared.crawl for detection and throttling.
 """
 
 from __future__ import annotations
 
 import json
 import logging
+from urllib.parse import urlparse
 
 import httpx
 from mcp.client.session import ClientSession
 from mcp.client.streamable_http import streamablehttp_client
 from mcp.types import TextContent
 
-from src.config import MCP_WEB_CRAWLER_URL
+from shared.crawl import CrawlVerdict, DomainThrottle, detect_blocked_content
+from src.config import MCP_WEB_CRAWLER_URL, RATE_LIMIT_REQUESTS_PER_MINUTE
 
 logger = logging.getLogger(__name__)
+
+# Module-level singleton — shared across all crawl_url calls in this process.
+_throttle = DomainThrottle(RATE_LIMIT_REQUESTS_PER_MINUTE)
 
 
 # ---------------------------------------------------------------------------
@@ -58,38 +66,86 @@ async def mcp_call(
 # Web Crawler helpers (crawl4ai REST API)
 # ---------------------------------------------------------------------------
 
+_MAX_BLOCK_RETRIES = 1
 
-async def crawl_url(url: str, include_links: bool = True, include_tables: bool = True) -> dict:
-    """Crawl a single URL via crawl4ai's REST API and return markdown content.
 
-    Uses the /md endpoint. include_links/include_tables kept for interface
-    compatibility but crawl4ai handles content extraction holistically.
+async def crawl_url(
+    url: str,
+    include_links: bool = True,
+    include_tables: bool = True,
+    *,
+    _throttle_override: DomainThrottle | None = None,
+) -> dict:
+    """Crawl a URL via crawl4ai REST API with rate limiting and block detection.
+
+    Flow:
+    1. Throttle — wait for per-domain rate limit and any active backoff.
+    2. Request — POST to crawl4ai /md endpoint.
+    3. Validate — multi-signal detection of CAPTCHA/block pages.
+    4. Retry — if blocked, increase backoff and retry once.
+
+    Args:
+        _throttle_override: Test seam — inject a custom DomainThrottle.
     """
-    try:
-        async with httpx.AsyncClient(timeout=120.0) as client:
-            response = await client.post(
-                f"{MCP_WEB_CRAWLER_URL}/md",
-                json={"url": url, "f": "raw", "c": "0"},
-            )
+    throttle = _throttle_override or _throttle
+    domain = urlparse(url).netloc
 
-            if response.status_code != 200:
-                logger.warning("crawl4ai returned %s for %s", response.status_code, url)
-                return {"url": url, "title": "", "content": None, "error": f"HTTP {response.status_code}"}
+    if throttle.is_tripped(domain):
+        logger.info("Circuit breaker open for %s — refusing request", domain)
+        return {
+            "url": url, "title": "", "content": None,
+            "error": f"Circuit breaker open: {domain} blocked after "
+                     f"{throttle.CIRCUIT_BREAKER_THRESHOLD} consecutive failures. "
+                     "Use a different source.",
+        }
 
-            data = response.json()
-            markdown = data.get("markdown", "")
+    for attempt in range(_MAX_BLOCK_RETRIES + 1):
+        await throttle.wait(domain)
 
-            if not markdown:
-                return {"url": url, "title": "", "content": None, "error": "No content extracted"}
+        try:
+            async with httpx.AsyncClient(timeout=120.0) as client:
+                response = await client.post(
+                    f"{MCP_WEB_CRAWLER_URL}/md",
+                    json={"url": url, "f": "raw", "c": "0"},
+                )
 
-            return {"url": url, "title": "", "content": markdown, "error": None}
+                if response.status_code == 429:
+                    throttle.report_blocked(domain)
+                    logger.warning("HTTP 429 from crawl4ai for %s", url)
+                    if attempt < _MAX_BLOCK_RETRIES:
+                        continue
+                    return {"url": url, "title": "", "content": None, "error": "Rate limited (429)"}
 
-    except httpx.HTTPError as exc:
-        logger.warning("crawl4ai HTTP error for %s: %s", url, exc)
-        return {"url": url, "title": "", "content": None, "error": str(exc)}
-    except Exception as exc:
-        logger.error("crawl4ai unexpected error for %s: %s", url, exc, exc_info=True)
-        return {"url": url, "title": "", "content": None, "error": str(exc)}
+                if response.status_code != 200:
+                    logger.warning("crawl4ai returned %s for %s", response.status_code, url)
+                    return {"url": url, "title": "", "content": None, "error": f"HTTP {response.status_code}"}
+
+                data = response.json()
+                markdown = data.get("markdown", "")
+
+                if not markdown:
+                    return {"url": url, "title": "", "content": None, "error": "No content extracted"}
+
+                # Validate content for CAPTCHA / block pages
+                verdict = detect_blocked_content(markdown)
+                if verdict.is_blocked:
+                    throttle.report_blocked(domain)
+                    logger.warning("Blocked content from %s: %s", url, verdict.reason)
+                    if attempt < _MAX_BLOCK_RETRIES:
+                        continue
+                    return {"url": url, "title": "", "content": None, "error": f"Blocked: {verdict.reason}"}
+
+                throttle.report_success(domain)
+                return {"url": url, "title": "", "content": markdown, "error": None}
+
+        except httpx.HTTPError as exc:
+            logger.warning("crawl4ai HTTP error for %s: %s", url, exc)
+            return {"url": url, "title": "", "content": None, "error": str(exc)}
+        except Exception as exc:
+            logger.error("crawl4ai unexpected error for %s: %s", url, exc, exc_info=True)
+            return {"url": url, "title": "", "content": None, "error": str(exc)}
+
+    return {"url": url, "title": "", "content": None, "error": "Max retries exceeded"}
 
 
 # ---------------------------------------------------------------------------

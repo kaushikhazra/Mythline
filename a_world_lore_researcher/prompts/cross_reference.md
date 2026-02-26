@@ -19,7 +19,13 @@ Check for:
 - Lore events that reference factions or NPCs not present in their respective lists → note
 
 ### Confidence Scoring
-Assign confidence scores (0.0 to 1.0) for each category using this rubric:
+Assign confidence scores (0.0 to 1.0) for ALL 5 categories. You MUST return all 5 keys:
+
+```json
+{"zone": 0.8, "npcs": 0.7, "factions": 0.5, "lore": 0.8, "narrative_items": 0.4}
+```
+
+Rubric:
 - 0.9-1.0: Multiple sources agree AND all key fields populated AND no cross-category gaps
 - 0.7-0.8: Good source coverage AND most fields populated
 - 0.5-0.6: Source coverage adequate BUT significant empty fields or cross-category gaps

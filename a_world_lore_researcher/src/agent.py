@@ -1,35 +1,44 @@
 """Pydantic AI agent — the LLM-powered research brain.
 
-Wraps multiple pydantic-ai Agent instances for autonomous web research,
-structured extraction, cross-reference validation, and zone discovery.
+Manages an orchestrator agent that coordinates worker sub-agents for
+autonomous web research, structured extraction, cross-reference
+validation, and zone discovery.
 """
 
 from __future__ import annotations
 
-from contextlib import AsyncExitStack
 from dataclasses import dataclass, field
 
 from pydantic import BaseModel
 from pydantic_ai import Agent
 from pydantic_ai.usage import UsageLimits
 
-from shared.config_loader import load_mcp_config
 from shared.prompt_loader import load_prompt
 
-from src.config import GAME_NAME, LLM_MODEL, PER_ZONE_TOKEN_BUDGET
+from src.config import GAME_NAME, LLM_MODEL
 from src.models import (
     ConnectedZonesResult,
     CrossReferenceResult,
+    FactionData,
     FactionExtractionResult,
+    LoreData,
     LoreExtractionResult,
+    NPCData,
     NPCExtractionResult,
+    NarrativeItemData,
     NarrativeItemExtractionResult,
-    ResearchResult,
     SourceReference,
     ZoneData,
-    ZoneExtraction,
 )
-from src.tools import crawl_webpage
+from src.orchestrator_tools import (
+    crawl_webpage as orch_crawl_webpage,
+    cross_reference as orch_cross_reference,
+    discover_zones as orch_discover_zones,
+    extract_category as orch_extract_category,
+    research_topic as orch_research_topic,
+    summarize_content as orch_summarize_content,
+)
+from src.tools import crawl_webpage, search_news, search_web
 
 
 # ---------------------------------------------------------------------------
@@ -53,15 +62,80 @@ EXTRACTION_CATEGORIES: dict[str, tuple[type[BaseModel], str, float]] = {
 
 @dataclass
 class ResearchContext:
-    """Accumulates raw content and sources during a research_zone() run.
+    """Accumulates raw content and sources during a worker research run.
 
-    The custom crawl tool appends here so that pipeline gets full content
-    without relying on the agent's text output. The crawl_cache is shared
-    across multiple research_zone() calls within the same zone for URL dedup.
+    The custom crawl tool appends here so that the orchestrator tool gets
+    full content without relying on the agent's text output. The crawl_cache
+    is shared across multiple research calls within the same zone for URL dedup.
     """
     raw_content: list[str] = field(default_factory=list)
     sources: list[SourceReference] = field(default_factory=list)
     crawl_cache: dict[str, str] = field(default_factory=dict)
+
+
+# ---------------------------------------------------------------------------
+# Orchestrator context and result (deps for _orchestrator agent)
+# ---------------------------------------------------------------------------
+
+
+@dataclass
+class OrchestratorContext:
+    """Accumulates results from worker tool calls during orchestration.
+
+    Worker tools read zone context, delegate to worker agents, and store
+    results here. The orchestrator LLM only sees brief text summaries;
+    the structured data flows through deps without LLM re-serialization.
+    """
+    # --- Worker agent references (set once in research_zone) ---
+    research_agent: Agent
+    extraction_agents: dict[str, Agent]
+    cross_ref_agent: Agent
+    discovery_agent: Agent
+    agent_file: str
+
+    # --- Zone context ---
+    zone_name: str
+    game_name: str
+    crawl_cache: dict[str, str]
+
+    # --- Research accumulator (populated by research_topic + crawl_webpage) ---
+    research_content: dict[str, list[str]] = field(default_factory=dict)
+    sources: list[SourceReference] = field(default_factory=list)
+
+    # --- Extraction accumulator (populated by extract_category) ---
+    zone_data: ZoneData | None = None
+    npcs: list[NPCData] = field(default_factory=list)
+    factions: list[FactionData] = field(default_factory=list)
+    lore: list[LoreData] = field(default_factory=list)
+    narrative_items: list[NarrativeItemData] = field(default_factory=list)
+
+    # --- Cross-reference (populated by cross_reference) ---
+    cross_ref_result: CrossReferenceResult | None = None
+
+    # --- Discovery (populated by discover_zones) ---
+    discovered_zones: list[str] = field(default_factory=list)
+
+    # --- Token tracking ---
+    worker_tokens: int = 0
+
+
+@dataclass
+class OrchestratorResult:
+    """Result from a complete zone research orchestration.
+
+    Assembled from OrchestratorContext after the orchestrator conversation
+    completes. The daemon reads this to build ResearchPackage.
+    """
+    zone_data: ZoneData | None = None
+    npcs: list[NPCData] = field(default_factory=list)
+    factions: list[FactionData] = field(default_factory=list)
+    lore: list[LoreData] = field(default_factory=list)
+    narrative_items: list[NarrativeItemData] = field(default_factory=list)
+    sources: list[SourceReference] = field(default_factory=list)
+    cross_ref_result: CrossReferenceResult | None = None
+    discovered_zones: list[str] = field(default_factory=list)
+    orchestrator_tokens: int = 0
+    worker_tokens: int = 0
 
 
 # ---------------------------------------------------------------------------
@@ -72,7 +146,8 @@ class ResearchContext:
 class LoreResearcher:
     """LLM-powered lore research agent.
 
-    Manages multiple pydantic-ai Agent instances:
+    Manages an orchestrator agent that coordinates worker sub-agents:
+    - _orchestrator: central LLM agent with worker tools (NEW)
     - _research_agent: autonomous search + crawl (with MCP toolsets)
     - _extraction_agents: per-category structured extraction (5 agents)
     - _cross_ref_agent: cross-reference validation
@@ -84,7 +159,8 @@ class LoreResearcher:
     def __init__(self):
         self._zone_tokens: int = 0
         self._crawl_cache: dict[str, str] = {}
-        self._mcp_servers = load_mcp_config(__file__)
+
+        # --- Worker agents ---
 
         self._extraction_agents: dict[str, Agent] = {}
         for category, (output_type, _, _) in EXTRACTION_CATEGORIES.items():
@@ -102,22 +178,43 @@ class LoreResearcher:
             retries=2,
         )
 
+        # Research and discovery agents use plain function tools for web
+        # search instead of MCP toolsets. MCP toolsets create anyio cancel
+        # scope lifecycles that conflict with the outer orchestrator's task
+        # group when these agents run inside orchestrator tool functions.
         self._research_agent = Agent(
             LLM_MODEL,
             system_prompt=load_prompt(__file__, "system_prompt"),
             deps_type=ResearchContext,
-            toolsets=self._mcp_servers,
             retries=2,
         )
         self._research_agent.tool(crawl_webpage)
+        self._research_agent.tool(search_web)
+        self._research_agent.tool(search_news)
 
         self._zone_discovery_agent = Agent(
             LLM_MODEL,
             system_prompt=load_prompt(__file__, "discover_zones_system"),
             output_type=ConnectedZonesResult,
-            toolsets=self._mcp_servers,
             retries=2,
         )
+        self._zone_discovery_agent.tool(search_web)
+        self._zone_discovery_agent.tool(search_news)
+
+        # --- Orchestrator agent (NEW) ---
+
+        self._orchestrator = Agent(
+            LLM_MODEL,
+            system_prompt=load_prompt(__file__, "orchestrator_system"),
+            deps_type=OrchestratorContext,
+            retries=2,
+        )
+        self._orchestrator.tool(orch_research_topic)
+        self._orchestrator.tool(orch_extract_category)
+        self._orchestrator.tool(orch_cross_reference)
+        self._orchestrator.tool(orch_discover_zones)
+        self._orchestrator.tool(orch_summarize_content)
+        self._orchestrator.tool(orch_crawl_webpage)
 
     @property
     def zone_tokens(self) -> int:
@@ -130,115 +227,53 @@ class LoreResearcher:
         self._crawl_cache.clear()
 
     async def research_zone(
-        self, zone_name: str, instructions: str = ""
-    ) -> ResearchResult:
-        """Run the research agent to search and crawl for a topic.
+        self, zone_name: str, skip_discovery: bool = False
+    ) -> OrchestratorResult:
+        """Run the orchestrator to research a zone comprehensively.
 
-        The agent autonomously calls web search MCP and crawl_webpage tool.
-        Raw content and sources are captured via ResearchContext deps.
+        Returns OrchestratorResult assembled from accumulated deps.
+        The daemon uses this to build the ResearchPackage.
         """
-        template = load_prompt(__file__, "research_zone")
-        prompt = template.format(
-            zone_name=zone_name,
-            instructions=instructions,
+        template = load_prompt(__file__, "orchestrator_task")
+        skip_msg = (
+            "\nDo NOT call discover_zones - this is the final depth wave."
+            if skip_discovery else ""
         )
-
-        context = ResearchContext(crawl_cache=self._crawl_cache)
-
-        async with AsyncExitStack() as stack:
-            for server in self._mcp_servers:
-                await stack.enter_async_context(server)
-            result = await self._research_agent.run(
-                prompt,
-                deps=context,
-                usage_limits=UsageLimits(
-                    output_tokens_limit=PER_ZONE_TOKEN_BUDGET
-                ),
-            )
-
-        self._zone_tokens += result.usage().total_tokens or 0
-
-        return ResearchResult(
-            raw_content=context.raw_content,
-            sources=context.sources,
-            summary=result.output,
-        )
-
-    async def extract_category[T: BaseModel](
-        self,
-        category: str,
-        zone_name: str,
-        content: str,
-        sources: list[SourceReference],
-    ) -> T:
-        """Extract structured data for one category from summarized content.
-
-        Returns the output_type associated with this category in
-        EXTRACTION_CATEGORIES. The generic return type enables type-safe
-        access at call sites via cast().
-        """
-        _, prompt_name, token_share = EXTRACTION_CATEGORIES[category]
-        agent = self._extraction_agents[category]
-
-        source_info = "\n".join(
-            f"- {s.url} (tier: {s.tier.value})" for s in sources
-        )
-        template = load_prompt(__file__, prompt_name)
-        prompt = template.format(
-            zone_name=zone_name,
-            source_info=source_info,
-            raw_content=content,
-        )
-
-        budget = int(PER_ZONE_TOKEN_BUDGET * token_share)
-        result = await agent.run(
-            prompt,
-            usage_limits=UsageLimits(output_tokens_limit=budget),
-        )
-        self._zone_tokens += result.usage().total_tokens or 0
-        return result.output
-
-    async def cross_reference(
-        self,
-        extraction: ZoneExtraction,
-    ) -> CrossReferenceResult:
-        """Cross-reference all extracted data for consistency."""
-        template = load_prompt(__file__, "cross_reference_task")
-        prompt = template.format(
-            zone_name=extraction.zone.name,
-            npc_count=len(extraction.npcs),
-            faction_count=len(extraction.factions),
-            lore_count=len(extraction.lore),
-            narrative_item_count=len(extraction.narrative_items),
-            full_data=extraction.model_dump_json(indent=2),
-        )
-
-        result = await self._cross_ref_agent.run(
-            prompt,
-            usage_limits=UsageLimits(
-                output_tokens_limit=PER_ZONE_TOKEN_BUDGET // 2
-            ),
-        )
-        self._zone_tokens += result.usage().total_tokens or 0
-        return result.output
-
-    async def discover_connected_zones(self, zone_name: str) -> list[str]:
-        """Search for zones connected to the given zone, return slugified names."""
-        template = load_prompt(__file__, "discover_zones")
         prompt = template.format(
             zone_name=zone_name.replace("_", " "),
             game_name=GAME_NAME,
+            skip_discovery=skip_msg,
         )
 
-        async with AsyncExitStack() as stack:
-            for server in self._mcp_servers:
-                await stack.enter_async_context(server)
-            result = await self._zone_discovery_agent.run(
-                prompt,
-                usage_limits=UsageLimits(
-                    output_tokens_limit=PER_ZONE_TOKEN_BUDGET // 4
-                ),
-            )
+        context = OrchestratorContext(
+            research_agent=self._research_agent,
+            extraction_agents=self._extraction_agents,
+            cross_ref_agent=self._cross_ref_agent,
+            discovery_agent=self._zone_discovery_agent,
+            agent_file=__file__,
+            zone_name=zone_name,
+            game_name=GAME_NAME,
+            crawl_cache=self._crawl_cache,
+        )
 
-        self._zone_tokens += result.usage().total_tokens or 0
-        return result.output.zone_slugs
+        result = await self._orchestrator.run(
+            prompt,
+            deps=context,
+            usage_limits=UsageLimits(request_limit=75),
+        )
+
+        orchestrator_tokens = result.usage().total_tokens or 0
+        self._zone_tokens += orchestrator_tokens + context.worker_tokens
+
+        return OrchestratorResult(
+            zone_data=context.zone_data,
+            npcs=context.npcs,
+            factions=context.factions,
+            lore=context.lore,
+            narrative_items=context.narrative_items,
+            sources=context.sources,
+            cross_ref_result=context.cross_ref_result,
+            discovered_zones=context.discovered_zones,
+            orchestrator_tokens=orchestrator_tokens,
+            worker_tokens=context.worker_tokens,
+        )

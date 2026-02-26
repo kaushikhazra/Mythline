@@ -69,7 +69,7 @@ Structure all extracted data into the following Pydantic models:
 
 ### NPCData
 - name, zone_id, faction_ids, personality, motivations
-- relationships (npc_id, type, description), quest_threads, phased_state, role
+- relationships (npc_id, type, description), quest_threads, phased_state, occupation
 - confidence (0.0-1.0)
 
 ### FactionData

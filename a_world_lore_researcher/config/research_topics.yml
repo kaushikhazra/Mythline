@@ -20,18 +20,22 @@ topics:
   npc_research:
     section_header: "## NPCs AND NOTABLE CHARACTERS"
     schema_hints: |
-      NPCs: names, titles, faction allegiance. MUST PRESERVE per NPC: personality traits and demeanor, motivations and goals, relationships to other NPCs (allies, rivals, family, mentors), role classification (quest giver, vendor, boss, antagonist, faction leader), quest chains they give or participate in, phased/expansion appearances. Include BOTH friendly and hostile NPCs — quest givers AND dungeon bosses, antagonist leaders, faction leaders. Preserve ALL NPC proper names even when compressing other text.
+      NPCs: names, titles, faction allegiance. MUST PRESERVE per NPC: personality traits and demeanor, motivations and goals, relationships to other NAMED NPCs (allies, rivals, family, mentors), role classification (quest giver, vendor, boss, antagonist, faction leader), quest chains they give or participate in (include quest names), phased/expansion appearances. Include BOTH friendly and hostile NPCs — quest givers AND dungeon bosses, antagonist leaders, faction leaders. Preserve ALL NPC proper names even when compressing other text. IMPORTANT: Only preserve individual named characters — not creature types (Kobolds, Gnolls), factions, or locations.
     instructions: |
       Focus on NPCs and notable characters in {zone} in {game}.
 
-      Phase 1 — Search for NPC lists, zone quest givers, and notable characters. Crawl category/overview pages to discover NPC NAMES.
+      IMPORTANT: Only research INDIVIDUAL NAMED CHARACTERS — specific people or creatures with
+      proper names. Do NOT research creature types (Kobolds, Gnolls, Murlocs) or factions
+      (Defias Brotherhood) — those belong in other categories.
 
-      Phase 2 — For the 10-15 most important NPCs discovered, search for and crawl each NPC's INDIVIDUAL wiki page. Extract from each page: personality, motivations, relationships to other NPCs, role (quest giver, vendor, boss, antagonist, faction leader), quest chains, phased/expansion appearances.
+      Phase 1 — Search for NPC lists, zone quest givers, and notable characters. Crawl category/overview pages to discover INDIVIDUAL NPC NAMES. Also search for '{zone} quest chains' and '{zone} quests' on wowhead.com to find quest-giving NPCs.
+
+      Phase 2 — For the 10-15 most important NPCs discovered, search for and crawl each NPC's INDIVIDUAL wiki page. Extract from each page: personality, motivations, relationships to other named NPCs, role (quest giver, vendor, boss, antagonist, faction leader), QUEST CHAINS (include quest names — this is critical), phased/expansion appearances.
 
       CRITICAL: Search for BOTH friendly and hostile NPCs:
       - Quest givers, vendors, flight masters, innkeepers
       - Dungeon bosses and raid bosses associated with this zone
-      - Antagonist leaders and villain NPCs
+      - Antagonist leaders and villain NPCs (named individuals, not factions)
       - Faction leaders (both allied and enemy)
       Do NOT stop at quest-giver lists. Explicitly search for '{zone} bosses', '{zone} antagonists', and '{zone} dungeon bosses'.
 
@@ -44,7 +48,9 @@ topics:
 
       Phase 1 — Search for factions active in this zone. Crawl overview pages to discover faction NAMES.
 
-      Phase 2 — For EVERY named faction discovered, search for and crawl the faction's INDIVIDUAL wiki page. Extract: ideology, core beliefs, origin story (how and why the faction formed), goals, key members and leaders, inter-faction relationships (allied, hostile, neutral — name the specific factions), hierarchy (parent factions, sub-factions), mutual exclusions.
+      Phase 2 — For EVERY named faction discovered, search for and crawl the faction's INDIVIDUAL wiki page. Extract: ideology, core beliefs, origin story (how and why the faction formed), goals, key members and leaders, hierarchy (parent factions, sub-factions), mutual exclusions.
+
+      Phase 3 — Identify how factions RELATE to each other. For each pair of factions you discovered, determine: are they allied, hostile, or neutral? Search for 'FactionName vs OtherFaction' or 'FactionName enemies' if the wiki pages don't make it obvious. This is critical — inter-faction dynamics (allied/hostile/neutral) drive the zone's narrative.
 
       CRITICAL: Search for BOTH friendly and hostile factions:
       - Allied organizations and militia groups
@@ -63,17 +69,29 @@ topics:
 
       Phase 2 — For each major lore event or figure, search for and crawl its INDIVIDUAL wiki page. Extract: what happened, WHY it happened (causes), what it caused (consequences), named actors involved, era/timeline placement.
 
+      Phase 3 — Search BEYOND political history. Explicitly search for:
+      - '{zone} mythology legends' — folk tales, prophecies, creation myths
+      - '{zone} magic ley lines arcane' — magical properties of the zone's landmarks
+      - '{zone} cosmology titan Old God' — titan or Old God influence on the zone
+      Not every zone will have these, but many do. If the searches return nothing, that's fine.
+
       Prioritize causal chains: the sequence of events that created the zone's current state. Include origin stories for major factions and conflicts.
 
   narrative_items_research:
     section_header: "## LEGENDARY ITEMS AND NARRATIVE OBJECTS"
     schema_hints: |
-      items and artifacts: names, significance tier (legendary, epic, quest, notable). MUST PRESERVE: story arc (how the item fits into the zone's narrative), wielder lineage, power description, quest relevance. EXCLUDE crafting recipes, cooking items, vendor trash, generic consumables. An empty result is better than irrelevant items.
+      items and artifacts: names, significance tier (legendary, epic, quest, notable). MUST PRESERVE: story arc (how the item fits into the zone's narrative), wielder lineage, power description, quest relevance. EXCLUDE crafting recipes, cooking items, vendor trash, generic consumables. EXCLUDE locations, NPCs, factions, and events — only physical in-game objects. An empty result is better than misidentified entries.
     instructions: |
       Focus on narrative items and artifacts in {zone} in {game}.
 
-      Search for legendary items, quest items with story significance, dungeon loot with narrative context, and artifacts tied to the zone's lore.
+      IMPORTANT: A narrative item is a physical IN-GAME OBJECT — something a player can pick up,
+      equip, or interact with. Named weapons, quest items, lore books, artifacts, keys.
+      Do NOT research locations (Goldshire, Mirror Lake), NPCs (Hogger), factions (Defias
+      Brotherhood), or historical events (The First War) — those belong in other categories.
+
+      Search for: '{zone} quest items', '{zone} notable loot', '{zone} artifacts', '{zone} quest rewards'.
+      Also check wowhead.com for quest reward items and key quest objects in this zone.
 
       Extract: story arc, wielder lineage, power description, significance tier.
 
-      ONLY include items with genuine narrative significance — NOT crafting recipes, cooking items, vendor trash, or generic consumables. If the zone has no truly significant narrative items, that is acceptable — an empty result is better than padding with irrelevant items.
+      ONLY include items with genuine narrative significance — NOT crafting recipes, cooking items, vendor trash, or generic consumables. If the zone has no truly significant narrative items, that is acceptable — an empty result is far better than listing locations or NPCs as items.

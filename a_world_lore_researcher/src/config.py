@@ -110,3 +110,23 @@ def load_research_topics() -> dict:
     topics_path = AGENT_DIR / "config" / "research_topics.yml"
     with open(topics_path) as f:
         return yaml.safe_load(f)
+
+
+# --- Topic Accessors ---
+
+_TOPICS_CONFIG = load_research_topics()["topics"]
+
+
+def get_topic_instructions(topic_key: str) -> str:
+    """Return the research instructions template for a topic."""
+    return _TOPICS_CONFIG[topic_key]["instructions"]
+
+
+def get_topic_section_header(topic_key: str) -> str:
+    """Return the section header for a topic."""
+    return _TOPICS_CONFIG[topic_key]["section_header"]
+
+
+def get_topic_schema_hints(topic_key: str) -> str:
+    """Return the schema hints for a topic."""
+    return _TOPICS_CONFIG[topic_key]["schema_hints"]
