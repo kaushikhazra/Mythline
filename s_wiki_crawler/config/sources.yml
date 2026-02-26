@@ -32,3 +32,9 @@ source_tiers:
       - reddit.com/r/warcraftlore
       - mmo-champion.com
     weight: 0.4
+
+# MediaWiki API endpoints for Tier 1 crawling
+mediawiki_sites:
+  wowpedia.fandom.com: https://wowpedia.fandom.com/api.php
+  warcraft.wiki.gg: https://warcraft.wiki.gg/api.php
+  wow.gamepedia.com: https://wow.gamepedia.com/api.php

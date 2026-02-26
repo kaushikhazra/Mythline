@@ -388,7 +388,7 @@ class CrawlerDaemon:
         if page_count is not None:
             data["page_count"] = page_count
 
-        await mcp_call(MCP_STORAGE_URL, "create_record", {
+        await mcp_call(MCP_STORAGE_URL, "update_record", {
             "table": "crawl_zone",
             "record_id": zone_name,
             "data": json.dumps(data),

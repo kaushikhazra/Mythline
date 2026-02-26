@@ -5,6 +5,7 @@ import pytest
 from src.config import (
     get_all_trusted_domains,
     get_domain_tier,
+    get_mediawiki_api,
     load_crawl_scope,
     load_sources_config,
     reset_config_cache,
@@ -90,6 +91,34 @@ class TestGetDomainTier:
         tier, weight = get_domain_tier("icy-veins.com")
         assert tier == "secondary"
         assert weight == 0.6
+
+
+class TestGetMediawikiApi:
+    def test_known_domain(self):
+        url = get_mediawiki_api("wowpedia.fandom.com")
+        assert url == "https://wowpedia.fandom.com/api.php"
+
+    def test_another_known_domain(self):
+        url = get_mediawiki_api("warcraft.wiki.gg")
+        assert url == "https://warcraft.wiki.gg/api.php"
+
+    def test_unknown_domain_returns_none(self):
+        assert get_mediawiki_api("reddit.com") is None
+
+    def test_empty_string_returns_none(self):
+        assert get_mediawiki_api("") is None
+
+
+class TestSourcesHasMediawikiSites:
+    def test_mediawiki_sites_section_exists(self):
+        sources = load_sources_config()
+        assert "mediawiki_sites" in sources
+
+    def test_mediawiki_sites_has_entries(self):
+        sources = load_sources_config()
+        sites = sources["mediawiki_sites"]
+        assert len(sites) >= 3
+        assert "wowpedia.fandom.com" in sites
 
 
 class TestGetAllTrustedDomains:

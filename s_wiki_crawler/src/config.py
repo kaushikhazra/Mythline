@@ -89,6 +89,12 @@ def get_domain_tier(domain: str) -> tuple[str, float]:
     return "unknown", 0.3
 
 
+def get_mediawiki_api(domain: str) -> str | None:
+    """Return the api.php URL for a MediaWiki domain, or None."""
+    sources = load_sources_config()
+    return sources.get("mediawiki_sites", {}).get(domain)
+
+
 def get_all_trusted_domains() -> list[str]:
     """Return all domains from all tiers."""
     sources = load_sources_config()

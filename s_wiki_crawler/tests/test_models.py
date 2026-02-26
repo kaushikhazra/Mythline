@@ -224,3 +224,22 @@ class TestPipelineTypes:
         assert cr.links == []
         assert cr.http_status == 0
         assert cr.content_hash == ""
+
+    def test_crawl_result_tier_default(self):
+        cr = CrawlResult(url="u", domain="d", title="t")
+        assert cr.tier == "browser"
+
+    def test_crawl_result_tier_api(self):
+        cr = CrawlResult(url="u", domain="d", title="t", tier="api")
+        assert cr.tier == "api"
+
+    def test_crawl_result_tier_http(self):
+        cr = CrawlResult(url="u", domain="d", title="t", tier="http")
+        assert cr.tier == "http"
+
+    def test_crawl_result_tier_in_serialization(self):
+        cr = CrawlResult(url="u", domain="d", title="t", tier="api")
+        data = cr.model_dump()
+        assert data["tier"] == "api"
+        restored = CrawlResult.model_validate(data)
+        assert restored.tier == "api"

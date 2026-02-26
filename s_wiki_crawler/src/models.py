@@ -130,3 +130,4 @@ class CrawlResult(BaseModel):
     http_status: int = 0
     content_hash: str = Field(default="", description="SHA-256 of content")
     error: str | None = None
+    tier: str = Field(default="browser", description="Crawl tier used: api, http, or browser")
