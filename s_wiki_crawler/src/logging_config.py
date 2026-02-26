@@ -13,6 +13,10 @@ from src.config import SERVICE_ID
 class StructuredFormatter(logging.Formatter):
     """Format log records as structured JSON events."""
 
+    # Cache default LogRecord keys once at class level (avoids per-message allocation
+    # and works on Python 3.12 which requires all positional args).
+    _DEFAULT_KEYS = set(logging.LogRecord("", 0, "", 0, "", (), None).__dict__)
+
     def format(self, record: logging.LogRecord) -> str:
         event = {
             "service_id": SERVICE_ID,
@@ -24,7 +28,7 @@ class StructuredFormatter(logging.Formatter):
 
         # Merge extra fields (passed via logger.info("msg", extra={...}))
         for key, value in record.__dict__.items():
-            if key not in logging.LogRecord("").__dict__ and key not in event:
+            if key not in self._DEFAULT_KEYS and key not in event:
                 event[key] = value
 
         return json.dumps(event, default=str)
